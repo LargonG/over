@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <vector>
 
 #include "system.hpp"
@@ -19,6 +20,6 @@ class Actor {
   void Tick();
 
  private:
-  std::vector<System*> systems_;
+  std::vector<std::unique_ptr<System>> systems_;
 };
 }  // namespace over
