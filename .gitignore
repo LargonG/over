@@ -1,6 +1,7 @@
 .vs/
 .vscode/
 .idea/
+vcpkg_installed/
 
 out/
 

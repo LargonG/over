@@ -1,7 +1,7 @@
 #include "debug_system.hpp"
 
-#include <iostream>
+#include <fmt/core.h>
 
 namespace over {
-void over::DebugSystem::Tick() { std::cout << "tick started"; }
+void over::DebugSystem::Tick() { fmt::println("Tick started"); }
 }  // namespace over
