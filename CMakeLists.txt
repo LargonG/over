@@ -12,6 +12,8 @@ endif()
 project ("over")
 
 find_package(fmt CONFIG REQUIRED)
+find_package(glfw3 CONFIG REQUIRED)
+find_package(glad CONFIG REQUIRED)
 
 
 # Add source to this project's executable.
@@ -23,3 +25,5 @@ endif()
 
 # TODO: Add tests and install targets if needed.
 target_link_libraries(over PRIVATE fmt::fmt)
+target_link_libraries(over PRIVATE glfw)
+target_link_libraries(over PRIVATE glad::glad)
