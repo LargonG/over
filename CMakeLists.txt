@@ -19,6 +19,14 @@ find_package(glad CONFIG REQUIRED)
 # Add source to this project's executable.
 add_executable (over "main.cpp" "actor.cpp" "debug_system.cpp")
 
+configure_file(
+	${CMAKE_CURRENT_SOURCE_DIR}/vertex.shader
+	${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+configure_file(
+	${CMAKE_CURRENT_SOURCE_DIR}/fragment.shader
+	${CMAKE_CURRENT_BINARY_DIR} COPYONLY
+)
+
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET over PROPERTY CXX_STANDARD 20)
 endif()
