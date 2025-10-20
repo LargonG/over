@@ -7,29 +7,29 @@
 #include <string>
 
 namespace over {
-  class Shader {
+class Shader {
  public:
-    Shader(const std::string& vertexPath, const std::string& fragmentPath);
-    
-    Shader(const Shader&) = delete;
-    Shader& operator=(const Shader&) = delete;
+  Shader(const std::string& vertexPath, const std::string& fragmentPath);
 
-    Shader(Shader&&) = delete;
-    Shader& operator=(Shader&&) = delete;
+  Shader(const Shader&) = delete;
+  Shader& operator=(const Shader&) = delete;
 
-    void Compile();
-    void Activate() noexcept;
-    
-    GLuint GetProgram() const noexcept { return program_; };
+  Shader(Shader&&) = delete;
+  Shader& operator=(Shader&&) = delete;
 
-    void SetBool(const std::string& name, bool value);
-    void SetFloat(const std::string& name, float value);
-    void SetInt(const std::string& name, int value);
+  void Compile();
+  void Activate() noexcept;
 
-   private:
-    std::string vertexPath_;
-    std::string fragmentPath_;
+  GLuint GetProgram() const noexcept { return program_; };
 
-    GLuint program_;
-  };
-}
+  void SetBool(const std::string& name, bool value);
+  void SetFloat(const std::string& name, float value);
+  void SetInt(const std::string& name, int value);
+
+ private:
+  std::string vertexPath_;
+  std::string fragmentPath_;
+
+  GLuint program_;
+};
+}  // namespace over
