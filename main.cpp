@@ -69,16 +69,20 @@ int main() {
   }
 
   float vertices[] = {
-      0.5f,  0.5f,  0.0f,  // top right
-      0.5f,  -0.5f, 0.0f,  // bottom right
-      -0.5f, -0.5f, 0.0f,  // bottom left
-      -0.5f, 0.5f,  0.0f   // top left 
+      0.5f,  0.5f,  0.0f, 1.0f, 0.0f, 0.0f,  // 0
+      0.5f,  -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,  // 1
+      -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,  // 2
+      -0.5f, 0.5f,  0.0f, 1.0f, 1.0f, 1.0f,  // 3
   };
 
   uint32_t indices[] = {
       0, 1, 3,  // 0
       1, 2, 3,  // 1
   };
+
+  int nAttrs;
+  glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nAttrs);
+  fmt::println("maximum {}", nAttrs);
 
   GLuint vao;
   glGenVertexArrays(1, &vao);
@@ -95,8 +99,12 @@ int main() {
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, nullptr);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, nullptr);
   glEnableVertexAttribArray(0);
+
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6,
+                        reinterpret_cast<void*>(3 * sizeof(float)));
+  glEnableVertexAttribArray(1);
 
   glBindVertexArray(0);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -138,6 +146,8 @@ int main() {
 
   glUseProgram(shaderProgram);
 
+  GLint globColorLocation = glGetUniformLocation(shaderProgram, "globColor");
+
   glViewport(0, 0, WIDTH, HEIGHT);
   glfwSetFramebufferSizeCallback(window,
                                  [](GLFWwindow* window, int width, int height) {
@@ -145,12 +155,16 @@ int main() {
                                  });
   glClearColor(0.2f, 0.3f, 0.3f, 1.f);
 
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
   while (!glfwWindowShouldClose(window)) {
     processInput(window);
 
     glClear(GL_COLOR_BUFFER_BIT);
+
+    float timeValue = glfwGetTime();
+    float greenValue = (std::sin(timeValue) / 2.0f) + 0.5f;
+    glUniform4f(globColorLocation, 0, greenValue, 0, 1.f);
 
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
