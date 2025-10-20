@@ -17,7 +17,7 @@ find_package(glad CONFIG REQUIRED)
 
 
 # Add source to this project's executable.
-add_executable (over "main.cpp" "actor.cpp" "debug_system.cpp")
+add_executable (over "main.cpp" "shader.cpp")
 
 configure_file(
 	${CMAKE_CURRENT_SOURCE_DIR}/vertex.shader
