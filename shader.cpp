@@ -10,8 +10,6 @@
 
 #include <fmt/core.h>
 
-using std::string;
-
 namespace over {
 
 static std::string ReadShaderFile(const std::string& filename) {
@@ -39,7 +37,7 @@ static GLuint CompileShader(const char* source, GLenum type) {
   return shader;
 }
 
-Shader::Shader(const string& vertexPath, const string& fragmentPath)
+Shader::Shader(std::string vertexPath, std::string fragmentPath)
     : vertexPath_(vertexPath), fragmentPath_(fragmentPath), program_(0) {}
 
 void Shader::Compile() {
