@@ -38,7 +38,9 @@ static GLuint CompileShader(const char* source, GLenum type) {
 }
 
 Shader::Shader(std::string vertexPath, std::string fragmentPath)
-    : vertexPath_(std::move(vertexPath)), fragmentPath_(std::move(fragmentPath)), program_(0) {}
+    : vertexPath_(std::move(vertexPath)),
+      fragmentPath_(std::move(fragmentPath)),
+      program_(0) {}
 
 void Shader::Compile() {
   std::string vertexShaderSource = "";
