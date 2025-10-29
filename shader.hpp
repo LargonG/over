@@ -21,10 +21,12 @@ class Shader {
   void Activate() noexcept;
 
   GLuint GetProgram() const noexcept { return program_; };
+  GLint GetUniformLocation(const std::string& name);
 
   void SetBool(const std::string& name, bool value);
   void SetFloat(const std::string& name, float value);
   void SetInt(const std::string& name, int value);
+  void SetMatrix4f(const std::string& name, float* ptr);
 
  private:
   std::string vertexPath_;

@@ -29,7 +29,7 @@ foreach(item IN LISTS TEXTURES)
 endforeach()
 
 # Add source to this project's executable.
-add_executable (over "main.cpp" "shader.cpp")
+add_executable (over "main.cpp" "shader.cpp" "camera.cpp")
 
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/vertex.shader

@@ -86,6 +86,10 @@ void Shader::Activate() noexcept {
   glUseProgram(program_);
 }
 
+GLint Shader::GetUniformLocation(const std::string& name) {
+  return glGetUniformLocation(program_, name.c_str());
+}
+
 void Shader::SetBool(const std::string& name, bool value) {
   glUniform1i(glGetUniformLocation(program_, name.c_str()),
               static_cast<int>(value));
@@ -97,6 +101,10 @@ void Shader::SetFloat(const std::string& name, float value) {
 
 void Shader::SetInt(const std::string& name, int value) {
   glUniform1i(glGetUniformLocation(program_, name.c_str()), value);
+}
+
+void Shader::SetMatrix4f(const std::string& name, float* ptr) {
+  glUniformMatrix4fv(this->GetUniformLocation(name), 1, GL_FALSE, ptr);
 }
 
 }  // namespace over
