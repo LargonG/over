@@ -278,7 +278,7 @@ int main() {
       shader.SetMatrix4f("transform", glm::value_ptr(trans));
 
       glDrawElements(GL_TRIANGLES, 12 * 3, GL_UNSIGNED_INT, 0);
-      
+
       trans = glm::mat4(1.0f);
       trans = glm::translate(trans, glm::vec3(-0.5f, 0.5f, 0.0f));
       trans = glm::scale(trans, glm::vec3(glm::abs(glm::sin(timeValue))));
