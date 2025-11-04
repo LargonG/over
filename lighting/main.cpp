@@ -71,6 +71,11 @@ int main() {
   glfwSetCursorPosCallback(window, CursorPositionHandler);
   glfwSetScrollCallback(window, ScrollHandler);
 
+  glfwSetFramebufferSizeCallback(window,
+                                 [](GLFWwindow* window, int width, int height) {
+                                   glViewport(0, 0, width, height);
+                                 });
+
   // Init
   glm::vec3 lightPosition(0.0f, -1.0f, 0.5f);
   glm::vec3 lightColor(1, 1, 1);
@@ -78,10 +83,11 @@ int main() {
   over::Shader shader("shaders/vertex.shader", "shaders/fragment.shader");
   shader.Compile();
   shader.Activate();
-  glUniform3fv(glGetUniformLocation(shader.GetProgram(), "lightColor"), 1,
-               glm::value_ptr(lightColor));
-  glUniform3fv(glGetUniformLocation(shader.GetProgram(), "lightPosition"), 1,
-               glm::value_ptr(lightPosition));
+
+  shader.SetVec3f("material.ambient", 0.0f, 0.1f, 0.06f);
+  shader.SetVec3f("material.diffuse", 0.0f, 0.50980392f, 0.50980392f);
+  shader.SetVec3f("material.specular", 0.50196078f, 0.50196078f, 0.50196078f);
+  shader.SetFloat("material.shininess", 32.0f);
 
   over::Shader lightShader("shaders/vertex.shader",
                            "shaders/lightFragment.shader");
@@ -110,7 +116,7 @@ int main() {
       glm::vec3(1.3f, -2.0f, -2.5f),  glm::vec3(1.5f, 2.0f, -2.5f),
       glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f)};
 
-  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+  glClearColor(0.05f, 0.05f, 0.06f, 1.0f);
   glEnable(GL_DEPTH_TEST);
 
   float deltaTime = 0.0f;
@@ -126,20 +132,24 @@ int main() {
                        camera.GetPosition() + camera.GetDirection(),
                        camera.GetUp());
     shader.SetMatrix4f("view", glm::value_ptr(view));
-    glUniform3fv(glGetUniformLocation(shader.GetProgram(), "viewPosition"), 1,
-                 glm::value_ptr(camera.GetPosition()));
-    
+    shader.SetVec3f("viewPosition", camera.GetPosition());
 
     projection = glm::perspective(camera.FOV(), ASPECT_RATIO, 0.1f, 100.0f);
     shader.SetMatrix4f("projection", glm::value_ptr(projection));
 
-    lightPosition =
-        glm::vec3(glm::cos(startTime * glm::radians(90.0f)),
-                  glm::sin(startTime * glm::radians(90.0f)),
-          glm::sin(startTime * glm::radians(180.0f)) * 0.5);
+    lightPosition = glm::vec3(glm::cos(startTime * glm::radians(90.0f)),
+                              glm::sin(startTime * glm::radians(90.0f)),
+                              glm::sin(startTime * glm::radians(200.0f)) * 0.5);
     glm::vec3 lpos = view * glm::vec4(lightPosition, 1.0f);
-    glUniform3fv(glGetUniformLocation(shader.GetProgram(), "lightPosition"), 1,
-                 glm::value_ptr(lpos));
+    shader.SetVec3f("light.position", lpos);
+
+    lightColor.x = glm::abs(glm::sin(startTime * 2.0f));
+    lightColor.y = glm::abs(glm::sin(startTime * 0.7f));
+    lightColor.z = glm::abs(glm::sin(startTime * 1.3f));
+
+    shader.SetVec3f("light.ambient", lightColor * 0.2f * 0.75f);
+    shader.SetVec3f("light.diffuse", lightColor * 0.75f);
+    shader.SetVec3f("light.specular", lightColor);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -161,6 +171,7 @@ int main() {
     lightShader.Activate();
     lightShader.SetMatrix4f("view", glm::value_ptr(view));
     lightShader.SetMatrix4f("projection", glm::value_ptr(projection));
+    lightShader.SetVec3f("lightColor", lightColor);
     light.Bind();
     model = glm::mat4(1.0f);
     model = glm::translate(model, lightPosition);

@@ -4,6 +4,7 @@
 
 #include <GLFW/glfw3.h>
 
+#include <glm/glm.hpp>
 #include <string>
 
 namespace over {
@@ -27,6 +28,8 @@ class Shader {
   void SetFloat(const std::string& name, float value);
   void SetInt(const std::string& name, int value);
   void SetMatrix4f(const std::string& name, float* ptr);
+  void SetVec3f(const std::string& name, float x, float y, float z);
+  void SetVec3f(const std::string& name, glm::vec3 v);
 
  private:
   std::string vertexPath_;

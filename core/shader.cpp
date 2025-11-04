@@ -10,6 +10,9 @@
 
 #include <fmt/core.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 namespace over {
 
 static std::string ReadShaderFile(const std::string& filename) {
@@ -91,20 +94,27 @@ GLint Shader::GetUniformLocation(const std::string& name) {
 }
 
 void Shader::SetBool(const std::string& name, bool value) {
-  glUniform1i(glGetUniformLocation(program_, name.c_str()),
-              static_cast<int>(value));
+  glUniform1i(GetUniformLocation(name), static_cast<int>(value));
 }
 
 void Shader::SetFloat(const std::string& name, float value) {
-  glUniform1f(glGetUniformLocation(program_, name.c_str()), value);
+  glUniform1f(GetUniformLocation(name), value);
 }
 
 void Shader::SetInt(const std::string& name, int value) {
-  glUniform1i(glGetUniformLocation(program_, name.c_str()), value);
+  glUniform1i(GetUniformLocation(name), value);
 }
 
 void Shader::SetMatrix4f(const std::string& name, float* ptr) {
-  glUniformMatrix4fv(this->GetUniformLocation(name), 1, GL_FALSE, ptr);
+  glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, ptr);
+}
+
+void Shader::SetVec3f(const std::string& name, float x, float y, float z) {
+  glUniform3f(GetUniformLocation(name), x, y, z);
+}
+
+void Shader::SetVec3f(const std::string& name, glm::vec3 v) {
+  glUniform3fv(GetUniformLocation(name), 1, glm::value_ptr(v));
 }
 
 }  // namespace over
