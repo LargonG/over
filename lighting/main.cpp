@@ -1,3 +1,6 @@
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 #include <fmt/core.h>
 #include <cstdint>
 #include <vector>
@@ -33,11 +36,46 @@ static void ScrollHandler(GLFWwindow* window, double xoffset, double yoffset) {
   camera.UpdateFOVCallback(yoffset);
 }
 
+GLuint loadTexture(std::string filename, bool png = false) {
+  GLuint texture;
+  glGenTextures(1, &texture);
+  glBindTexture(GL_TEXTURE_2D, texture);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                  GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+  float borderColor[] = {1.0f, 1.0f, 0.0f, 1.0f};
+  glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+  stbi_set_flip_vertically_on_load(true);
+
+  int imgWidth, imgHeight, nrChannels;
+  unsigned char* imgData =
+      stbi_load(filename.c_str(), &imgWidth, &imgHeight, &nrChannels, 0);
+  if (imgData == nullptr) {
+    fmt::println("cannot load file: {}", filename);
+    throw fmt::system_error(-1, "cannot load file");
+  }
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imgWidth, imgHeight, 0,
+               png ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, imgData);
+  glGenerateMipmap(GL_TEXTURE_2D);
+
+  stbi_image_free(imgData);
+
+  glBindTexture(GL_TEXTURE_2D, 0);
+
+  return texture;
+}
+
 int main() {
   fmt::println("Lighting");
 
   fmt::println("vertex sizeof: {}", sizeof(over::Vertex));
-  fmt::println("vertex sizeof: {}", sizeof(over::Element));
+  fmt::println("element sizeof: {}", sizeof(over::Element));
 
   // Initialize GLFW
   glfwInit();
@@ -77,6 +115,10 @@ int main() {
                                  });
 
   // Init
+  GLuint containerTexture = loadTexture("textures/container2.png", true);
+  GLuint containerSpecularTexture =
+      loadTexture("textures/container2_specular.png", true);
+
   glm::vec3 lightPosition(0.0f, -1.0f, 0.5f);
   glm::vec3 lightColor(1, 1, 1);
 
@@ -84,10 +126,9 @@ int main() {
   shader.Compile();
   shader.Activate();
 
-  shader.SetVec3f("material.ambient", 0.0f, 0.1f, 0.06f);
-  shader.SetVec3f("material.diffuse", 0.0f, 0.50980392f, 0.50980392f);
-  shader.SetVec3f("material.specular", 0.50196078f, 0.50196078f, 0.50196078f);
-  shader.SetFloat("material.shininess", 32.0f);
+  shader.SetInt("material.diffuse", 0);
+  shader.SetInt("material.specular", 1);
+  shader.SetFloat("material.shininess", 64.0f);
 
   over::Shader lightShader("shaders/vertex.shader",
                            "shaders/lightFragment.shader");
@@ -137,15 +178,16 @@ int main() {
     projection = glm::perspective(camera.FOV(), ASPECT_RATIO, 0.1f, 100.0f);
     shader.SetMatrix4f("projection", glm::value_ptr(projection));
 
-    lightPosition = glm::vec3(glm::cos(startTime * glm::radians(90.0f)),
-                              glm::sin(startTime * glm::radians(90.0f)),
-                              glm::sin(startTime * glm::radians(200.0f)) * 0.5);
+    lightPosition = glm::vec3(glm::cos(startTime * glm::radians(2.0f)),
+                              glm::sin(startTime * glm::radians(2.0f)),
+                              glm::sin(startTime * glm::radians(20.0f)) * 0.5);
     glm::vec3 lpos = view * glm::vec4(lightPosition, 1.0f);
     shader.SetVec3f("light.position", lpos);
 
-    lightColor.x = glm::abs(glm::sin(startTime * 2.0f));
-    lightColor.y = glm::abs(glm::sin(startTime * 0.7f));
-    lightColor.z = glm::abs(glm::sin(startTime * 1.3f));
+    float freeze = 0.1f;
+    lightColor.x = glm::abs(glm::sin(startTime * 2.0f * freeze) * 0.25f + 0.5f);
+    lightColor.y = glm::abs(glm::sin(startTime * 0.7f * freeze) * 0.25f + 0.5f);
+    lightColor.z = glm::abs(glm::sin(startTime * 1.3f * freeze) * 0.25f + 0.5f);
 
     shader.SetVec3f("light.ambient", lightColor * 0.2f * 0.75f);
     shader.SetVec3f("light.diffuse", lightColor * 0.75f);
@@ -154,6 +196,11 @@ int main() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Draw
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, containerTexture);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, containerSpecularTexture);
+
     mesh.Bind();
     for (size_t i = 0; i < positions.size(); i++) {
       model = glm::mat4(1.0f);
@@ -188,6 +235,9 @@ int main() {
 
     deltaTime = glfwGetTime() - startTime;
   }
+
+  glDeleteTextures(1, &containerTexture);
+  glDeleteTextures(1, &containerSpecularTexture);
 
   glfwTerminate();
   return 0;
