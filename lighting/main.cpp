@@ -171,6 +171,7 @@ int main() {
     ProcessInput(window, camera, deltaTime);
 
     shader.Activate();
+    shader.SetFloat("timePassed", startTime);
     view = glm::lookAt(camera.GetPosition(),
                        camera.GetPosition() + camera.GetDirection(),
                        camera.GetUp());
