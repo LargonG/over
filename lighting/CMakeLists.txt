@@ -22,6 +22,8 @@ configure_file(
 set(TEXTURES
     container2.png
     container2_specular.png
+    lighting_maps_specular_color.png
+    matrix.jpg
 )
 
 foreach(item IN LISTS TEXTURES)

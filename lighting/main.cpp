@@ -45,7 +45,7 @@ GLuint loadTexture(std::string filename, bool png = false) {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
                   GL_LINEAR_MIPMAP_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   float borderColor[] = {1.0f, 1.0f, 0.0f, 1.0f};
   glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
@@ -118,6 +118,7 @@ int main() {
   GLuint containerTexture = loadTexture("textures/container2.png", true);
   GLuint containerSpecularTexture =
       loadTexture("textures/container2_specular.png", true);
+  GLuint matrixTexture = loadTexture("textures/matrix.jpg");
 
   glm::vec3 lightPosition(0.0f, -1.0f, 0.5f);
   glm::vec3 lightColor(1, 1, 1);
@@ -128,6 +129,7 @@ int main() {
 
   shader.SetInt("material.diffuse", 0);
   shader.SetInt("material.specular", 1);
+  shader.SetInt("material.emission", 2);
   shader.SetFloat("material.shininess", 64.0f);
 
   over::Shader lightShader("shaders/vertex.shader",
@@ -200,6 +202,8 @@ int main() {
     glBindTexture(GL_TEXTURE_2D, containerTexture);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, containerSpecularTexture);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, matrixTexture);
 
     mesh.Bind();
     for (size_t i = 0; i < positions.size(); i++) {
