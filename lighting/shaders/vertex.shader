@@ -15,8 +15,8 @@ uniform mat4 view;
 uniform mat4 projection;
 
 void main() {
-	gl_Position = projection * view * model * vec4(aPosition, 1.0);
 	fragmentPosition = vec3(view * model * vec4(aPosition, 1.0));
+	gl_Position = projection * vec4(fragmentPosition, 1.0);
 	color = aColor;
 	normal = mat3(transpose(inverse(view * model))) * aNormal;
 	texCoord = aTexCoord;

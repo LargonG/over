@@ -120,9 +120,11 @@ int main() {
       loadTexture("textures/container2_specular.png", true);
   GLuint matrixTexture = loadTexture("textures/matrix.jpg");
 
-  glm::vec3 lightPosition(0.0f, -1.0f, 0.5f);
-  glm::vec3 lightColor(1, 1, 1);
+  glm::vec3 globalLightDirection(-0.0f, -0.0f, -1.f);
 
+  glm::vec3 globalLightColor(0.f, 1.f, 1.f);
+  glm::vec3 spotLightColor(1, 1, 1);
+  glm::vec3 pointLightColor = glm::vec3(1.f, 0.f, 0.f);
   over::Shader shader("shaders/vertex.shader", "shaders/fragment.shader");
   shader.Compile();
   shader.Activate();
@@ -148,16 +150,20 @@ int main() {
 
   over::Mesh light = over::GenCubeMesh();
   for (size_t i = 0; i < light.Vertices().size(); i++) {
-    light.Vertices()[i].color = lightColor;
+    light.Vertices()[i].color = spotLightColor;
   }
   light.GenGPU();
 
-  std::vector<glm::vec3> positions = {
+  std::vector<glm::vec3> cubePositions = {
       glm::vec3(0.0f, 0.0f, 0.0f),    glm::vec3(2.0f, 5.0f, -15.0f),
       glm::vec3(-1.5f, -2.2f, -2.5f), glm::vec3(-3.8f, -2.0f, -12.3f),
       glm::vec3(2.4f, -0.4f, -3.5f),  glm::vec3(-1.7f, 3.0f, -7.5f),
       glm::vec3(1.3f, -2.0f, -2.5f),  glm::vec3(1.5f, 2.0f, -2.5f),
       glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f)};
+
+  std::vector<glm::vec3> pointLightPositions = {
+      glm::vec3(0.7f, 0.2f, 2.0f), glm::vec3(2.3f, -3.3f, -4.0f),
+      glm::vec3(-4.0f, 2.0f, -12.0f), glm::vec3(0.0f, 0.0f, -3.0f)};
 
   glClearColor(0.05f, 0.05f, 0.06f, 1.0f);
   glEnable(GL_DEPTH_TEST);
@@ -181,20 +187,47 @@ int main() {
     projection = glm::perspective(camera.FOV(), ASPECT_RATIO, 0.1f, 100.0f);
     shader.SetMatrix4f("projection", glm::value_ptr(projection));
 
-    lightPosition = glm::vec3(glm::cos(startTime * glm::radians(2.0f)),
-                              glm::sin(startTime * glm::radians(2.0f)),
-                              glm::sin(startTime * glm::radians(20.0f)) * 0.5);
-    glm::vec3 lpos = view * glm::vec4(lightPosition, 1.0f);
-    shader.SetVec3f("light.position", lpos);
+    glm::vec3 globalDir = view * glm::vec4(globalLightDirection, 0.f);
+    shader.SetVec3f("dirLight.direction", globalDir);
+    shader.SetVec3f("dirLight.ambient", globalLightColor * 0.2f * 0.75f);
+    shader.SetVec3f("dirLight.diffuse", globalLightColor * 0.75f);
+    shader.SetVec3f("dirLight.specular", globalLightColor * 1.0f);
 
-    float freeze = 0.1f;
-    lightColor.x = glm::abs(glm::sin(startTime * 2.0f * freeze) * 0.25f + 0.5f);
-    lightColor.y = glm::abs(glm::sin(startTime * 0.7f * freeze) * 0.25f + 0.5f);
-    lightColor.z = glm::abs(glm::sin(startTime * 1.3f * freeze) * 0.25f + 0.5f);
+    glm::vec3 spotPos = view * glm::vec4(camera.GetPosition(), 1.f);
+    shader.SetVec3f("spotLight.position", spotPos);
 
-    shader.SetVec3f("light.ambient", lightColor * 0.2f * 0.75f);
-    shader.SetVec3f("light.diffuse", lightColor * 0.75f);
-    shader.SetVec3f("light.specular", lightColor);
+    glm::vec3 spotDir = view * glm::vec4(camera.GetDirection(), 0.f);
+    shader.SetVec3f("spotLight.direction", spotDir);
+    shader.SetFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+    shader.SetFloat("spotLight.outerCutOff", glm::cos(glm::radians(20.0f)));
+
+    float freeze = 2.f;
+    spotLightColor.x =
+        glm::abs(glm::sin(startTime * 2.0f * freeze) * 0.25f + 0.5f);
+    spotLightColor.y =
+        glm::abs(glm::sin(startTime * 0.7f * freeze) * 0.25f + 0.5f);
+    spotLightColor.z =
+        glm::abs(glm::sin(startTime * 1.3f * freeze) * 0.25f + 0.5f);
+
+    shader.SetVec3f("spotLight.ambient", spotLightColor * 0.2f * 0.75f);
+    shader.SetVec3f("spotLight.diffuse", spotLightColor * 0.75f);
+    shader.SetVec3f("spotLight.specular", spotLightColor);
+
+    for (size_t i = 0; i < pointLightPositions.size(); i++) {
+      glm::vec3 pointPos = view * glm::vec4(pointLightPositions[i], 1.0f);
+      shader.SetVec3f(fmt::format("pointLights[{}].position", i), pointPos);
+
+      shader.SetVec3f(fmt::format("pointLights[{}].ambient", i),
+                      pointLightColor * 0.2f * 0.75f);
+      shader.SetVec3f(fmt::format("pointLights[{}].diffuse", i),
+                      pointLightColor * 0.75f);
+      shader.SetVec3f(fmt::format("pointLights[{}].specular", i),
+                      pointLightColor);
+
+      shader.SetFloat(fmt::format("pointLights[{}].constant", i), 1.0f);
+      shader.SetFloat(fmt::format("pointLights[{}].linear", i), 0.09f);
+      shader.SetFloat(fmt::format("light[{}].quadratic", i), 0.032f);
+    }
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -207,9 +240,9 @@ int main() {
     glBindTexture(GL_TEXTURE_2D, matrixTexture);
 
     mesh.Bind();
-    for (size_t i = 0; i < positions.size(); i++) {
+    for (size_t i = 0; i < cubePositions.size(); i++) {
       model = glm::mat4(1.0f);
-      model = glm::translate(model, positions[i]);
+      model = glm::translate(model, cubePositions[i]);
       model = glm::rotate(model, startTime * glm::radians(i * 20.0f),
                           glm::vec3(0.5f, 1.0f, 0.0f));
       shader.SetMatrix4f("model", glm::value_ptr(model));
@@ -223,15 +256,17 @@ int main() {
     lightShader.Activate();
     lightShader.SetMatrix4f("view", glm::value_ptr(view));
     lightShader.SetMatrix4f("projection", glm::value_ptr(projection));
-    lightShader.SetVec3f("lightColor", lightColor);
+    lightShader.SetVec3f("lightColor", pointLightColor);
     light.Bind();
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, lightPosition);
-    model = glm::scale(model, glm::vec3(0.2f));
-    lightShader.SetMatrix4f("model", glm::value_ptr(model));
+    for (size_t i = 0; i < pointLightPositions.size(); i++) {
+      model = glm::mat4(1.0f);
+      model = glm::translate(model, pointLightPositions[i]);
+      model = glm::scale(model, glm::vec3(0.2f));
+      lightShader.SetMatrix4f("model", glm::value_ptr(model));
 
-    glDrawElements(GL_TRIANGLES, light.Elements().size() * 3, GL_UNSIGNED_INT,
-                   0);
+      glDrawElements(GL_TRIANGLES, light.Elements().size() * 3, GL_UNSIGNED_INT,
+                     0);
+    }
 
     light.Unbind();
 
