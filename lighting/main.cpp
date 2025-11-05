@@ -184,7 +184,7 @@ int main() {
     shader.SetMatrix4f("view", glm::value_ptr(view));
     shader.SetVec3f("viewPosition", camera.GetPosition());
 
-    projection = glm::perspective(camera.FOV(), ASPECT_RATIO, 0.1f, 100.0f);
+    projection = glm::perspective(glm::radians(camera.FOV()), ASPECT_RATIO, 0.1f, 100.0f);
     shader.SetMatrix4f("projection", glm::value_ptr(projection));
 
     glm::vec3 globalDir = view * glm::vec4(globalLightDirection, 0.f);
