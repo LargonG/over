@@ -29,5 +29,5 @@ void main() {
 		}
 	}
 	float len = pow(iter * 1.0 / k, 2.2);
-	FragColor = vec4(len, len, len, 1.0);
+	FragColor = vec4(len * vec3(1), 1.0);
 }

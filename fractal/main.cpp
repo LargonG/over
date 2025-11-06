@@ -15,6 +15,11 @@
 #include <camera.hpp>
 #include <shader.hpp>
 
+static const float ASPECT_RATIO = 16.0f / 9.0;
+static const int WIDTH = 1080;
+static const int HEIGHT = WIDTH / ASPECT_RATIO;
+static const char* TITLE = "fractal";
+
 static over::Camera camera(glm::vec3(0.f, 0.f, -1.f), -90.f, 0.f, 0,
                            glm::vec3(0, 1, 0));
 static float scale = 1.0f;
@@ -46,7 +51,7 @@ static void ProcessInput(GLFWwindow* window) {
     float xoffset = static_cast<float>(xpos - lastPosx);
     float yoffset = static_cast<float>(ypos - lastPosy);
 
-    glm::vec3 offset = -glm::vec3(xoffset, yoffset, 0.f) * speed;
+    glm::vec3 offset = -glm::vec3(xoffset * ASPECT_RATIO, yoffset, 0.f) * speed;
     camera.GetPosition() += offset;
 
     lastPosx = xpos;
@@ -79,7 +84,7 @@ static void ScrollHandler(GLFWwindow* window, double _, double yscroll) {
   float xoffset = 2 * (xpos - 0.5f);
   float yoffset = -2 * (ypos - 0.5f);
 
-  glm::vec3 offset = glm::vec3(xoffset, yoffset, 0.f) * (oldScale - scale);
+  glm::vec3 offset = glm::vec3(xoffset * ASPECT_RATIO, yoffset, 0.f) * (oldScale - scale);
 
   camera.GetPosition() += offset;
 }
@@ -92,10 +97,7 @@ int main() {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  const float ASPECT_RATIO = 16.0f / 9.0;
-  const int WIDTH = 1080;
-  const int HEIGHT = WIDTH / ASPECT_RATIO;
-  const char* TITLE = "fractal";
+  
 
   GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, TITLE, nullptr, nullptr);
   if (!window) {
@@ -132,8 +134,8 @@ int main() {
   glm::mat4 view;
   glm::mat4 projection;
 
-  float mi = -10.f;
-  float ma = 10.f;
+  float mi = -2.5f;
+  float ma = 2.5f;
 
   std::vector<float> vertices = {
       mi, mi, 0.f, 1.f, 0.f, 0.f,  // 0
@@ -188,7 +190,7 @@ int main() {
     view = glm::lookAt(camera.GetPosition(),
                        camera.GetPosition() + camera.GetDirection(),
                        camera.GetUp());
-    projection = glm::ortho(-scale, scale, -scale, scale, -100.f, +100.f);
+    projection = glm::ortho(-scale * ASPECT_RATIO, scale * ASPECT_RATIO, -scale, scale, -100.f, +100.f);
 
     shader.SetMatrix4f("model", glm::value_ptr(model));
     shader.SetMatrix4f("view", glm::value_ptr(view));
