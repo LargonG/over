@@ -117,4 +117,12 @@ void Shader::SetVec3f(const std::string& name, glm::vec3 v) {
   glUniform3fv(GetUniformLocation(name), 1, glm::value_ptr(v));
 }
 
+void Shader::SetVec2f(const std::string& name, float x, float y) {
+  glUniform2f(GetUniformLocation(name), x, y);
+}
+
+void Shader::SetVec2f(const std::string& name, glm::vec2 v) {
+  glUniform2fv(GetUniformLocation(name), 1, glm::value_ptr(v));
+}
+
 }  // namespace over

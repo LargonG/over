@@ -31,6 +31,10 @@ class Shader {
   void SetVec3f(const std::string& name, float x, float y, float z);
   void SetVec3f(const std::string& name, glm::vec3 v);
 
+
+  void SetVec2f(const std::string& name, float x, float y);
+  void SetVec2f(const std::string& name, glm::vec2 v);
+
  private:
   std::string vertexPath_;
   std::string fragmentPath_;

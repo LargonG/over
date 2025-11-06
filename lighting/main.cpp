@@ -209,7 +209,7 @@ int main() {
     spotLightColor.z =
         glm::abs(glm::sin(startTime * 1.3f * freeze) * 0.25f + 0.5f);
 
-    shader.SetVec3f("spotLight.ambient", spotLightColor * 0.2f * 0.75f);
+    shader.SetVec3f("spotLight.ambient", spotLightColor * 0.f);
     shader.SetVec3f("spotLight.diffuse", spotLightColor * 0.75f);
     shader.SetVec3f("spotLight.specular", spotLightColor);
 

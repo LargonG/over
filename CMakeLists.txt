@@ -21,9 +21,13 @@ find_package(glm CONFIG REQUIRED)
 add_subdirectory(core)
 add_subdirectory(basics)
 add_subdirectory(lighting)
+add_subdirectory(fractal)
 
 target_include_directories(basics PRIVATE core)
 target_link_libraries(basics PRIVATE core)
 
 target_include_directories(lighting PRIVATE core)
 target_link_libraries(lighting PRIVATE core)
+
+target_include_directories(fractal PRIVATE core)
+target_link_libraries(fractal PRIVATE core)

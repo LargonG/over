@@ -18,6 +18,9 @@ class Camera {
   glm::vec3 GetDirection() const noexcept;
   glm::vec3 GetUp() const noexcept { return up_; }
 
+  glm::vec3& GetPosition() noexcept { return position_; }
+  glm::vec3& GetUp() noexcept { return up_; }
+
   float Yaw() const noexcept { return yaw_; }
   float Pitch() const noexcept { return pitch_; }
   float FOV() const noexcept { return fov_; }
