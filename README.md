@@ -17,3 +17,7 @@
 * Spot light
 
 <img width="3839" height="2088" alt="image" src="https://github.com/user-attachments/assets/7a660b54-2578-40c7-b2cf-c8330f44137b" />
+
+## Fractal
+
+<img width="3839" height="2091" alt="fractal" src="https://github.com/user-attachments/assets/73b8734e-f00e-4d8e-92af-853b40768b78" />
