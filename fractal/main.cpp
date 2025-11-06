@@ -176,11 +176,6 @@ int main() {
 
   glClearColor(0.f, 0.f, 0.f, 1.0f);
 
-  float f;
-
-  //ImGui::Text("Hello, world %d", 123);
-  //ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-
   while (!glfwWindowShouldClose(window)) {
     // input
     ProcessInput(window);
