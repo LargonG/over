@@ -10,18 +10,24 @@ uniform int k;
 
 void main() {
 	vec2 v0 = (position.xy + offset);
+	
+	float rho = length(v0 - vec2(0.25, 0));
+	float theta = atan(v0.y, v0.x - 0.25);
+	float rho_c = 0.5 - 0.5 * cos(theta);
 
-	vec2 v = v0;
-	for (int i = 0; i < k; i++) {
-		vec2 nv = vec2(
-			v.x * v.x - v.y * v.y + v0.x,
-			2 * v.x * v.y + v0.y
-			);
-		v = nv;
+	int iter = k;
+	if (rho > rho_c) {
+		vec2 v = vec2(0, 0);
+		for (iter = 0; iter < k; iter++) {
+			v = vec2(
+				v.x * v.x - v.y * v.y + v0.x,
+				2 * v.x * v.y + v0.y
+				);
+			if (v.x * v.x + v.y * v.y >= 4.0) {
+				break;
+			}
+		}
 	}
-	float len = length(v);
-	if (len > 0) {
-		len = 1;
-	}
+	float len = pow(iter * 1.0 / k, 2.2);
 	FragColor = vec4(len, len, len, 1.0);
 }

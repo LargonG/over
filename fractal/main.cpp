@@ -58,7 +58,7 @@ static void ProcessInput(GLFWwindow* window) {
 
 static void ScrollHandler(GLFWwindow* window, double _, double yscroll) {
   const float speed = 0.25f;
-  const float lowerBorder = 1e-7f;
+  const float lowerBorder = 5e-6f;
   const float upperBorder = 100.f;
 
   const float oldScale = scale;
@@ -125,15 +125,15 @@ int main() {
   shader.Compile();
   shader.Activate();
 
-  shader.SetInt("k", 1000);
-  shader.SetVec2f("offset", glm::vec2(-1, 0));
+  shader.SetInt("k", 500);
+  shader.SetVec2f("offset", glm::vec2(-0.75f, 0));
 
   glm::mat4 model;
   glm::mat4 view;
   glm::mat4 projection;
 
-  float mi = -15.f;
-  float ma = 15.f;
+  float mi = -10.f;
+  float ma = 10.f;
 
   std::vector<float> vertices = {
       mi, mi, 0.f, 1.f, 0.f, 0.f,  // 0
