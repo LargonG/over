@@ -128,14 +128,14 @@ int main() {
   shader.Activate();
 
   shader.SetInt("k", 500);
-  shader.SetVec2f("offset", glm::vec2(-0.75f, 0));
+  shader.SetVec2f("offset", glm::vec2(0, 0));
 
   glm::mat4 model;
   glm::mat4 view;
   glm::mat4 projection;
 
-  float mi = -2.5f;
-  float ma = 2.5f;
+  float mi = -10.f;
+  float ma = 10.f;
 
   std::vector<float> vertices = {
       mi, mi, 0.f, 1.f, 0.f, 0.f,  // 0
