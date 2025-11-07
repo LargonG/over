@@ -3,7 +3,15 @@
     "fmt",
     "glad",
     "glfw3",
+    "glm",
     "stb",
-    "glm"
+    {
+      "name": "imgui",
+      "default-features": false,
+      "features": [
+        "glfw-binding",
+        "opengl3-binding"
+      ]
+    }
   ]
 }

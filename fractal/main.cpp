@@ -4,13 +4,18 @@
 
 #include <fmt/core.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <glad/glad.h>
 
 #include <GLFW/glfw3.h>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+#include <imgui_stdlib.h>
 
 #include <camera.hpp>
 #include <shader.hpp>
@@ -33,7 +38,8 @@ static void ProcessInput(GLFWwindow* window) {
     glfwSetWindowShouldClose(window, GLFW_TRUE);
   }
 
-  if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1)) {
+  if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) &&
+      !ImGui::IsAnyItemActive()) {
     double xpos, ypos;
     glfwGetCursorPos(window, &xpos, &ypos);
     int width, height;
@@ -84,7 +90,8 @@ static void ScrollHandler(GLFWwindow* window, double _, double yscroll) {
   float xoffset = 2 * (xpos - 0.5f);
   float yoffset = -2 * (ypos - 0.5f);
 
-  glm::vec3 offset = glm::vec3(xoffset * ASPECT_RATIO, yoffset, 0.f) * (oldScale - scale);
+  glm::vec3 offset =
+      glm::vec3(xoffset * ASPECT_RATIO, yoffset, 0.f) * (oldScale - scale);
 
   camera.GetPosition() += offset;
 }
@@ -96,8 +103,6 @@ int main() {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-  
 
   GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, TITLE, nullptr, nullptr);
   if (!window) {
@@ -123,11 +128,25 @@ int main() {
                             });
   glfwSetScrollCallback(window, ScrollHandler);
 
+  // Setup Dear ImGui context
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+  ImGuiIO& io = ImGui::GetIO();
+  io.ConfigFlags |=
+      ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
+  io.ConfigFlags |=
+      ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
+  // Setup Platform/Renderer backends
+  ImGui_ImplGlfw_InitForOpenGL(
+      window,
+      true);  // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+  ImGui_ImplOpenGL3_Init();
+
   over::Shader shader("shaders/vertex.shader", "shaders/fragment.shader");
   shader.Compile();
   shader.Activate();
 
-  shader.SetInt("k", 500);
+  
   shader.SetVec2f("offset", glm::vec2(0, 0));
 
   glm::mat4 model;
@@ -178,7 +197,42 @@ int main() {
 
   glClearColor(0.f, 0.f, 0.f, 1.0f);
 
+  uint32_t fps = 0;
+  uint32_t lastFps = 0;
+  float deltaTime = 0;
+  float lastTime = glfwGetTime();
+
+  int k = 500;
+  float gamma = 2.2f;
+
   while (!glfwWindowShouldClose(window)) {
+    float startTime = glfwGetTime();
+    glfwPollEvents();
+
+    // Start the Dear ImGui frame
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    ImGui::Begin("Parameters", nullptr, ImGuiWindowFlags_MenuBar);
+
+    if (startTime - lastTime > 1) {
+      lastFps = fps;
+      fps = 0;
+      lastTime = startTime;
+    }
+    ImGui::Text("fps: %d", lastFps);
+
+    ImGui::SliderInt("Iterations", &k, 1, 1000);
+    ImGui::InputInt("Manual Iterations", &k, 1, 2000);
+    shader.SetInt("k", k);
+
+    ImGui::SliderFloat("Gamma", &gamma, 0.1, 5.f);
+    ImGui::InputFloat("Manual Gamma", &gamma);
+    shader.SetFloat("gamma", gamma);
+
+    ImGui::End();
+
     // input
     ProcessInput(window);
 
@@ -190,7 +244,8 @@ int main() {
     view = glm::lookAt(camera.GetPosition(),
                        camera.GetPosition() + camera.GetDirection(),
                        camera.GetUp());
-    projection = glm::ortho(-scale * ASPECT_RATIO, scale * ASPECT_RATIO, -scale, scale, -100.f, +100.f);
+    projection = glm::ortho(-scale * ASPECT_RATIO, scale * ASPECT_RATIO, -scale,
+                            scale, -100.f, +100.f);
 
     shader.SetMatrix4f("model", glm::value_ptr(model));
     shader.SetMatrix4f("view", glm::value_ptr(view));
@@ -198,9 +253,19 @@ int main() {
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
+    // Rendering
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
     glfwSwapBuffers(window);
-    glfwPollEvents();
+
+    deltaTime = glfwGetTime() - startTime;
+    fps++;
   }
+
+  ImGui_ImplOpenGL3_Shutdown();
+  ImGui_ImplGlfw_Shutdown();
+  ImGui::DestroyContext();
 
   glfwTerminate();
 

@@ -5,6 +5,7 @@ find_package(glfw3 CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
 find_package(Stb REQUIRED)
 find_package(glm CONFIG REQUIRED)
+find_package(imgui CONFIG REQUIRED)
 
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/shaders/vertex.shader
@@ -19,7 +20,8 @@ add_executable(fractal main.cpp)
 
 target_include_directories(fractal PRIVATE ${Stb_INCLUDE_DIR})
 
-target_link_libraries(fractal PRIVATE fmt::fmt
-                               PRIVATE glfw
-                               PRIVATE glad::glad
-                               PRIVATE glm::glm)
+target_link_libraries(fractal   PRIVATE fmt::fmt
+                                PRIVATE glfw
+                                PRIVATE glad::glad
+                                PRIVATE glm::glm
+                                PRIVATE imgui::imgui)

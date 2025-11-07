@@ -7,6 +7,7 @@ out vec4 FragColor;
 
 uniform vec2 offset;
 uniform int k;
+uniform float gamma;
 
 void main() {
 	vec2 v0 = (position.xy + offset);
@@ -28,6 +29,7 @@ void main() {
 			}
 		}
 	}
-	float len = pow(iter * 1.0 / k, 2.2);
+	float len = pow(iter * 1.0 / k, gamma);
 	FragColor = vec4(len * vec3(1), 1.0);
+	
 }
