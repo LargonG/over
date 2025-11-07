@@ -267,6 +267,10 @@ int main() {
   ImGui_ImplGlfw_Shutdown();
   ImGui::DestroyContext();
 
+  glDeleteVertexArrays(1, &vao);
+  glDeleteBuffers(1, &vbo);
+  glDeleteBuffers(1, &ibo);
+
   glfwTerminate();
 
   return 0;
