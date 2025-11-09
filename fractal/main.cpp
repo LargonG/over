@@ -203,6 +203,7 @@ int main() {
   float lastTime = glfwGetTime();
 
   int k = 500;
+  int p = 2;
   float gamma = 2.2f;
 
   while (!glfwWindowShouldClose(window)) {
@@ -230,6 +231,9 @@ int main() {
     ImGui::SliderFloat("Gamma", &gamma, 0.1, 5.f);
     ImGui::InputFloat("Manual Gamma", &gamma);
     shader.SetFloat("gamma", gamma);
+
+    ImGui::SliderInt("Power", &p, 1, 50);
+    shader.SetInt("p", p);
 
     ImGui::End();
 

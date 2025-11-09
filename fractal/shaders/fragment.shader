@@ -7,26 +7,34 @@ out vec4 FragColor;
 
 uniform vec2 offset;
 uniform int k;
+uniform int p;
 uniform float gamma;
 
+vec2 complexMul(vec2 a, vec2  b) {
+	return vec2(
+		a.x * b.x - a.y * b.y,
+		a.x * b.y + a.y * b.x
+	);
+}
+
+vec2 complexPow(vec2 z, int p) {
+	// logariphmic solution works slower for more common cases, like 2, 3, or 5
+	vec2 result = vec2(1, 0);
+	for (int i = 0; i < p; i++) {
+		result = complexMul(result, z);
+	}
+	return result;
+}
+
 void main() {
-	vec2 v0 = (position.xy + offset);
-	
-	float rho = length(v0 - vec2(0.25, 0));
-	float theta = atan(v0.y, v0.x - 0.25);
-	float rho_c = 0.5 - 0.5 * cos(theta);
+	vec2 z0 = (position.xy + offset);
 
 	int iter = k;
-	if (rho > rho_c) {
-		vec2 v = vec2(0, 0);
-		for (iter = 0; iter < k; iter++) {
-			v = vec2(
-				v.x * v.x - v.y * v.y + v0.x,
-				2 * v.x * v.y + v0.y
-				);
-			if (v.x * v.x + v.y * v.y >= 4.0) {
-				break;
-			}
+	vec2 z = vec2(0, 0);
+	for (iter = 0; iter < k; iter++) {
+		z = complexPow(z, p) + z0;
+		if (z.x * z.x + z.y * z.y >= 4.0) {
+			break;
 		}
 	}
 	float len = pow(iter * 1.0 / k, gamma);
