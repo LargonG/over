@@ -34,14 +34,15 @@ out vec4 fragColor;
 
 uniform Material material;
 uniform DirLight light;
+uniform vec3 cameraPosition;
 
 vec3 CalcDirLight() {
 	vec3 norm = normalize(normal);
-	vec3 dir = normalize(light.direction);
+	vec3 dir = normalize(-light.direction);
 	vec3 viewDir = normalize(-viewPosition);
-	vec3 r = reflect(dir, norm);
+	vec3 r = reflect(-dir, norm);
 
-	float diff = max(dot(-dir, norm), 0);
+	float diff = max(dot(dir, norm), 0);
 	float spec = pow(max(dot(r, viewDir), 0), material.shininess);
 
 	vec3 ambient = light.ambient * texture(material.texture_diffuse0, texCoord).rgb;
