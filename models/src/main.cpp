@@ -86,12 +86,17 @@ int main() {
   shader.Compile();
   shader.Activate();
 
+  over::Shader outlineShader("shaders/stencil_vertex.shader",
+                             "shaders/stencil_fragment.shader");
+  outlineShader.Compile();
+
   over::MModel entity("resources/backpack/backpack.obj");
 
   float deltaTime = 0.0f;
 
   glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
   glEnable(GL_DEPTH_TEST);
+  glEnable(GL_STENCIL_TEST);
 
   while (!glfwWindowShouldClose(window)) {
     glfwPollEvents();
@@ -116,13 +121,35 @@ int main() {
 
     InputHandler(window, deltaTime);
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glStencilFunc(GL_ALWAYS, 1, 0xff);
+    glStencilMask(0xff);
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     model = glm::mat4(1.0f);
     shader.SetMatrix4f("model", glm::value_ptr(model));
 
     shader.SetFloat("material.shininess", 32.0f);
+
+    glStencilFunc(GL_ALWAYS, 1, 0xff);
+    glStencilMask(0xff);
+    
     entity.Draw(shader);
+
+    glStencilFunc(GL_NOTEQUAL, 1, 0xff);
+    glStencilMask(0x00);
+    glDisable(GL_DEPTH_TEST);
+
+    model = glm::scale(model, glm::vec3(1.1f));
+    
+    outlineShader.Activate();
+    outlineShader.SetMatrix4f("model", glm::value_ptr(model));
+    outlineShader.SetMatrix4f("view", glm::value_ptr(view));
+    outlineShader.SetMatrix4f("projection", glm::value_ptr(projection));
+
+    entity.Draw(outlineShader);
 
     glfwSwapBuffers(window);
 

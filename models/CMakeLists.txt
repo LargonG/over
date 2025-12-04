@@ -1,13 +1,17 @@
 project(models CXX)
 
-configure_file(
-	${CMAKE_CURRENT_SOURCE_DIR}/shaders/vertex.shader
-	${CMAKE_CURRENT_BINARY_DIR}/shaders/vertex.shader COPYONLY
+set(SHADERS
+	vertex.shader
+	fragment.shader
+	stencil_vertex.shader
+	stencil_fragment.shader
 )
-configure_file(
-	${CMAKE_CURRENT_SOURCE_DIR}/shaders/fragment.shader
-	${CMAKE_CURRENT_BINARY_DIR}/shaders/fragment.shader COPYONLY
-)
+
+foreach(SHADER IN LISTS SHADERS)
+	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/shaders/${SHADER}
+		${CMAKE_CURRENT_BINARY_DIR}/shaders/${SHADER} COPYONLY
+	)
+endforeach()
 
 set(MODELS
 	backpack	
