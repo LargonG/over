@@ -22,3 +22,8 @@
 
 <img width="2138" height="1365" alt="image" src="https://github.com/user-attachments/assets/8efef666-3c49-4ec0-a919-1b4a19d037f8" />
 
+## Models
+
+<img width="2134" height="1663" alt="image" src="https://github.com/user-attachments/assets/c488b98e-f7c2-4237-861e-1db14fd967c8" />
+
+
