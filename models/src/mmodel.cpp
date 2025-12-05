@@ -95,8 +95,8 @@ MMesh MModel::ProcessMesh(aiMesh* mesh, const aiScene* scene) {
 }
 
 std::vector<MTexture> MModel::LoadMaterialTextures(aiMaterial* material,
-                                                 aiTextureType assimpType,
-                                                 MTexture::RType overType) {
+                                                   aiTextureType assimpType,
+                                                   MTexture::RType overType) {
   std::vector<MTexture> textures;
   for (std::size_t i = 0; i < material->GetTextureCount(assimpType); i++) {
     aiString str;

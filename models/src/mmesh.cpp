@@ -124,9 +124,9 @@ void over::MMesh::Draw(Shader& shader) {
         break;
       default:
         fmt::println("Unknown texture type: {}", texture.StringType());
-        throw fmt::system_error(-1, "Unknown texture type: {}", texture.StringType());
+        throw fmt::system_error(-1, "Unknown texture type: {}",
+                                texture.StringType());
     }
-    
 
     std::string letter = "material.texture_" + name + std::to_string(n);
     shader.SetInt(letter, static_cast<int>(i));

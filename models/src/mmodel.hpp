@@ -1,8 +1,8 @@
 #pragma once
 
 #include <string>
-#include <vector>
 #include <unordered_set>
+#include <vector>
 
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
@@ -27,7 +27,7 @@ class MModel {
   void ProcessNode(aiNode* node, const aiScene* scene);
   MMesh ProcessMesh(aiMesh* mesh, const aiScene* scene);
   std::vector<MTexture> LoadMaterialTextures(aiMaterial* material,
-                                            aiTextureType assimpType,
-                                            MTexture::RType overType);
+                                             aiTextureType assimpType,
+                                             MTexture::RType overType);
 };
 }  // namespace over
