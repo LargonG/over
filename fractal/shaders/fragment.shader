@@ -8,7 +8,6 @@ out vec4 FragColor;
 uniform vec2 offset;
 uniform int k;
 uniform int p;
-uniform float gamma;
 
 #define COLORS_NUM 5
 uniform vec3 colors[COLORS_NUM];

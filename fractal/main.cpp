@@ -204,7 +204,7 @@ int main() {
 
   int k = 500;
   int p = 2;
-  float gamma = 2.2f;
+  
   std::array<glm::vec3, 5> colors;
   std::array<std::string, 5> colorsNames;
 
@@ -242,10 +242,6 @@ int main() {
     ImGui::SliderInt("Iterations", &k, 1, 1000);
     ImGui::InputInt("Manual Iterations", &k, 1, 2000);
     shader.SetInt("k", k);
-
-    ImGui::SliderFloat("Gamma", &gamma, 0.1, 5.f);
-    ImGui::InputFloat("Manual Gamma", &gamma);
-    shader.SetFloat("gamma", gamma);
 
     ImGui::SliderInt("Power", &p, 1, 50);
     shader.SetInt("p", p);
