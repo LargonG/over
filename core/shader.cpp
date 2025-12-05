@@ -45,6 +45,12 @@ Shader::Shader(std::string vertexPath, std::string fragmentPath)
       fragmentPath_(std::move(fragmentPath)),
       program_(0) {}
 
+Shader::~Shader() {
+  if (program_ != 0) {
+    glDeleteProgram(program_);
+  }
+}
+
 void Shader::Compile() {
   std::string vertexShaderSource = "";
   std::string fragmentShaderSource = "";

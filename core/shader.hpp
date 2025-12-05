@@ -18,6 +18,8 @@ class Shader {
   Shader(Shader&&) = delete;
   Shader& operator=(Shader&&) = delete;
 
+  ~Shader();
+
   void Compile();
   void Activate() noexcept;
 
