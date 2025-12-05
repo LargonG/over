@@ -1,5 +1,7 @@
 ﻿cmake_minimum_required (VERSION 3.10)
 
+set(CMAKE_CXX_STANDARD 17)
+
 # Enable Hot Reload for MSVC compilers if supported.
 if (POLICY CMP0141)
   cmake_policy(SET CMP0141 NEW)
@@ -22,6 +24,7 @@ add_subdirectory(core)
 add_subdirectory(basics)
 add_subdirectory(lighting)
 add_subdirectory(fractal)
+add_subdirectory(models)
 
 target_include_directories(basics PRIVATE core)
 target_link_libraries(basics PRIVATE core)
@@ -31,3 +34,6 @@ target_link_libraries(lighting PRIVATE core)
 
 target_include_directories(fractal PRIVATE core)
 target_link_libraries(fractal PRIVATE core)
+
+target_include_directories(models PRIVATE core)
+target_link_libraries(models PRIVATE core)

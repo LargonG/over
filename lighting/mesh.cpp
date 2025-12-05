@@ -27,6 +27,8 @@ Mesh::Mesh(const Mesh& mesh)
       vao_(0),
       vbo_(0),
       ibo_(0) {
+  assert(mesh.vao_ == 0 && mesh.vbo_ == 0 && mesh.ibo_ == 0 ||
+         mesh.vao_ != 0 && mesh.vbo_ != 0 && mesh.ibo_ != 0);
   if (mesh.vao_ != 0 || mesh.vbo_ != 0 || mesh.ibo_ != 0) {
     GenGPU();
   }
@@ -81,19 +83,20 @@ void Mesh::GenGPU() {
   glBufferData(GL_ARRAY_BUFFER, vertices_.size() * sizeof(Vertex),
                vertices_.data(), GL_STATIC_DRAW);
 
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), nullptr);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                        reinterpret_cast<void*>(offsetof(Vertex, coord)));
   glEnableVertexAttribArray(0);
 
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-                        reinterpret_cast<void*>(sizeof(float) * 3));
+                        reinterpret_cast<void*>(offsetof(Vertex, normal)));
   glEnableVertexAttribArray(1);
 
   glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-                        reinterpret_cast<void*>(sizeof(float) * 6));
+                        reinterpret_cast<void*>(offsetof(Vertex, color)));
   glEnableVertexAttribArray(2);
 
   glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-                        reinterpret_cast<void*>(sizeof(float) * 9));
+                        reinterpret_cast<void*>(offsetof(Vertex, texCoord)));
   glEnableVertexAttribArray(3);
 
   glBindVertexArray(0);

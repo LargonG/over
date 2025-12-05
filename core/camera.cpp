@@ -47,8 +47,8 @@ void Camera::UpdateYawPitchCallback(float xpos, float ypos) {
     firstTime = false;
   }
 
-  float xoffset = xpos - lastX;
-  float yoffset = lastY - ypos;
+  float xoffset = static_cast<float>(xpos - lastX);
+  float yoffset = static_cast<float>(lastY - ypos);
   lastX = xpos;
   lastY = ypos;
 
