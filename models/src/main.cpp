@@ -135,20 +135,19 @@ int main() {
 
     glStencilFunc(GL_ALWAYS, 1, 0xff);
     glStencilMask(0xff);
-    
+
     entity.Draw(shader);
 
     glStencilFunc(GL_NOTEQUAL, 1, 0xff);
     glStencilMask(0x00);
     glDisable(GL_DEPTH_TEST);
 
-    model = glm::scale(model, glm::vec3(1.1f));
-    
     outlineShader.Activate();
-    outlineShader.SetMatrix4f("model", glm::value_ptr(model));
     outlineShader.SetMatrix4f("view", glm::value_ptr(view));
     outlineShader.SetMatrix4f("projection", glm::value_ptr(projection));
 
+    model = glm::scale(model, glm::vec3(1.02f));
+    outlineShader.SetMatrix4f("model", glm::value_ptr(model));
     entity.Draw(outlineShader);
 
     glfwSwapBuffers(window);

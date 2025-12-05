@@ -25,14 +25,6 @@ out vec4 fragColor;
 uniform Material material;
 uniform DirLight light;
 
-float near = 0.01;
-float far = 10.0;
-
-float LinearizeDepth(float depth) {
-	float z = depth * 2.0 - 1.0;
-	return (2 * near * far) / (far + near - z * (far - near));
-}
-
 vec3 CalcDirLight() {
 	vec3 norm = normalize(normal);
 	vec3 dir = normalize(-light.direction);
@@ -51,5 +43,4 @@ vec3 CalcDirLight() {
 
 void main() {
 	fragColor = vec4(CalcDirLight(), 1.0);
-	// fragColor = vec4(vec3(LinearizeDepth(gl_FragCoord.z)), 1.0) / far;
 }
