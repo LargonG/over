@@ -8,9 +8,11 @@ out vec4 FragColor;
 uniform vec2 offset;
 uniform int k;
 uniform int p;
-uniform float gamma;
 
-vec2 complexMul(vec2 a, vec2  b) {
+#define COLORS_NUM 5
+uniform vec3 colors[COLORS_NUM];
+
+vec2 complexMul(vec2 a, vec2 b) {
 	return vec2(
 		a.x * b.x - a.y * b.y,
 		a.x * b.y + a.y * b.x
@@ -37,7 +39,13 @@ void main() {
 			break;
 		}
 	}
-	float len = pow(iter * 1.0 / k, gamma);
-	FragColor = vec4(len * vec3(1), 1.0);
+	float alpha = iter * 1.0 / k;
 	
+	for (int i = 0; i < 4; i++) {
+		if (alpha <= 0.25 * (i + 1)) {
+			float betta = (alpha - 0.25 * i) / 0.25;
+			FragColor = vec4(colors[i] * (1 - betta) + colors[i + 1] * betta, 1.0);
+			break;
+		}
+	}
 }

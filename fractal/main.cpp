@@ -204,7 +204,22 @@ int main() {
 
   int k = 500;
   int p = 2;
-  float gamma = 2.2f;
+  
+  std::array<glm::vec3, 5> colors;
+  std::array<std::string, 5> colorsNames;
+
+  for (size_t i = 0; i < colors.size(); i++) {
+    colors[i] = glm::vec3(0);
+    colorsNames[i] = fmt::format("colors[{}]", i);
+  }
+
+  colors[1] = glm::vec3(255, 150, 0);
+  colors[2] = glm::vec3(255, 95, 29);
+  colors[3] = glm::vec3(235, 35, 0);
+  colors[4] = glm::vec3(0, 0, 0);
+  for (size_t i = 0; i < colors.size(); i++) {
+    colors[i] /= 255.0;
+  }
 
   while (!glfwWindowShouldClose(window)) {
     float startTime = glfwGetTime();
@@ -228,12 +243,12 @@ int main() {
     ImGui::InputInt("Manual Iterations", &k, 1, 2000);
     shader.SetInt("k", k);
 
-    ImGui::SliderFloat("Gamma", &gamma, 0.1, 5.f);
-    ImGui::InputFloat("Manual Gamma", &gamma);
-    shader.SetFloat("gamma", gamma);
-
     ImGui::SliderInt("Power", &p, 1, 50);
     shader.SetInt("p", p);
+
+    for (size_t i = 1; i < colors.size(); i++) {
+      ImGui::ColorEdit3(colorsNames[i].c_str(), glm::value_ptr(colors[i]));
+    }
 
     ImGui::End();
 
@@ -254,6 +269,10 @@ int main() {
     shader.SetMatrix4f("model", glm::value_ptr(model));
     shader.SetMatrix4f("view", glm::value_ptr(view));
     shader.SetMatrix4f("projection", glm::value_ptr(projection));
+
+    for (size_t i = 0; i < colors.size(); i++) {
+      shader.SetVec3f(colorsNames[i], colors[i]);
+    }
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
