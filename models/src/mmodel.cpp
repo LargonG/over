@@ -20,6 +20,12 @@ MModel::MModel(const std::string& path) {
   LoadModel(path);
 }
 
+MModel::~MModel() {
+  for (const auto& [key, value] : loadedTextures_) {
+    glDeleteTextures(1, &value.id);
+  }
+}
+
 void MModel::Draw(Shader& shader) {
   for (auto& mesh : meshes_) {
     mesh.Draw(shader);
@@ -104,15 +110,16 @@ std::vector<MTexture> MModel::LoadMaterialTextures(aiMaterial* material,
     std::string value = str.C_Str();
     bool skip = loadedTextures_.find(value) != loadedTextures_.end();
     if (skip) {
+      textures.emplace_back(loadedTextures_[value]);
       continue;
     }
-    loadedTextures_.insert(value);
 
     MTexture texture;
     texture.id = TextureFromFile(str.C_Str(), directory);
     texture.type = overType;
     texture.path = value;
     textures.emplace_back(texture);
+    loadedTextures_.insert({value, texture});
   }
   return textures;
 }
@@ -138,6 +145,8 @@ unsigned int TextureFromFile(const char* path, const std::string& directory,
       format = GL_RGB;
     else if (nrComponents == 4)
       format = GL_RGBA;
+    else
+      throw fmt::system_error(-1, "Cannot derive format");
 
     glBindTexture(GL_TEXTURE_2D, textureID);
     glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format,

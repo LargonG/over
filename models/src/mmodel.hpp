@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <unordered_set>
+#include <unordered_map>
 #include <vector>
 
 #include <assimp/postprocess.h>
@@ -16,12 +16,14 @@ class MModel {
  public:
   MModel(const std::string& path);
 
+  ~MModel();
+
   void Draw(Shader& shader);
 
  private:
   std::vector<MMesh> meshes_;
   std::string directory;
-  std::unordered_set<std::string> loadedTextures_;
+  std::unordered_map<std::string, MTexture> loadedTextures_;
 
   void LoadModel(const std::string& path);
   void ProcessNode(aiNode* node, const aiScene* scene);
