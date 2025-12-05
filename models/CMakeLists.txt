@@ -1,5 +1,7 @@
 project(models CXX)
 
+find_package(assimp CONFIG REQUIRED)
+
 set(SHADERS
 	vertex.shader
 	fragment.shader
