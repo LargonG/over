@@ -20,4 +20,5 @@
 
 ## Fractal
 
-<img width="3839" height="2091" alt="fractal" src="https://github.com/user-attachments/assets/73b8734e-f00e-4d8e-92af-853b40768b78" />
+<img width="2138" height="1365" alt="image" src="https://github.com/user-attachments/assets/8efef666-3c49-4ec0-a919-1b4a19d037f8" />
+
