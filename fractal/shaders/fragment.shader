@@ -45,7 +45,9 @@ void main() {
 		if (alpha <= 0.25 * (i + 1)) {
 			float betta = (alpha - 0.25 * i) / 0.25;
 			FragColor = vec4(colors[i] * (1 - betta) + colors[i + 1] * betta, 1.0);
-			break;
+			return;
 		}
 	}
+
+	FragColor = vec4(colors[4], 1.0);
 }
