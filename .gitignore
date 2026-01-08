@@ -3,6 +3,9 @@
 .idea/
 vcpkg_installed/
 
+libs/fmt
+libs/glfw
+libs/glm
 out/
 
 CMakePresets.json

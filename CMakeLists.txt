@@ -14,11 +14,16 @@ endif()
 
 project(over CXX)
 
-find_package(fmt CONFIG REQUIRED)
-find_package(glfw3 CONFIG REQUIRED)
-find_package(glad CONFIG REQUIRED)
-find_package(Stb REQUIRED)
-find_package(glm CONFIG REQUIRED)
+option(USE_VCPKG "Use vcpkg package manager" OFF)
+
+if (USE_VCPKG)
+	find_package(fmt CONFIG REQUIRED)
+	find_package(glfw3 CONFIG REQUIRED)
+	find_package(glad CONFIG REQUIRED)
+	find_package(Stb REQUIRED)
+	find_package(glm CONFIG REQUIRED)
+endif()
+
 
 add_subdirectory(core)
 add_subdirectory(basics)
