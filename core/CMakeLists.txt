@@ -1,17 +1,20 @@
 project(core CXX)
 
-find_package(fmt CONFIG REQUIRED)
-find_package(glfw3 CONFIG REQUIRED)
-find_package(glad CONFIG REQUIRED)
-find_package(Stb REQUIRED)
-find_package(glm CONFIG REQUIRED)
+set(SRC
+	camera.cpp
+	shader.cpp
+)
 
+add_library(${PROJECT_NAME} STATIC ${SRC})
+add_library(over::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
-add_library(core STATIC "camera.cpp" "shader.cpp")
+target_link_libraries(
+	${PROJECT_NAME}
+	PRIVATE fmt::fmt
+	PRIVATE glfw
+	PRIVATE glad::glad
+	PRIVATE glm::glm
+)
 
-target_include_directories(core PRIVATE ${Stb_INCLUDE_DIR})
-
-target_link_libraries(core PRIVATE fmt::fmt)
-target_link_libraries(core PRIVATE glfw)
-target_link_libraries(core PRIVATE glad::glad)
-target_link_libraries(core PRIVATE glm::glm)
+target_include_directories(${PROJECT_NAME} PRIVATE ${Stb_INCLUDE_DIR})
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)

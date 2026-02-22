@@ -1,7 +1,5 @@
 project(models CXX)
 
-find_package(assimp CONFIG REQUIRED)
-
 set(SHADERS
 	vertex.shader
 	fragment.shader
@@ -30,14 +28,21 @@ foreach(modir IN LISTS MODELS)
   endforeach()
 endforeach()
 
-add_executable(models "src/main.cpp" "src/mmesh.cpp" "src/mmodel.cpp")
+set(SRC
+	src/main.cpp
+	src/mmesh.cpp
+	src/mmodel.cpp
+)
 
-target_include_directories(models PRIVATE ${Stb_INCLUDE_DIR})
+add_executable(${PROJECT_NAME} ${SRC})
 
-target_link_libraries(models
+target_include_directories(${PROJECT_NAME} PRIVATE ${Stb_INCLUDE_DIR})
+
+target_link_libraries(${PROJECT_NAME}
 	PRIVATE fmt::fmt
 	PRIVATE glfw
 	PRIVATE glad::glad
 	PRIVATE glm::glm
 	PRIVATE assimp::assimp
+	PRIVATE over::core
 )
