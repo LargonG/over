@@ -26,8 +26,6 @@ include(SetupSTB)
 include(SetupImGui)
 include(SetupAssimp)
 
-add_subdirectory(test)
-
 add_subdirectory(core)
 add_subdirectory(basics)
 add_subdirectory(fractal)
