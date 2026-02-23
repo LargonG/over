@@ -1,11 +1,11 @@
 project(fractal CXX)
 
-find_package(fmt CONFIG REQUIRED)
-find_package(glfw3 CONFIG REQUIRED)
-find_package(glad CONFIG REQUIRED)
-find_package(Stb REQUIRED)
-find_package(glm CONFIG REQUIRED)
-find_package(imgui CONFIG REQUIRED)
+include(SetupFMT)
+include(SetupGlad)
+include(SetupGLFW)
+include(SetupGLM)
+include(SetupSTB)
+include(SetupImGui)
 
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/shaders/vertex.shader
@@ -18,10 +18,13 @@ configure_file(
 
 add_executable(fractal main.cpp)
 
-target_include_directories(fractal PRIVATE ${Stb_INCLUDE_DIR})
+target_link_libraries(fractal
+    PRIVATE fmt::fmt
+    PRIVATE glfw
+    PRIVATE glad::glad
+    PRIVATE glm::glm
+    PRIVATE imgui::imgui
+    PRIVATE over::core
+)
 
-target_link_libraries(fractal   PRIVATE fmt::fmt
-                                PRIVATE glfw
-                                PRIVATE glad::glad
-                                PRIVATE glm::glm
-                                PRIVATE imgui::imgui)
+target_include_directories(fractal PRIVATE ${Stb_INCLUDE_DIR})

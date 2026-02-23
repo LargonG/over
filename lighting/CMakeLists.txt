@@ -1,10 +1,10 @@
 project(lighting CXX)
 
-find_package(fmt CONFIG REQUIRED)
-find_package(glfw3 CONFIG REQUIRED)
-find_package(glad CONFIG REQUIRED)
-find_package(Stb REQUIRED)
-find_package(glm CONFIG REQUIRED)
+include(SetupFMT)
+include(SetupGlad)
+include(SetupGLFW)
+include(SetupGLM)
+include(SetupSTB)
 
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/shaders/vertex.shader
@@ -31,11 +31,19 @@ foreach(item IN LISTS TEXTURES)
   DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/textures)
 endforeach()
 
-add_executable(lighting main.cpp "mesh.hpp" "mesh.cpp")
+set(SRC
+    main.cpp
+    mesh.cpp
+)
 
-target_include_directories(lighting PRIVATE ${Stb_INCLUDE_DIR})
+add_executable(${PROJECT_NAME} ${SRC})
 
-target_link_libraries(lighting PRIVATE fmt::fmt
-                               PRIVATE glfw
-                               PRIVATE glad::glad
-                               PRIVATE glm::glm)
+target_link_libraries(${PROJECT_NAME}
+    PRIVATE fmt::fmt
+    PRIVATE glfw
+    PRIVATE glad::glad
+    PRIVATE glm::glm
+    PRIVATE over::core
+)
+
+target_include_directories(${PROJECT_NAME} PRIVATE ${Stb_INCLUDE_DIR})

@@ -14,26 +14,12 @@ endif()
 
 project(over CXX)
 
-find_package(fmt CONFIG REQUIRED)
-find_package(glfw3 CONFIG REQUIRED)
-find_package(glad CONFIG REQUIRED)
-find_package(Stb REQUIRED)
-find_package(glm CONFIG REQUIRED)
+option(USE_VCPKG "Use vcpkg package manager" OFF)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 add_subdirectory(core)
 add_subdirectory(basics)
-add_subdirectory(lighting)
 add_subdirectory(fractal)
+add_subdirectory(lighting)
 add_subdirectory(models)
-
-target_include_directories(basics PRIVATE core)
-target_link_libraries(basics PRIVATE core)
-
-target_include_directories(lighting PRIVATE core)
-target_link_libraries(lighting PRIVATE core)
-
-target_include_directories(fractal PRIVATE core)
-target_link_libraries(fractal PRIVATE core)
-
-target_include_directories(models PRIVATE core)
-target_link_libraries(models PRIVATE core)
