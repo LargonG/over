@@ -3,6 +3,10 @@ include_guard(GLOBAL)
 if (USE_VCPKG)
 	find_package(imgui CONFIG REQUIRED)
 else()
+	include(InitSubmodules)
+
+	init_submodule(libs/imgui)
+
 	# suffer
 	set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/libs/imgui)
 
