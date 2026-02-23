@@ -9,6 +9,7 @@ include(SetupSTB)
 set(SRC
 	src/over/core/Camera.cpp
 	src/over/core/Shader.cpp
+	src/over/core/Context.cpp
 	src/over/core/stb_impl.cpp
 )
 
