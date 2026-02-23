@@ -1,10 +1,8 @@
-#include "mmesh.hpp"
+#include <over/examples/models/mmesh.hpp>
+
+#include <over/core/Includes.hpp>
 
 #include <fmt/core.h>
-
-#include <glad/glad.h>
-
-#include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
 

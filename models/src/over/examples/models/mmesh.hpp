@@ -3,13 +3,10 @@
 #include <array>
 #include <vector>
 
+#include <over/core/Includes.hpp>
+#include <over/core/Shader.hpp>
+
 #include <glm/glm.hpp>
-
-#include <glad/glad.h>
-
-#include <GLFW/glfw3.h>
-
-#include "shader.hpp"
 
 namespace over {
 

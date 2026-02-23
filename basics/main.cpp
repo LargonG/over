@@ -1,22 +1,19 @@
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include <cstdint>
+#include <fstream>
+#include <string>
+#include <utility>
+
+#include <over/core/Camera.hpp>
+#include <over/core/Includes.hpp>
+#include <over/core/Shader.hpp>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <glad/glad.h>
+#include <fmt/core.h>
 
-#include <GLFW/glfw3.h>
-
-#include <cstdint>
-#include <fstream>
-#include <string>
-#include <utility>
-#include "fmt/core.h"
-
-#include "camera.hpp"
-#include "shader.hpp"
+#include <stb_image.h>
 
 over::Camera camera(glm::vec3(0.0f, 0.0f, 3.0f), -90.0f, 0.0f, 45.0f,
                     glm::vec3(0.0f, 1.0f, 0.0f));

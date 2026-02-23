@@ -32,8 +32,8 @@ foreach(item IN LISTS TEXTURES)
 endforeach()
 
 set(SRC
-    main.cpp
-    mesh.cpp
+    src/over/main.cpp
+    src/over/examples/lighting/mesh.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SRC})
@@ -47,3 +47,4 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${Stb_INCLUDE_DIR})
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/)

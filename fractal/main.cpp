@@ -2,23 +2,20 @@
 #include <string>
 #include <vector>
 
+#include <over/core/Camera.hpp>
+#include <over/core/Includes.hpp>
+#include <over/core/Shader.hpp>
+
 #include <fmt/core.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <glad/glad.h>
-
-#include <GLFW/glfw3.h>
-
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_stdlib.h>
-
-#include <camera.hpp>
-#include <shader.hpp>
 
 static const float ASPECT_RATIO = 16.0f / 9.0;
 static const int WIDTH = 1080;
@@ -146,7 +143,6 @@ int main() {
   shader.Compile();
   shader.Activate();
 
-  
   shader.SetVec2f("offset", glm::vec2(0, 0));
 
   glm::mat4 model;
@@ -204,7 +200,7 @@ int main() {
 
   int k = 500;
   int p = 2;
-  
+
   std::array<glm::vec3, 5> colors;
   std::array<std::string, 5> colorsNames;
 

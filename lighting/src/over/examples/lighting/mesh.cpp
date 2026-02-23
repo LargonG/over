@@ -1,11 +1,10 @@
-#include "mesh.hpp"
+#include <over/examples/lighting/mesh.hpp>
 
-#include <glad/glad.h>
+#include <cstdint>
 
-#include <GLFW/glfw3.h>
+#include <over/core/Includes.hpp>
 
 #include <fmt/core.h>
-#include <cstdint>
 
 namespace over {
 Mesh::Mesh() noexcept : vertices_(), elements_(), vao_(0), vbo_(0), ibo_(0) {}

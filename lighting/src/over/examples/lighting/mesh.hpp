@@ -2,12 +2,11 @@
 
 #include <array>
 #include <cstdint>
-#include <glm/glm.hpp>
 #include <vector>
 
-#include <glad/glad.h>
+#include <over/core/Includes.hpp>
 
-#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
 namespace over {
 struct Vertex {

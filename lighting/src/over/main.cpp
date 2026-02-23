@@ -1,21 +1,17 @@
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
 #include <fmt/core.h>
 #include <cstdint>
 #include <vector>
+
+#include <over/core/Camera.hpp>
+#include <over/core/Includes.hpp>
+#include <over/core/Shader.hpp>
+#include <over/examples/lighting/mesh.hpp>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <glad/glad.h>
-
-#include <GLFW/glfw3.h>
-
-#include <camera.hpp>
-#include <shader.hpp>
-#include "mesh.hpp"
+#include <stb_image.h>
 
 static over::Camera camera(glm::vec3(0, 0, 3), -90, 0, 45, glm::vec3(0, 1, 0));
 
@@ -184,7 +180,8 @@ int main() {
     shader.SetMatrix4f("view", glm::value_ptr(view));
     shader.SetVec3f("viewPosition", camera.GetPosition());
 
-    projection = glm::perspective(glm::radians(camera.FOV()), ASPECT_RATIO, 0.1f, 100.0f);
+    projection = glm::perspective(glm::radians(camera.FOV()), ASPECT_RATIO,
+                                  0.1f, 100.0f);
     shader.SetMatrix4f("projection", glm::value_ptr(projection));
 
     glm::vec3 globalDir = view * glm::vec4(globalLightDirection, 0.f);

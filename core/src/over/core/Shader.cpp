@@ -1,12 +1,10 @@
-#include "shader.hpp"
-
-#include <glad/glad.h>
-
-#include <GLFW/glfw3.h>
+#include <over/core/Shader.hpp>
 
 #include <fstream>
 #include <sstream>
 #include <string>
+
+#include <over/core/Includes.hpp>
 
 #include <fmt/core.h>
 

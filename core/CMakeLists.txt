@@ -7,8 +7,9 @@ include(SetupGLM)
 include(SetupSTB)
 
 set(SRC
-	camera.cpp
-	shader.cpp
+	src/over/core/Camera.cpp
+	src/over/core/Shader.cpp
+	src/over/core/stb_impl.cpp
 )
 
 add_library(${PROJECT_NAME} STATIC ${SRC})
@@ -23,4 +24,4 @@ target_link_libraries(
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${Stb_INCLUDE_DIR})
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)

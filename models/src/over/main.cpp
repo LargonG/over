@@ -1,18 +1,16 @@
 #include <cstdint>
 #include <string>
 
+#include <over/core/Camera.hpp>
+#include <over/core/Includes.hpp>
+#include <over/core/Shader.hpp>
+#include <over/examples/models/mmodel.hpp>
+
 #include <fmt/core.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
-#include <glad/glad.h>
-
-#include <GLFW/glfw3.h>
-
-#include "camera.hpp"
-#include "mmodel.hpp"
-#include "shader.hpp"
 
 using Window = GLFWwindow;
 

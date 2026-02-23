@@ -1,8 +1,6 @@
 #pragma once
 
-#include <glad/glad.h>
-
-#include <GLFW/glfw3.h>
+#include <over/core/Includes.hpp>
 
 #include <glm/glm.hpp>
 #include <string>
@@ -32,7 +30,6 @@ class Shader {
   void SetMatrix4f(const std::string& name, float* ptr);
   void SetVec3f(const std::string& name, float x, float y, float z);
   void SetVec3f(const std::string& name, glm::vec3 v);
-
 
   void SetVec2f(const std::string& name, float x, float y);
   void SetVec2f(const std::string& name, glm::vec2 v);

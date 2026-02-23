@@ -1,8 +1,9 @@
-#include "camera.hpp"
+#include <over/core/Camera.hpp>
+
+#include <algorithm>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <algorithm>
 
 namespace over {
 Camera::Camera(glm::vec3 initialPosition, float initialYaw, float initialPitch,

@@ -1,4 +1,4 @@
-#include "mmodel.hpp"
+#include <over/examples/models/mmodel.hpp>
 
 #include <vector>
 
@@ -6,8 +6,7 @@
 #include <assimp/scene.h>
 #include <assimp/Importer.hpp>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include <stb_image.h>
 
 #include <fmt/core.h>
 
