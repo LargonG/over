@@ -1,7 +1,5 @@
 project(basics CXX)
 
-message(STATUS "CMAKE_MODULE_PATH in basics: ${CMAKE_MODULE_PATH}")
-
 include(SetupFMT)
 include(SetupGlad)
 include(SetupGLFW)
@@ -29,9 +27,6 @@ endforeach()
 
 add_executable(${PROJECT_NAME} main.cpp)
 
-message(STATUS "Stb_INCLUDE_DIR: ${Stb_INCLUDE_DIR}")
-target_include_directories(basics PRIVATE ${Stb_INCLUDE_DIR})
-
 target_link_libraries(
 	${PROJECT_NAME}
 	PRIVATE fmt::fmt
@@ -40,4 +35,6 @@ target_link_libraries(
 	PRIVATE glm::glm
 	PRIVATE over::core
 )
+
+target_include_directories(basics PRIVATE ${Stb_INCLUDE_DIR})
 
