@@ -3,8 +3,6 @@
 .idea/
 vcpkg_installed/
 
-libs/*
-!libs/glad/
 out/
 
 CMakePresets.json
