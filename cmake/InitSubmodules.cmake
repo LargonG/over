@@ -1,6 +1,6 @@
 
 function(init_submodule SUBMODULE_PATH)
-	if (NOT EXISTS "${CMAKE_SOURCE_DIR}/${SUBMODULE_PATH}")
+	if (NOT EXISTS "${CMAKE_SOURCE_DIR}/${SUBMODULE_PATH}/.git")
 		message(STATUS "Fetching submodule ${SUBMODULE_PATH}...")
 
 		find_package(Git REQUIRED)
