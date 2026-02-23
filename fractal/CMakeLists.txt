@@ -1,5 +1,12 @@
 project(fractal CXX)
 
+include(SetupFMT)
+include(SetupGlad)
+include(SetupGLFW)
+include(SetupGLM)
+include(SetupSTB)
+include(SetupImGui)
+
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/shaders/vertex.shader
     ${CMAKE_CURRENT_BINARY_DIR}/shaders/vertex.shader COPYONLY

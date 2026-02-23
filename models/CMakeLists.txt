@@ -1,5 +1,13 @@
 project(models CXX)
 
+include(SetupFMT)
+include(SetupGlad)
+include(SetupGLFW)
+include(SetupGLM)
+include(SetupSTB)
+include(SetupImGui)
+include(SetupAssimp)
+
 set(SHADERS
 	vertex.shader
 	fragment.shader
@@ -36,8 +44,6 @@ set(SRC
 
 add_executable(${PROJECT_NAME} ${SRC})
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${Stb_INCLUDE_DIR})
-
 target_link_libraries(${PROJECT_NAME}
 	PRIVATE fmt::fmt
 	PRIVATE glfw
@@ -46,3 +52,5 @@ target_link_libraries(${PROJECT_NAME}
 	PRIVATE assimp::assimp
 	PRIVATE over::core
 )
+
+target_include_directories(${PROJECT_NAME} PRIVATE ${Stb_INCLUDE_DIR})

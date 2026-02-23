@@ -18,14 +18,6 @@ option(USE_VCPKG "Use vcpkg package manager" OFF)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
-include(SetupFMT)
-include(SetupGlad)
-include(SetupGLFW)
-include(SetupGLM)
-include(SetupSTB)
-include(SetupImGui)
-include(SetupAssimp)
-
 add_subdirectory(core)
 add_subdirectory(basics)
 add_subdirectory(fractal)

@@ -1,5 +1,11 @@
 project(core CXX)
 
+include(SetupFMT)
+include(SetupGlad)
+include(SetupGLFW)
+include(SetupGLM)
+include(SetupSTB)
+
 set(SRC
 	camera.cpp
 	shader.cpp

@@ -1,5 +1,13 @@
 project(basics CXX)
 
+message(STATUS "CMAKE_MODULE_PATH in basics: ${CMAKE_MODULE_PATH}")
+
+include(SetupFMT)
+include(SetupGlad)
+include(SetupGLFW)
+include(SetupGLM)
+include(SetupSTB)
+
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/shaders/vertex.shader
   ${CMAKE_CURRENT_BINARY_DIR}/shaders/vertex.shader COPYONLY)
@@ -19,8 +27,9 @@ foreach(item IN LISTS TEXTURES)
   DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/textures)
 endforeach()
 
-add_executable(basics main.cpp)
+add_executable(${PROJECT_NAME} main.cpp)
 
+message(STATUS "Stb_INCLUDE_DIR: ${Stb_INCLUDE_DIR}")
 target_include_directories(basics PRIVATE ${Stb_INCLUDE_DIR})
 
 target_link_libraries(
@@ -31,3 +40,4 @@ target_link_libraries(
 	PRIVATE glm::glm
 	PRIVATE over::core
 )
+
