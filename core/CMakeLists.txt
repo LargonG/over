@@ -5,12 +5,19 @@ include(SetupGlad)
 include(SetupGLFW)
 include(SetupGLM)
 include(SetupSTB)
+include(SetupAssimp)
 
 set(SRC
 	src/over/core/Camera.cpp
 	src/over/core/Shader.cpp
 	src/over/core/Context.cpp
 	src/over/core/stb_impl.cpp
+	src/over/core/Mesh.cpp
+	src/over/core/Model.cpp
+	src/over/core/Transform.cpp
+	src/over/core/opengl/VAO.cpp
+	src/over/core/opengl/VBO.cpp
+	src/over/core/opengl/IBO.cpp
 )
 
 add_library(${PROJECT_NAME} STATIC ${SRC})
@@ -22,6 +29,7 @@ target_link_libraries(
 	PRIVATE glfw
 	PRIVATE glad::glad
 	PRIVATE glm::glm
+	PRIVATE assimp::assimp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${Stb_INCLUDE_DIR})

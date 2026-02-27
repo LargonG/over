@@ -14,12 +14,14 @@
 
 using Window = GLFWwindow;
 
-static over::Camera camera(glm::vec3(0, 0, 3), -90, 0, 45, glm::vec3(0, 1, 0));
 constexpr float ASPECT_RATIO = 16.0f / 9;
 constexpr uint32_t INIT_WIDTH = 1920;
 constexpr uint32_t INIT_HEIGHT =
     static_cast<uint32_t>(INIT_WIDTH / ASPECT_RATIO);
 constexpr char* TITLE = "Models";
+
+static over::Camera camera(glm::vec3(0, 0, 3), -90, 0, 45, glm::vec3(0, 1, 0),
+                           ASPECT_RATIO);
 
 void InputHandler(Window* window, float deltaTime) {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -81,12 +83,10 @@ int main() {
   glm::vec3 globalLightColor(1.f, 1.f, 1.f);
 
   over::Shader shader("shaders/vertex.shader", "shaders/fragment.shader");
-  shader.Compile();
   shader.Activate();
 
   over::Shader outlineShader("shaders/stencil_vertex.shader",
                              "shaders/stencil_fragment.shader");
-  outlineShader.Compile();
 
   over::MModel entity("resources/backpack/backpack.obj");
 

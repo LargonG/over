@@ -23,7 +23,7 @@ static const int HEIGHT = WIDTH / ASPECT_RATIO;
 static const char* TITLE = "fractal";
 
 static over::Camera camera(glm::vec3(0.f, 0.f, -1.f), -90.f, 0.f, 0,
-                           glm::vec3(0, 1, 0));
+                           glm::vec3(0, 1, 0), ASPECT_RATIO);
 static float scale = 1.0f;
 
 static void ProcessInput(GLFWwindow* window) {
@@ -140,7 +140,6 @@ int main() {
   ImGui_ImplOpenGL3_Init();
 
   over::Shader shader("shaders/vertex.shader", "shaders/fragment.shader");
-  shader.Compile();
   shader.Activate();
 
   shader.SetVec2f("offset", glm::vec2(0, 0));

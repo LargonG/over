@@ -15,8 +15,12 @@
 
 #include <stb_image.h>
 
+constexpr int32_t WIDTH = 1920;
+constexpr int32_t HEIGHT = 1080;
+constexpr float ASPECT_RATIO = WIDTH * 1.0f / HEIGHT;
+
 over::Camera camera(glm::vec3(0.0f, 0.0f, 3.0f), -90.0f, 0.0f, 45.0f,
-                    glm::vec3(0.0f, 1.0f, 0.0f));
+                    glm::vec3(0.0f, 1.0f, 0.0f), ASPECT_RATIO);
 float deltaTime;
 
 void processInput(GLFWwindow* window) {
@@ -91,9 +95,6 @@ int main() {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-  constexpr int32_t WIDTH = 1920;
-  constexpr int32_t HEIGHT = 1080;
 
   GLFWwindow* window = glfwCreateWindow(
       WIDTH, HEIGHT, "Hello, opengl, finally!", nullptr, nullptr);
@@ -217,7 +218,6 @@ int main() {
   GLuint texture2 = loadTexture("textures/awesomeface.png", true);
 
   over::Shader shader("shaders/vertex.shader", "shaders/fragment.shader");
-  shader.Compile();
   shader.Activate();
 
   shader.SetInt("texture1", 0);

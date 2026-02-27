@@ -13,7 +13,12 @@
 
 #include <stb_image.h>
 
-static over::Camera camera(glm::vec3(0, 0, 3), -90, 0, 45, glm::vec3(0, 1, 0));
+constexpr float ASPECT_RATIO = 16.0 / 9.0;
+constexpr int32_t INIT_WIDTH = 1920;
+constexpr const int32_t INIT_HEIGHT = INIT_WIDTH / ASPECT_RATIO;
+
+static over::Camera camera(glm::vec3(0, 0, 3), -90, 0, 45, glm::vec3(0, 1, 0),
+                           ASPECT_RATIO);
 
 static void ProcessInput(GLFWwindow* window, over::Camera& camera,
                          float deltaTime) {
@@ -79,10 +84,6 @@ int main() {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  const float ASPECT_RATIO = 16.0 / 9.0;
-  const int32_t INIT_WIDTH = 1920;
-  const int32_t INIT_HEIGHT = INIT_WIDTH / ASPECT_RATIO;
-
   GLFWwindow* window =
       glfwCreateWindow(INIT_WIDTH, INIT_HEIGHT, "Lighting", nullptr, nullptr);
   if (!window) {
@@ -122,7 +123,6 @@ int main() {
   glm::vec3 spotLightColor(1, 1, 1);
   glm::vec3 pointLightColor = glm::vec3(1.f, 0.f, 0.f);
   over::Shader shader("shaders/vertex.shader", "shaders/fragment.shader");
-  shader.Compile();
   shader.Activate();
 
   shader.SetInt("material.diffuse", 0);
@@ -132,7 +132,6 @@ int main() {
 
   over::Shader lightShader("shaders/vertex.shader",
                            "shaders/lightFragment.shader");
-  lightShader.Compile();
 
   glm::mat4 model;
   glm::mat4 view;

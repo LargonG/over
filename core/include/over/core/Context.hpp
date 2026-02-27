@@ -15,6 +15,8 @@ class Context {
   GLFWwindow* CreateWindow(uint32 width, uint32 height, const char* title);
   void LoadOpenGL();
 
+  GLFWwindow* GetWindow() const noexcept { return _window; }
+
  private:
   GLFWwindow* _window;
 };
