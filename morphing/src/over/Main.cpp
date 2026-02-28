@@ -133,11 +133,14 @@ void Run() {
   Light spotLightColor(glm::vec3(0.25, 0.25, 0.25), glm::vec3(0.5, 0.5, 0.5),
                        glm::vec3(1, 1, 1));
 
+  float32 cutOffDeg = 12.f;
+  float32 outerCutOffDeg = 25.f;
+
   DirectionalLight dirLight(glm::vec3(1, -1, 1), dirLightColor);
 
   SpotLight spotLight(glm::vec3(0, 0, -10.f), glm::vec3(0, 0, 1),
-                      glm::cos(glm::radians(12.f)),
-                      glm::cos(glm::radians(25.f)), spotLightColor);
+                      glm::cos(glm::radians(cutOffDeg)),
+                      glm::cos(glm::radians(outerCutOffDeg)), spotLightColor);
 
   glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
@@ -175,7 +178,7 @@ void Run() {
     // check -10.f and 10.f :)
     ImGui::SliderFloat("Morphing coefficient", &morphing, 0.f, 1.f);
 
-    ImGui::InputFloat3("Direction Light Direction",
+    ImGui::InputFloat3("Directional Light Direction",
                        glm::value_ptr(dirLight.GetDirection()));
 
     ImGui::ColorEdit3("Directional Light Ambient",
@@ -192,7 +195,13 @@ void Run() {
     ImGui::ColorEdit3("Spot Light Specular",
                       glm::value_ptr(spotLightColor.Specular()));
 
+    ImGui::InputFloat("Spot Light Cut Off", &cutOffDeg);
+    ImGui::InputFloat("Spot Light Outer Cut Off", &outerCutOffDeg);
+
     ImGui::End();
+
+    spotLight.SetCutOff(glm::cos(glm::radians(cutOffDeg)));
+    spotLight.SetOuterCutOff(glm::cos(glm::radians(outerCutOffDeg)));
 
     InputHandler();
 

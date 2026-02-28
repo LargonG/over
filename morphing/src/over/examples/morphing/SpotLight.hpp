@@ -28,6 +28,8 @@ class SpotLight {
   void SetPosition(glm::vec3 position) { _position = position; }
   void SetDirection(glm::vec3 direction) { _direction = direction; }
   void SetLight(Light light) { _light = light; }
+  void SetCutOff(float32 cutOff) { _cutOff = cutOff; }
+  void SetOuterCutOff(float32 outerCutOff) { _outerCutOff = outerCutOff; }
 
  private:
   glm::vec3 _position;
