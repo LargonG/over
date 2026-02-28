@@ -148,6 +148,10 @@ void Run() {
   float32 lastTime = glfwGetTime();
   float32 morphing = 0.5f;
 
+  Morph(from, to, modelMesh.GetIBO().GetElements(),
+        modelMesh.GetVBO().GetVerticies(), morphing);
+  model.GetMeshes().back().GetVBO().ToGPU(true);
+
   while (!glfwWindowShouldClose(window)) {
     glfwPollEvents();
 
@@ -165,6 +169,8 @@ void Run() {
       lastTime = startTime;
     }
     ImGui::Text("fps: %d", lastFps);
+
+    float32 lastMorphing = morphing;
 
     // check -10.f and 10.f :)
     ImGui::SliderFloat("Morphing coefficient", &morphing, 0.f, 1.f);
@@ -196,9 +202,11 @@ void Run() {
     spotLight.SetDirection(camera.GetDirection());
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    Morph(from, to, modelMesh.GetIBO().GetElements(),
-          modelMesh.GetVBO().GetVerticies(), morphing);
-    model.GetMeshes().back().GetVBO().ToGPU(true);
+    if (lastMorphing != morphing) {
+      Morph(from, to, modelMesh.GetIBO().GetElements(),
+            modelMesh.GetVBO().GetVerticies(), morphing);
+      model.GetMeshes().back().GetVBO().ToGPU(true);
+    }
 
     shader.SetMatrix4f("camera.view", camera.GetView());
     shader.SetMatrix4f("camera.projection", camera.GetProjection());
