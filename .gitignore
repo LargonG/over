@@ -4,5 +4,6 @@
 vcpkg_installed/
 
 out/
+build/
 
 CMakePresets.json
