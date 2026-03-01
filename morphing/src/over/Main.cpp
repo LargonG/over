@@ -20,7 +20,7 @@
 namespace over {
 
 static float32 SphereCoords(float32 posa, float32 posb2, float32 posd2) {
-  return posa * std::sqrtf(1 - posb2 / 2.0 - posd2 / 2.0 + posb2 * posd2 / 3);
+  return posa * std::sqrt(1 - posb2 / 2.0 - posd2 / 2.0 + posb2 * posd2 / 3);
 }
 
 static glm::vec3 Interpolate(float32 coef, glm::vec3 a, glm::vec3 b) {
@@ -130,7 +130,7 @@ void Run() {
 
   Light dirLightColor(glm::vec3(0.25, 0.25, 0.25), glm::vec3(0.5, 0.5, 0.5),
                       glm::vec3(1, 1, 1));
-  Light spotLightColor(glm::vec3(0.25, 0.25, 0.25), glm::vec3(0.5, 0.5, 0.5),
+  Light spotLightColor(glm::vec3(0), glm::vec3(0.5, 0.5, 0.5),
                        glm::vec3(1, 1, 1));
 
   float32 cutOffDeg = 12.f;

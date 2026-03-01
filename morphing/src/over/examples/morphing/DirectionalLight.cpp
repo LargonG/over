@@ -1,5 +1,7 @@
 #include <over/examples/morphing/DirectionalLight.hpp>
 
+#include <utility>
+
 #include <over/core/Shader.hpp>
 
 #include <glm/gtc/type_ptr.hpp>
