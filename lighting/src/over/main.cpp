@@ -17,8 +17,8 @@ constexpr float ASPECT_RATIO = 16.0 / 9.0;
 constexpr int32_t INIT_WIDTH = 1920;
 constexpr const int32_t INIT_HEIGHT = INIT_WIDTH / ASPECT_RATIO;
 
-static over::Camera camera(glm::vec3(0, 0, 3), -90, 0, 45, glm::vec3(0, 1, 0),
-                           ASPECT_RATIO);
+static over::Camera camera(glm::vec3(0, 0, 3), glm::vec3(0), 20.f,
+                           glm::radians(45.f), ASPECT_RATIO);
 
 static void ProcessInput(GLFWwindow* window, over::Camera& camera,
                          float deltaTime) {
@@ -179,7 +179,7 @@ int main() {
     shader.SetMatrix4f("view", glm::value_ptr(view));
     shader.SetVec3f("viewPosition", camera.GetPosition());
 
-    projection = glm::perspective(glm::radians(camera.FOV()), ASPECT_RATIO,
+    projection = glm::perspective(camera.GetFov(), ASPECT_RATIO,
                                   0.1f, 100.0f);
     shader.SetMatrix4f("projection", glm::value_ptr(projection));
 

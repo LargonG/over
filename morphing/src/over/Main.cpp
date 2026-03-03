@@ -138,7 +138,7 @@ void Run() {
 
   DirectionalLight dirLight(glm::vec3(1, -1, 1), dirLightColor);
 
-  SpotLight spotLight(glm::vec3(0, 0, -10.f), glm::vec3(0, 0, 1),
+  SpotLight spotLight(glm::vec3(0, 0, 0), glm::vec3(0, 0, 1),
                       glm::cos(glm::radians(cutOffDeg)),
                       glm::cos(glm::radians(outerCutOffDeg)), spotLightColor);
 

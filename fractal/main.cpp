@@ -22,8 +22,8 @@ static const int WIDTH = 1080;
 static const int HEIGHT = WIDTH / ASPECT_RATIO;
 static const char* TITLE = "fractal";
 
-static over::Camera camera(glm::vec3(0.f, 0.f, -1.f), -90.f, 0.f, 0,
-                           glm::vec3(0, 1, 0), ASPECT_RATIO);
+static over::Camera camera(glm::vec3(0.f, 0.f, -1.f), glm::vec3(0), 0.f,
+                           glm::radians(0.f), ASPECT_RATIO);
 static float scale = 1.0f;
 
 static void ProcessInput(GLFWwindow* window) {

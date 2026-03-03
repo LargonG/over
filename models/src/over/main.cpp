@@ -20,8 +20,8 @@ constexpr uint32_t INIT_HEIGHT =
     static_cast<uint32_t>(INIT_WIDTH / ASPECT_RATIO);
 constexpr char* TITLE = "Models";
 
-static over::Camera camera(glm::vec3(0, 0, 3), -90, 0, 45, glm::vec3(0, 1, 0),
-                           ASPECT_RATIO);
+static over::Camera camera(glm::vec3(0, 0, 3), glm::vec3(0), 20.f,
+                           glm::radians(45.f), ASPECT_RATIO);
 
 void InputHandler(Window* window, float deltaTime) {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -107,8 +107,7 @@ int main() {
                        camera.GetUp());
     shader.SetMatrix4f("view", glm::value_ptr(view));
 
-    projection = glm::perspective(glm::radians(camera.FOV()), ASPECT_RATIO,
-                                  0.1f, 100.0f);
+    projection = glm::perspective(camera.GetFov(), ASPECT_RATIO, 0.1f, 100.0f);
     shader.SetMatrix4f("projection", glm::value_ptr(projection));
 
     glm::vec3 globalDir = view * glm::vec4(globalLightDirection, 0.f);

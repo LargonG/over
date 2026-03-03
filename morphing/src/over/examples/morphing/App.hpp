@@ -16,8 +16,8 @@ class App {
  public:
   App()
       : _context(),
-        _camera(glm::vec3(0, 0, 3), -90, 0, 45, glm::vec3(0, 1, 0),
-                ASPECT_RATIO),
+        _camera(glm::vec3(0, 0, 3), glm::vec3(0, 0, 0), 20.f,
+                glm::radians(45.f), ASPECT_RATIO),
         _deltaTime(0) {}
 
   static App& Instance() {
