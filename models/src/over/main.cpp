@@ -20,7 +20,7 @@ constexpr uint32_t INIT_HEIGHT =
     static_cast<uint32_t>(INIT_WIDTH / ASPECT_RATIO);
 constexpr char* TITLE = "Models";
 
-static over::Camera camera(glm::vec3(0, 0, 3), glm::vec3(0), 20.f,
+static over::Camera camera(glm::vec3(0, 0, 3), glm::vec3(0), 2.f,
                            glm::radians(45.f), ASPECT_RATIO);
 
 void InputHandler(Window* window, float deltaTime) {
@@ -93,6 +93,7 @@ int main() {
   float deltaTime = 0.0f;
 
   glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
+  glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_STENCIL_TEST);
 
