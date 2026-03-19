@@ -1,8 +1,8 @@
 #include <over/core/Camera.hpp>
-#include <over/core/Context.hpp>
 #include <over/core/Model.hpp>
 #include <over/core/Shader.hpp>
 #include <over/core/Types.hpp>
+#include <over/core/window/Context.hpp>
 #include <over/examples/morphing/App.hpp>
 #include <over/examples/morphing/DirectionalLight.hpp>
 #include <over/examples/morphing/SpotLight.hpp>

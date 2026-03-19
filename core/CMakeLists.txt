@@ -10,7 +10,7 @@ include(SetupAssimp)
 set(SRC
 	src/over/core/Camera.cpp
 	src/over/core/Shader.cpp
-	src/over/core/Context.cpp
+	src/over/core/window/Context.cpp
 	src/over/core/stb_impl.cpp
 	src/over/core/Mesh.cpp
 	src/over/core/Model.cpp
@@ -18,6 +18,8 @@ set(SRC
 	src/over/core/opengl/VAO.cpp
 	src/over/core/opengl/VBO.cpp
 	src/over/core/opengl/IBO.cpp
+	src/over/core/opengl/Texture2D.cpp
+	src/over/core/opengl/Framebuffer.cpp
 )
 
 add_library(${PROJECT_NAME} STATIC ${SRC})

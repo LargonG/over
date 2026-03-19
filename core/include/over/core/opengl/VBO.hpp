@@ -18,6 +18,7 @@ class Vertex {
   Vertex(glm::vec3 position, glm::vec3 normal, glm::vec2 texCoord);
 };
 
+
 class VBO {
  public:
   VBO();
@@ -38,7 +39,9 @@ class VBO {
   void Unbind() const;
 
   std::vector<Vertex>& GetVerticies() noexcept { return _verticies; }
-  const std::vector<Vertex>& GetVerticies() const noexcept { return _verticies; }
+  const std::vector<Vertex>& GetVerticies() const noexcept {
+    return _verticies;
+  }
 
  private:
   std::vector<Vertex> _verticies;
