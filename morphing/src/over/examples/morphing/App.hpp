@@ -16,17 +16,23 @@ class App {
  public:
   App()
       : _context(),
+        _window(WIDTH, HEIGHT, TITLE),
         _camera(glm::vec3(0, 0, 3), glm::vec3(0, 0, 0), 20.f,
                 glm::radians(45.f), ASPECT_RATIO),
-        _deltaTime(0) {}
+        _deltaTime(0) {
+    if (!s_app) {
+      s_app = this;
+    }
+  }
 
   static App& Instance() {
-    static App app;
-    return app;
+    assert(s_app != nullptr);
+    return *s_app;
   }
 
   Context& GetContext() noexcept { return _context; }
   Camera& GetCamera() noexcept { return _camera; }
+  Window& GetWindow() noexcept { return _window; }
   float32 GetDelta() const noexcept { return _deltaTime; }
   void SetDelta(float32 v) noexcept { _deltaTime = v; }
   bool IsCursorActive() const noexcept { return _cursorActive; }
@@ -36,17 +42,22 @@ class App {
 
  private:
   Context _context;
+  Window _window;
   Camera _camera;
 
   mutable float32 _deltaTime;
   mutable bool _cursorActive = false;
+
+  static App* s_app;
 };
+
+App* App::s_app = nullptr;
 
 void InputHandler() {
   static bool down = false;
   auto& app = App::Instance();
   auto& camera = app.GetCamera();
-  auto* window = app.GetContext().GetWindow();
+  auto* window = app.GetWindow().Get();
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, GLFW_TRUE);
   }

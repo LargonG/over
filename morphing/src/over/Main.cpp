@@ -89,12 +89,11 @@ static std::vector<Vertex> GetSphereVerticies(const std::vector<Vertex>& cube) {
 void Run() {
   fmt::println(TITLE);
 
-  App& app = App::Instance();
+  App app;
+  auto* window = app.GetWindow().Get();
   auto& ctx = app.GetContext();
+  ctx.LoadOpenGL(app.GetWindow());
   auto& camera = app.GetCamera();
-
-  auto* window = ctx.CreateWindow(WIDTH, HEIGHT, TITLE);
-  ctx.LoadOpenGL();
 
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
   glfwSetCursorPosCallback(window, CursorPositionHandler);
@@ -142,9 +141,9 @@ void Run() {
                       glm::cos(glm::radians(cutOffDeg)),
                       glm::cos(glm::radians(outerCutOffDeg)), spotLightColor);
 
-  glEnable(GL_CULL_FACE);
-  glEnable(GL_DEPTH_TEST);
-  glClearColor(0.f, 0.f, 0.f, 1.0);
+  ctx.SetFaceCulling(true);
+  ctx.SetDepthTest(true);
+  ctx.SetClearColor(glm::vec4(0.f, 0.f, 0.f, 1.f));
 
   uint32 fps = 0;
   uint32 lastFps = 0;

@@ -11,6 +11,7 @@ set(SRC
 	src/over/core/Camera.cpp
 	src/over/core/Shader.cpp
 	src/over/core/window/Context.cpp
+	src/over/core/window/Window.cpp
 	src/over/core/stb_impl.cpp
 	src/over/core/Mesh.cpp
 	src/over/core/Model.cpp

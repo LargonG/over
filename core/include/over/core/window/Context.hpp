@@ -2,22 +2,31 @@
 
 #include <over/core/Includes.hpp>
 #include <over/core/Types.hpp>
+#include <over/core/window/Window.hpp>
+
+#include <glm/glm.hpp>
 
 namespace over {
+// Context manages OpenGL settings (Version, Depth/Stencil Test, Face Culling e.t.c)
 class Context {
  public:
   Context(int32 major = 3, int32 minor = 3);
 
-  ~Context() noexcept;
-
   Context(const Context&) = delete;
 
-  GLFWwindow* CreateWindow(uint32 width, uint32 height, const char* title);
-  void LoadOpenGL();
+  ~Context();
 
-  GLFWwindow* GetWindow() const noexcept { return _window; }
+  void LoadOpenGL(Window& window);
 
- private:
-  GLFWwindow* _window;
+  void Viewport(uint32 x, uint32 y, uint32 width, uint32 height);
+
+  void SetClearColor(glm::vec4 color);
+  void SetFaceCulling(bool value);
+  void SetDepthTest(bool value);
+  void SetStencilTest(bool value);
+
+  void ClearAll();
+
+  void ThrowErrors();
 };
 }  // namespace over
