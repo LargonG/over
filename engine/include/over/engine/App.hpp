@@ -15,6 +15,8 @@ class App {
 
   App(std::string name);
 
+  virtual ~App();
+
   void Run(int32 width, int32 height, int32 swapInterval = 0);
 
   virtual void Init() = 0;

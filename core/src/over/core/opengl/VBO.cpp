@@ -85,6 +85,6 @@ void VBO::Bind(bool copy) const {
 
 void VBO::Unbind() const {
   assert(_id != 0);
-  glBindBuffer(GL_ARRAY_BUFFER, _id);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 }  // namespace over

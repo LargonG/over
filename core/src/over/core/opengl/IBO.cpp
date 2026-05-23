@@ -82,6 +82,6 @@ void IBO::Bind(bool copy) const {
 
 void IBO::Unbind() const {
   assert(_id != 0);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _id);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 }  // namespace over

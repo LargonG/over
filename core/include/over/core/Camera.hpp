@@ -12,7 +12,7 @@ class Camera {
          float32 aspectRatio, float32 near = 0.1f, float32 far = 1000.f,
          float32 sensitivity = 0.1f);
   static glm::vec3 GetUp() { return up; }
-  static glm::vec3 SetUp(glm::vec3 newUp) { up = newUp; }
+  static void SetUp(glm::vec3 newUp) { up = newUp; }
 
   void Camera::UpdatePositionCallback(GLFWwindow* window, float32 deltaTime);
   void Camera::UpdateYawPitchCallback(float32 xpos, float32 ypos,

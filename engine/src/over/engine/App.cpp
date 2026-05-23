@@ -17,6 +17,8 @@ App::App(std::string name)
   s_App = this;
 }
 
+App::~App() {}
+
 void App::Run(int32 width, int32 height, int32 swapInterval) {
   _window = Window(static_cast<uint32>(width), static_cast<uint32>(height),
                    _name.c_str(), swapInterval);

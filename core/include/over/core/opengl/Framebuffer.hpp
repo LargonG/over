@@ -18,10 +18,10 @@ class Framebuffer {
   ~Framebuffer();
 
   void Bind() noexcept;
+  void Unbind() noexcept;
 
   void Attach(GLenum attachment, Texture2D& texture) noexcept;
-
-  void Unbind() noexcept;
+  bool IsReady();
 
  private:
   uint32 _id;

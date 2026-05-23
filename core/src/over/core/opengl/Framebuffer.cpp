@@ -18,8 +18,14 @@ void Framebuffer::Bind() noexcept {
   glBindFramebuffer(GL_FRAMEBUFFER, _id);
 }
 
-void Attach(GLenum attachment, Texture2D& texture) {
-  glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, texture.Get(), 0);
+void Framebuffer::Attach(GLenum attachment, Texture2D& texture) noexcept {
+  glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D,
+                         texture.Get(), 0);
+}
+
+bool Framebuffer::IsReady() {
+  // TODO: assert _id is binded
+  return glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
 }
 
 void Framebuffer::Unbind() noexcept {
