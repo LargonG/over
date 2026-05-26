@@ -39,6 +39,7 @@ set(SRC
 	src/over/examples/morphing/DirectionalLight.cpp
 	src/over/examples/morphing/SpotLight.cpp
 	src/over/examples/morphing/Light.cpp
+	src/over/examples/morphing/App.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SRC})
