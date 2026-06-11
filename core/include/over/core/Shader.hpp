@@ -2,23 +2,27 @@
 
 #include <over/core/Includes.hpp>
 #include <over/core/Types.hpp>
+#include <over/core/opengl/Binded.hpp>
 
 #include <glm/glm.hpp>
 #include <string>
 
 namespace over {
-class Shader {
+class Shader : public Binded<Shader> {
  public:
+  Shader() noexcept;
   Shader(std::string vertexPath, std::string fragmentPath);
 
   Shader(const Shader&) = delete;
   Shader& operator=(const Shader&) = delete;
 
-  Shader(Shader&&) = delete;
-  Shader& operator=(Shader&&) = delete;
+  Shader(Shader&&) noexcept = default;
+  Shader& operator=(Shader&&) noexcept;
 
   ~Shader();
 
+  void Bind() noexcept;
+  void Unbind() noexcept;
   void Activate() noexcept;
 
   GLuint GetProgram() const noexcept { return program_; };
@@ -42,6 +46,7 @@ class Shader {
 
  private:
   void Compile();
+  void FreeGPU() noexcept;
 
   std::string vertexPath_;
   std::string fragmentPath_;

@@ -2,10 +2,11 @@
 
 #include <over/core/Includes.hpp>
 #include <over/core/Types.hpp>
+#include <over/core/opengl/Binded.hpp>
 
 namespace over {
 
-class VAO {
+class VAO : public Binded<VAO> {
  public:
   VAO();
 

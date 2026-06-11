@@ -1,4 +1,3 @@
-
 function(init_submodule SUBMODULE_PATH)
 	if (NOT EXISTS "${CMAKE_SOURCE_DIR}/${SUBMODULE_PATH}/.git")
 		message(STATUS "Fetching submodule ${SUBMODULE_PATH}...")
@@ -15,6 +14,6 @@ function(init_submodule SUBMODULE_PATH)
 			message(FATAL_ERROR "Failed to fetch submodule ${SUBMODULE_PATH}")
 		endif()
 	else()
-		message(STATUS "Submodule already exists: ${SUBMODULE_PATH}")
+		message(DEBUG "Submodule already exists: ${SUBMODULE_PATH}")
 	endif()
 endfunction()

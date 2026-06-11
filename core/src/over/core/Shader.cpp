@@ -44,6 +44,8 @@ static GLuint CompileShader(const char* source, GLenum type) {
   return shader;
 }
 
+Shader::Shader() noexcept : vertexPath_(), fragmentPath_(), program_(0) {}
+
 Shader::Shader(std::string vertexPath, std::string fragmentPath)
     : vertexPath_(std::move(vertexPath)),
       fragmentPath_(std::move(fragmentPath)),
@@ -51,10 +53,24 @@ Shader::Shader(std::string vertexPath, std::string fragmentPath)
   Compile();
 }
 
-Shader::~Shader() {
-  if (program_ != 0) {
-    glDeleteProgram(program_);
+Shader& Shader::operator=(Shader&& other) noexcept {
+  if (this == &other) {
+    return *this;
   }
+
+  FreeGPU();
+  vertexPath_ = std::move(other.vertexPath_);
+  fragmentPath_ = std::move(other.fragmentPath_);
+  program_ = std::exchange(other.program_, 0);
+  // can be only
+  // 1) Empty, so no compile needed
+  // 2) Compiled
+
+  return *this;
+}
+
+Shader::~Shader() {
+  FreeGPU();
 }
 
 void Shader::Compile() {
@@ -90,15 +106,31 @@ void Shader::Compile() {
     throw fmt::system_error(-1, "cannot link shader program: {}", infoLog);
   }
 
-  if (program_ != 0) {
-    glDeleteProgram(program_);
-    program_ = 0;
-  }
+  FreeGPU();
+
   program_ = program;
 }
 
+void Shader::FreeGPU() noexcept {
+  if (0 == program_) {
+    return;
+  }
+
+  glDeleteProgram(program_);
+  program_ = 0;
+}
+
 void Shader::Activate() noexcept {
+  assert(0 != program_);
   glUseProgram(program_);
+}
+
+void Shader::Bind() noexcept {
+  Activate();
+}
+
+void Shader::Unbind() noexcept {
+  // do nothing
 }
 
 GLint Shader::GetUniformLocation(const std::string& name) {

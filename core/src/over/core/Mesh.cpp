@@ -121,11 +121,23 @@ void Mesh::Draw(Shader& shader, int32 count) {
   }
   glActiveTexture(GL_TEXTURE0);
 
-  _vao.Bind();
+  _vao.Use([&]() {
+    glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(_ibo.Size()),
+                            GL_UNSIGNED_INT, nullptr, count);
+  });
+}
 
-  glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(_ibo.Size()),
-                          GL_UNSIGNED_INT, nullptr, count);
-  _vao.Unbind();
+Mesh Mesh::GenQuad(std::vector<Texture> textures) {
+  static VBO data({
+      Vertex({-1.f, -1.f, 0.f}, {0.f, 0.f, 0.f}, {0.f, 0.f}),
+      Vertex({1.f, -1.f, 0.f}, {0.f, 0.f, 0.f}, {1.f, 0.f}),
+      Vertex({1.f, 1.f, 0.f}, {0.f, 0.f, 0.f}, {1.f, 1.f}),
+      Vertex({-1.f, 1.f, 0.f}, {0.f, 0.f, 0.f}, {0.f, 1.f}),
+  });
+
+  static IBO ids({Element(0, 1, 2), Element(2, 3, 0)});
+
+  return Mesh(data, ids, std::move(textures));
 }
 
 }  // namespace over

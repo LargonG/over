@@ -29,6 +29,7 @@ class Texture {
 
 class Mesh {
  public:
+  Mesh();
   Mesh(std::vector<Vertex> verticies, std::vector<Element> elements,
        std::vector<Texture> textures);
   Mesh(VBO vbo, IBO ibo, std::vector<Texture> textures);
@@ -49,9 +50,9 @@ class Mesh {
   IBO& GetIBO() noexcept { return _ibo; }
   const IBO& GetIBO() const noexcept { return _ibo; }
 
- private:
-  Mesh();
+  static Mesh GenQuad(std::vector<Texture> textures);
 
+ private:
   void Setup();
 
   std::vector<Texture> _textures;

@@ -2,12 +2,13 @@
 
 #include <over/core/Includes.hpp>
 #include <over/core/Types.hpp>
+#include <over/core/opengl/RenderBuffer.hpp>
 #include <over/core/opengl/Texture2D.hpp>
 
 namespace over {
-class Framebuffer {
+class Framebuffer : public Binded<Framebuffer> {
  public:
-  Framebuffer();
+  Framebuffer() noexcept;
 
   Framebuffer(const Framebuffer&) = delete;  // лень + не факт что нужно будет
   Framebuffer(Framebuffer&&) = delete;
@@ -17,10 +18,13 @@ class Framebuffer {
 
   ~Framebuffer();
 
+  void Setup();
+
   void Bind() noexcept;
   void Unbind() noexcept;
 
   void Attach(GLenum attachment, Texture2D& texture) noexcept;
+  void Attach(GLenum attachment, RenderBuffer& buffer) noexcept;
   bool IsReady();
 
  private:

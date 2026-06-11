@@ -26,9 +26,9 @@ set(MODELS
 foreach(modir IN LISTS MODELS)
   file(GLOB MODEL RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/resources/${modir}/*)
-  message(STATUS "model is ${MODEL}")
+  message(DEBUG "model is ${MODEL}")
   foreach(item IN LISTS MODEL)
-    message("item is ${item}")
+    message(DEBUG "item is ${item}")
     file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${item}
 	  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/resources/${modir})
   endforeach()

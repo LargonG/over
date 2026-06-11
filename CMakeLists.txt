@@ -1,12 +1,19 @@
-﻿cmake_minimum_required (VERSION 3.10)
+﻿cmake_minimum_required (VERSION 3.20..3.31)
 
 set(CMAKE_CXX_STANDARD 17)
 
 # Enable Hot Reload for MSVC compilers if supported.
 if (POLICY CMP0141)
-  cmake_policy(SET CMP0141 NEW)
-  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
+	cmake_policy(SET CMP0141 NEW)
+	set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 endif()
+
+if(POLICY CMP0140)
+	cmake_policy(SET CMP0140 NEW)
+else()
+	message(FATAL_ERROR "Nah, we don't support it, install newer cmake version'")
+endif()
+
 
 if (POLICY CMP0079)
   cmake_policy(SET CMP0079 NEW)
@@ -25,4 +32,4 @@ add_subdirectory(fractal)
 add_subdirectory(lighting)
 add_subdirectory(models)
 add_subdirectory(morphing)
-add_subdirectory(fitures)
+add_subdirectory(features)

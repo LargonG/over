@@ -3,6 +3,7 @@
 #include <vector>
 
 #include <over/core/Includes.hpp>
+#include <over/core/opengl/Binded.hpp>
 
 #include <glm/glm.hpp>
 
@@ -18,8 +19,7 @@ class Vertex {
   Vertex(glm::vec3 position, glm::vec3 normal, glm::vec2 texCoord);
 };
 
-
-class VBO {
+class VBO : public Binded<VBO> {
  public:
   VBO();
   explicit VBO(std::vector<Vertex> vertices, GLenum usage = GL_STATIC_DRAW);

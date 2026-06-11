@@ -5,6 +5,7 @@
 #include <vector>
 
 #include <over/core/Includes.hpp>
+#include <over/core/Mesh.hpp>
 #include <over/core/Types.hpp>
 
 namespace over {
@@ -13,7 +14,10 @@ Texture2D::Texture2D() noexcept
 
 Texture2D::Texture2D(uint32 width, uint32 height, const ubyte* data,
                      GLenum format)
-    : _width(width), _height(height), _format(static_cast<uint32>(format)) {
+    : _id(0),
+      _width(width),
+      _height(height),
+      _format(static_cast<uint32>(format)) {
   Setup(data, format);
 }
 
@@ -23,6 +27,10 @@ Texture2D::Texture2D(const Texture2D& other) : Texture2D() {
 
 Texture2D::Texture2D(Texture2D&& other) noexcept : Texture2D() {
   *this = std::move(other);
+}
+
+Texture2D::operator Texture() const {
+  return Texture(_id, Texture::Type::DIFFUSE, "internal");
 }
 
 Texture2D& Texture2D::operator=(const Texture2D& other) {
@@ -110,7 +118,9 @@ void Texture2D::ToGPU(const ubyte* data, GLenum format, bool unbind) {
 }
 
 void Texture2D::FreeGPU() noexcept {
-  assert(_id != 0);
+  if (0 == _id) {
+    return;
+  }
   glDeleteTextures(1, &_id);
   _id = 0;
 }

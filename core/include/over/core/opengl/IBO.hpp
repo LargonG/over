@@ -1,9 +1,11 @@
 #pragma once
 
+#include <functional>
 #include <vector>
 
 #include <over/core/Includes.hpp>
 #include <over/core/Types.hpp>
+#include <over/core/opengl/Binded.hpp>
 
 namespace over {
 
@@ -16,7 +18,7 @@ class Element {
   Element(const Element&) = default;
 };
 
-class IBO {
+class IBO : public Binded<IBO> {
  public:
   IBO();
   explicit IBO(std::vector<Element> elements, GLenum usage = GL_STATIC_DRAW);

@@ -33,7 +33,6 @@ void App::Run(int32 width, int32 height, int32 swapInterval) {
   Init();
 
   while (!_window.ShouldClose()) {
-
     startTime = glfwGetTime();
 
     _input.Poll();

@@ -4,23 +4,43 @@
 
 #include <over/core/Includes.hpp>
 
+#include <fmt/core.h>
+
 namespace over {
-Framebuffer::Framebuffer() : _id(0) {
-  glGenFramebuffers(1, &_id);
-}
+Framebuffer::Framebuffer() noexcept : _id(0) {}
 
 Framebuffer::~Framebuffer() {
   glDeleteFramebuffers(1, &_id);
 }
 
+void Framebuffer::Setup() {
+  if (0 != _id) {
+    return;
+  }
+  glGenFramebuffers(1, &_id);
+}
+
 void Framebuffer::Bind() noexcept {
-  assert(_id != 0);
+  assert(0 != _id);
   glBindFramebuffer(GL_FRAMEBUFFER, _id);
 }
 
+void Framebuffer::Unbind() noexcept {
+  assert(0 != _id);
+  // TODO: assert _id is binded
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 void Framebuffer::Attach(GLenum attachment, Texture2D& texture) noexcept {
+  assert(0 != _id);
   glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D,
                          texture.Get(), 0);
+}
+
+void Framebuffer::Attach(GLenum attachment, RenderBuffer& buffer) noexcept {
+  assert(0 != _id);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER,
+                            buffer.Get());
 }
 
 bool Framebuffer::IsReady() {
@@ -28,9 +48,4 @@ bool Framebuffer::IsReady() {
   return glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
 }
 
-void Framebuffer::Unbind() noexcept {
-  assert(_id != 0);
-  // TODO: assert _id is binded
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
 }  // namespace over

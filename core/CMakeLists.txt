@@ -7,23 +7,30 @@ include(SetupGLM)
 include(SetupSTB)
 include(SetupAssimp)
 
-set(SRC
-	src/over/core/Camera.cpp
-	src/over/core/Shader.cpp
-	src/over/core/window/Context.cpp
-	src/over/core/window/Window.cpp
-	src/over/core/stb_impl.cpp
-	src/over/core/Mesh.cpp
-	src/over/core/Model.cpp
-	src/over/core/Transform.cpp
-	src/over/core/opengl/VAO.cpp
-	src/over/core/opengl/VBO.cpp
-	src/over/core/opengl/IBO.cpp
-	src/over/core/opengl/Texture2D.cpp
-	src/over/core/opengl/Framebuffer.cpp
+include(utils/ConfigureSources)
+
+set(p_core_sources
+	Camera.cpp
+	Shader.cpp
+	stb_impl.cpp
+	Mesh.cpp
+	Model.cpp
+	Transform.cpp
+
+	window/Context.cpp
+	window/Window.cpp
+	
+	opengl/VAO.cpp
+	opengl/VBO.cpp
+	opengl/IBO.cpp
+	opengl/Texture2D.cpp
+	opengl/Framebuffer.cpp
+	opengl/RenderBuffer.cpp
 )
 
-add_library(${PROJECT_NAME} STATIC ${SRC})
+set_source_directory(p_src SOURCE_DIR "src/over/core" SOURCES ${p_core_sources})
+
+add_library(${PROJECT_NAME} STATIC ${p_src})
 add_library(over::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 target_link_libraries(
