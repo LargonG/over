@@ -9,6 +9,7 @@ include(SetupSTB)
 
 include(utils/ConfigureShaders)
 include(utils/ConfigureSources)
+include(utils/ConfigureResources)
 
 set(p_features_sources
 	Main.cpp
@@ -40,6 +41,13 @@ compile_shaders(
 	SOURCES ${shaders}
 )
 
+
+set(m_build_mode DEBUG)
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+	set(m_build_mode RELEASE)
+endif()
+
+set_resources(${m_build_mode} DIRECTORY "resources")
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${Stb_INCLUDE_DIR})
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/)
