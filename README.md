@@ -41,14 +41,17 @@ Also it is a playground for me to test architecture of render engine & algorithm
 ## Models
 
 - Model loading using assimp
+- Outline (light-green)
 
 <img width="2134" height="1663" alt="image" src="https://github.com/user-attachments/assets/c488b98e-f7c2-4237-861e-1db14fd967c8" />
 
 ## Morphing
 
-- Model loading
-- Morphing function (are you suprised?)
+- It's model, actually
+- Morphing function (are you surprised?)
 - Using custom App singleton
+- ImGUI interface (you can see it on picture)
+- Free cursor using `T` key.
 
 <img width="1922" height="1075" alt="image" src="https://github.com/user-attachments/assets/840a465b-84e5-4ce8-a163-e7f7ab462d31" />
 
@@ -57,6 +60,7 @@ Also it is a playground for me to test architecture of render engine & algorithm
 - Using engine package (module, library? Does it matter?)
 - FrameBuffer + RenderBuffer + Texture2D = Post-processing
 - => Kernel matrix in shader
+- Change vision mode using `T` key
 
 <img width="1123" height="954" alt="image" src="https://github.com/user-attachments/assets/4bddcc44-4c68-4e57-9b0a-29db2b45c7f4" />
 
