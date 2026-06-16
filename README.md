@@ -1,7 +1,7 @@
 # Over boring & useless stuff - Project is in progress
 
 Over is a handmade engine using OpenGL with some examples.
-It's a mix of the learnopengl tutorial & other cources.
+It's a mix of the learnopengl tutorial & other courses.
 Also it is a playground for me to test architecture of render engine & algorithms.
 
 # Examples
