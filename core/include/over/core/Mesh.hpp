@@ -43,12 +43,15 @@ class Mesh {
   ~Mesh();
 
   void Draw(Shader& shader, int32 count = 1);
+  void Draw(int32 count = 1);
 
   VBO& GetVBO() noexcept { return _vbo; }
   const VBO& GetVBO() const noexcept { return _vbo; }
 
   IBO& GetIBO() noexcept { return _ibo; }
   const IBO& GetIBO() const noexcept { return _ibo; }
+
+  std::vector<Texture>& GetTextures() noexcept { return _textures; }
 
   static Mesh GenQuad(std::vector<Texture> textures);
 

@@ -5,6 +5,8 @@
 #include <string>
 #include <utility>
 
+#include <over/core/Shader.hpp>
+
 #include <fmt/core.h>
 
 namespace over {
@@ -95,12 +97,13 @@ void Mesh::Setup() {
   _ibo.Unbind();
 }
 
-void Mesh::Draw(Shader& shader, int32 count) {
+static void BindTextures(std::vector<Texture>& textures, Shader& shader,
+                         bool flush = false) {
   uint32 diffuseCounter = 0;
   uint32 specularCounter = 0;
-  for (usize i = 0; i < _textures.size(); i++) {
+  for (usize i = 0; i < textures.size(); i++) {
     glActiveTexture(GL_TEXTURE0 + i);
-    const auto& texture = _textures[i];
+    const auto& texture = textures[i];
     auto stype = texture.GetType();
 
     uint32 n = 0;
@@ -116,26 +119,43 @@ void Mesh::Draw(Shader& shader, int32 count) {
     }
 
     std::string varname = "material.texture_" + stype + std::to_string(n);
-    shader.SetInt(varname, static_cast<int>(i));
-    glBindTexture(GL_TEXTURE_2D, texture.id);
+
+    if (flush) {
+      shader.SetInt(varname, 0);
+      glBindTexture(GL_TEXTURE_2D, 0);
+    } else {
+      shader.SetInt(varname, static_cast<int>(i));
+      glBindTexture(GL_TEXTURE_2D, texture.id);
+    }
   }
   glActiveTexture(GL_TEXTURE0);
+}
+
+void Mesh::Draw(Shader& shader, int32 count) {
+  BindTextures(_textures, shader);
 
   _vao.Use([&]() {
     glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(_ibo.Size()),
                             GL_UNSIGNED_INT, nullptr, count);
   });
+
+  BindTextures(_textures, shader, true);
+}
+
+void Mesh::Draw(int32 count) {
+  Shader shader = Shader::GetCurrent();
+  Draw(shader, count);
 }
 
 Mesh Mesh::GenQuad(std::vector<Texture> textures) {
-  static VBO data({
+  static std::vector<Vertex> data = {
       Vertex({-1.f, -1.f, 0.f}, {0.f, 0.f, 0.f}, {0.f, 0.f}),
       Vertex({1.f, -1.f, 0.f}, {0.f, 0.f, 0.f}, {1.f, 0.f}),
       Vertex({1.f, 1.f, 0.f}, {0.f, 0.f, 0.f}, {1.f, 1.f}),
       Vertex({-1.f, 1.f, 0.f}, {0.f, 0.f, 0.f}, {0.f, 1.f}),
-  });
+  };
 
-  static IBO ids({Element(0, 1, 2), Element(2, 3, 0)});
+  static std::vector<Element> ids = {Element(0, 1, 2), Element(2, 3, 0)};
 
   return Mesh(data, ids, std::move(textures));
 }

@@ -21,13 +21,14 @@ void Framebuffer::Setup() {
 }
 
 void Framebuffer::Bind() noexcept {
-  assert(0 != _id);
   glBindFramebuffer(GL_FRAMEBUFFER, _id);
 }
 
 void Framebuffer::Unbind() noexcept {
-  assert(0 != _id);
-  // TODO: assert _id is binded
+  GLint id = 0;
+  glGetIntegerv(GL_FRAMEBUFFER_BINDING, &id);
+  assert(id == _id);
+
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 

@@ -31,8 +31,11 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 set(shaders
-	MainVertex.shader
-	MainFragment.shader
+	ScreenVertex.shader
+	ScreenFragment.shader
+
+	DimentionVertex.shader
+	DimentionFragment.shader
 )
 
 compile_shaders(

@@ -62,7 +62,7 @@ void Input::Init() {
   glfwSetScrollCallback(
       GetWindow(), [](GLFWwindow* window, double xoffset, double yoffset) {
         Input::Instance().UpdateScroll(static_cast<float32>(xoffset),
-                                          static_cast<float32>(yoffset));
+                                       static_cast<float32>(yoffset));
       });
 }
 

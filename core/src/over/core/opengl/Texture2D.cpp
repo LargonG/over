@@ -21,14 +21,6 @@ Texture2D::Texture2D(uint32 width, uint32 height, const ubyte* data,
   Setup(data, format);
 }
 
-Texture2D::Texture2D(const Texture2D& other) : Texture2D() {
-  *this = other;
-}
-
-Texture2D::Texture2D(Texture2D&& other) noexcept : Texture2D() {
-  *this = std::move(other);
-}
-
 Texture2D::operator Texture() const {
   return Texture(_id, Texture::Type::DIFFUSE, "internal");
 }
@@ -78,7 +70,6 @@ void Texture2D::Setup(const ubyte* data, GLenum format) {
   }
 
   if (_id == 0) {
-
     throw std::runtime_error("error while creating texture object");
   }
 

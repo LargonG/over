@@ -13,8 +13,8 @@ class Texture2D : public Binded<Texture2D> {
   Texture2D() noexcept;
   Texture2D(uint32 width, uint32 height, const ubyte* data, GLenum format);
 
-  Texture2D(const Texture2D&);
-  Texture2D(Texture2D&&) noexcept;
+  Texture2D(const Texture2D&) = default;
+  Texture2D(Texture2D&&) noexcept = default;
 
   Texture2D& operator=(const Texture2D&);
   Texture2D& operator=(Texture2D&&) noexcept;

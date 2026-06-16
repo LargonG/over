@@ -11,6 +11,7 @@ namespace over {
 class Shader : public Binded<Shader> {
  public:
   Shader() noexcept;
+  explicit Shader(GLuint id) noexcept;
   Shader(std::string vertexPath, std::string fragmentPath);
 
   Shader(const Shader&) = delete;
@@ -44,6 +45,8 @@ class Shader : public Binded<Shader> {
   void SetVec2f(const std::string& name, glm::vec2 v);
   void SetVec2f(const std::string& name, float32* ptr);
 
+  static Shader GetCurrent() noexcept;
+
  private:
   void Compile();
   void FreeGPU() noexcept;
@@ -52,5 +55,8 @@ class Shader : public Binded<Shader> {
   std::string fragmentPath_;
 
   GLuint program_;
+
+  static void UseProgram(Shader& shader);
+  static GLuint s_currentProgram;
 };
 }  // namespace over

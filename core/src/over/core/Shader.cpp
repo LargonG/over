@@ -46,6 +46,9 @@ static GLuint CompileShader(const char* source, GLenum type) {
 
 Shader::Shader() noexcept : vertexPath_(), fragmentPath_(), program_(0) {}
 
+Shader::Shader(GLuint id) noexcept
+    : vertexPath_(), fragmentPath_(), program_(id) {}
+
 Shader::Shader(std::string vertexPath, std::string fragmentPath)
     : vertexPath_(std::move(vertexPath)),
       fragmentPath_(std::move(fragmentPath)),
@@ -65,6 +68,7 @@ Shader& Shader::operator=(Shader&& other) noexcept {
   // can be only
   // 1) Empty, so no compile needed
   // 2) Compiled
+  // 3) View of other shader
 
   return *this;
 }
@@ -112,7 +116,8 @@ void Shader::Compile() {
 }
 
 void Shader::FreeGPU() noexcept {
-  if (0 == program_) {
+  // if no program or it's view of other shader
+  if (0 == program_ || vertexPath_.empty() && fragmentPath_.empty()) {
     return;
   }
 
@@ -122,7 +127,7 @@ void Shader::FreeGPU() noexcept {
 
 void Shader::Activate() noexcept {
   assert(0 != program_);
-  glUseProgram(program_);
+  Shader::UseProgram(*this);
 }
 
 void Shader::Bind() noexcept {
@@ -185,6 +190,19 @@ void Shader::SetVec2f(const std::string& name, glm::vec2 v) {
 
 void Shader::SetVec2f(const std::string& name, float32* ptr) {
   glUniform2fv(GetUniformLocation(name), 1, ptr);
+}
+
+Shader Shader::GetCurrent() noexcept {
+  return Shader(s_currentProgram);
+}
+
+GLuint Shader::s_currentProgram = 0;
+
+void Shader::UseProgram(Shader& shader) {
+  if (s_currentProgram != shader.program_) {
+    glUseProgram(shader.program_);
+    s_currentProgram = shader.program_;
+  }
 }
 
 }  // namespace over

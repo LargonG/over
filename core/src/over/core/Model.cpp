@@ -31,6 +31,11 @@ void Model::Draw(Shader& shader) {
   }
 }
 
+void Model::Draw() {
+  Shader shader = Shader::GetCurrent();
+  Draw(shader);
+}
+
 void Model::LoadModel(const std::string& path) {
   Assimp::Importer importer;
   const aiScene* scene =

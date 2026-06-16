@@ -6,7 +6,8 @@
 namespace over {
 RenderBuffer::RenderBuffer() noexcept : _id(0) {}
 
-RenderBuffer::RenderBuffer(uint32 width, uint32 height, GLenum internalFormat) {
+RenderBuffer::RenderBuffer(uint32 width, uint32 height, GLenum internalFormat)
+    : RenderBuffer() {
   Setup(width, height, internalFormat);
 }
 
@@ -40,11 +41,11 @@ void RenderBuffer::Unbind() const noexcept {
 }
 
 void RenderBuffer::Setup(uint32 width, uint32 height, GLenum internalFormat) {
-  assert(0 != _id);
+  assert(0 == _id);
 
   glGenRenderbuffers(1, &_id);
 
-  Use([=]() {
+  Use([&]() {
     glRenderbufferStorage(GL_RENDERBUFFER, internalFormat,
                           static_cast<GLsizei>(width),
                           static_cast<GLsizei>(height));

@@ -20,6 +20,7 @@ class Model {
   ~Model();
 
   void Draw(Shader& shader);
+  void Draw();
 
   Transform& GetTransform() noexcept { return _transform; }
 

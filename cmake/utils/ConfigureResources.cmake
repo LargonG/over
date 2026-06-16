@@ -2,7 +2,10 @@ function(set_resources)
 
 # for internal usage only
 macro(set_resources_debug_mode)
-	file(CREATE_LINK "${CMAKE_CURRENT_SOURCE_DIR}/${m_DIRECTORY}" "${CMAKE_CURRENT_BINARY_DIR}/${m_DIRECTORY}" SYMBOLIC)
+	set(t_dest "${CMAKE_CURRENT_BINARY_DIR}/${m_DIRECTORY}")
+	if (NOT (EXISTS "${t_dest}" AND IS_SYMLINK "${t_dest}"))
+		file(CREATE_LINK "${CMAKE_CURRENT_SOURCE_DIR}/${m_DIRECTORY}" "${CMAKE_CURRENT_BINARY_DIR}/${m_DIRECTORY}" SYMBOLIC)
+	endif()
 endmacro()
 
 # for internal usage only
