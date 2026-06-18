@@ -102,7 +102,7 @@ static void BindTextures(std::vector<Texture>& textures, Shader& shader,
   uint32 diffuseCounter = 0;
   uint32 specularCounter = 0;
   for (usize i = 0; i < textures.size(); i++) {
-    glActiveTexture(GL_TEXTURE0 + i);
+    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + i));
     const auto& texture = textures[i];
     auto stype = texture.GetType();
 

@@ -20,8 +20,8 @@ class Framebuffer : public Binded<Framebuffer> {
 
   void Setup();
 
-  void Bind() noexcept;
-  void Unbind() noexcept;
+  void Bind() const noexcept;
+  void Unbind() const noexcept;
 
   void Attach(GLenum attachment, Texture2D& texture) noexcept;
   void Attach(GLenum attachment, RenderBuffer& buffer) noexcept;

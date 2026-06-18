@@ -20,11 +20,11 @@ void Framebuffer::Setup() {
   glGenFramebuffers(1, &_id);
 }
 
-void Framebuffer::Bind() noexcept {
+void Framebuffer::Bind() const noexcept {
   glBindFramebuffer(GL_FRAMEBUFFER, _id);
 }
 
-void Framebuffer::Unbind() noexcept {
+void Framebuffer::Unbind() const noexcept {
   GLint id = 0;
   glGetIntegerv(GL_FRAMEBUFFER_BINDING, &id);
   assert(id == _id);

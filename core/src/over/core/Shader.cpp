@@ -138,7 +138,7 @@ void Shader::Unbind() noexcept {
   // do nothing
 }
 
-GLint Shader::GetUniformLocation(const std::string& name) {
+GLint Shader::GetUniformLocation(const std::string& name) const {
   return glGetUniformLocation(program_, name.c_str());
 }
 

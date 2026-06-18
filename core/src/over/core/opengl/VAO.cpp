@@ -31,8 +31,9 @@ VAO::~VAO() noexcept {
 void VAO::AttachAttribute(uint32 location, uint32 count, GLenum type,
                           usize size, usize offset) {
   assert(_isActive);
-  glVertexAttribPointer(location, count, type, GL_FALSE, size,
-                        reinterpret_cast<void*>(offset));
+  glVertexAttribPointer(
+      static_cast<GLuint>(location), static_cast<GLint>(count), type, GL_FALSE,
+      static_cast<GLsizei>(size), reinterpret_cast<void*>(offset));
   glEnableVertexAttribArray(location);
 }
 

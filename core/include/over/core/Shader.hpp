@@ -27,7 +27,7 @@ class Shader : public Binded<Shader> {
   void Activate() noexcept;
 
   GLuint GetProgram() const noexcept { return program_; };
-  GLint GetUniformLocation(const std::string& name);
+  [[nodiscard]] GLint GetUniformLocation(const std::string& name) const;
 
   void SetBool(const std::string& name, bool value);
   void SetFloat(const std::string& name, float32 value);

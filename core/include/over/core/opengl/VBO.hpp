@@ -4,6 +4,7 @@
 
 #include <over/core/Includes.hpp>
 #include <over/core/opengl/Binded.hpp>
+#include <over/core/opengl/buffers/Buffer.hpp>
 
 #include <glm/glm.hpp>
 
@@ -24,11 +25,11 @@ class VBO : public Binded<VBO> {
   VBO();
   explicit VBO(std::vector<Vertex> vertices, GLenum usage = GL_STATIC_DRAW);
 
-  VBO(const VBO&);
-  VBO(VBO&&) noexcept;
+  VBO(const VBO&) = default;
+  VBO(VBO&&) noexcept = default;
 
-  VBO& operator=(const VBO&);
-  VBO& operator=(VBO&&) noexcept;
+  VBO& operator=(const VBO&) = default;
+  VBO& operator=(VBO&&) noexcept = default;
 
   ~VBO() noexcept;
 
@@ -43,10 +44,12 @@ class VBO : public Binded<VBO> {
     return _verticies;
   }
 
+  Buffer<GL_ARRAY_BUFFER>& GetBuffer() const noexcept { return _buffer; }
+
  private:
   std::vector<Vertex> _verticies;
 
-  mutable GLuint _id;
+  mutable Buffer<GL_ARRAY_BUFFER> _buffer;
   mutable GLenum _usage;
 };
 
