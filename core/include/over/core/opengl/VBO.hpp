@@ -44,8 +44,6 @@ class VBO : public Binded<VBO> {
     return _verticies;
   }
 
-  Buffer<GL_ARRAY_BUFFER>& GetBuffer() const noexcept { return _buffer; }
-
  private:
   std::vector<Vertex> _verticies;
 

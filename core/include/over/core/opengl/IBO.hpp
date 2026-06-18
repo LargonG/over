@@ -6,6 +6,7 @@
 #include <over/core/Includes.hpp>
 #include <over/core/Types.hpp>
 #include <over/core/opengl/Binded.hpp>
+#include <over/core/opengl/buffers/Buffer.hpp>
 
 namespace over {
 
@@ -23,11 +24,11 @@ class IBO : public Binded<IBO> {
   IBO();
   explicit IBO(std::vector<Element> elements, GLenum usage = GL_STATIC_DRAW);
 
-  IBO(const IBO&);
-  IBO(IBO&&) noexcept;
+  IBO(const IBO&) = default;
+  IBO(IBO&&) noexcept = default;
 
-  IBO& operator=(const IBO&);
-  IBO& operator=(IBO&&) noexcept;
+  IBO& operator=(const IBO&) = default;
+  IBO& operator=(IBO&&) noexcept = default;
 
   ~IBO() noexcept;
 
@@ -45,7 +46,7 @@ class IBO : public Binded<IBO> {
  private:
   std::vector<Element> _elements;
 
-  mutable GLuint _id;
+  mutable Buffer<GL_ELEMENT_ARRAY_BUFFER> _buffer;
   mutable GLenum _usage;
 };
 
