@@ -15,12 +15,27 @@
 #include <glm/glm.hpp>
 
 namespace over {
-class Vert {
-  glm::vec3 position;
-};
+
+constexpr std::array<GLenum, 9> bufferTargets = {
+    GL_ARRAY_BUFFER,      GL_COPY_READ_BUFFER,
+    GL_COPY_WRITE_BUFFER, GL_ELEMENT_ARRAY_BUFFER,
+    GL_PIXEL_PACK_BUFFER, GL_PIXEL_UNPACK_BUFFER,
+    GL_TEXTURE_BUFFER,    GL_TRANSFORM_FEEDBACK_BUFFER,
+    GL_UNIFORM_BUFFER};
+
+constexpr bool IsAvailableTarget(GLenum target) {
+  for (usize i = 0; i < bufferTargets.size(); i++) {
+    if (target == bufferTargets[i]) {
+      return true;
+    }
+  }
+  return false;
+}
 
 template <GLenum Target>
 class Buffer : Binded<Buffer<Target>> {
+  static_assert(IsAvailableTarget(Target), "Invalid target");
+
  public:
   Buffer() : _id(0) {}
   Buffer(usize count, const ubyte* data, GLenum usage) : Buffer() {
@@ -184,4 +199,5 @@ class Buffer : Binded<Buffer<Target>> {
   template <GLenum OtherTarget>
   friend class Buffer;
 };
+
 }  // namespace over
