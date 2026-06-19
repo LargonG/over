@@ -60,7 +60,8 @@ Also it is a playground for me to test architecture of render engine & algorithm
 - Using engine package (module, library? Does it matter?)
 - FrameBuffer + RenderBuffer + Texture2D = Post-processing
 - => Kernel matrix in shader
-- Change vision mode using `T` key
+- Hold `Left-Shift` to change view mode
+- Hold `Left-Control` to slow down camera
 
 <img width="1123" height="954" alt="image" src="https://github.com/user-attachments/assets/4bddcc44-4c68-4e57-9b0a-29db2b45c7f4" />
 

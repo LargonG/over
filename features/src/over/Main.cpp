@@ -70,9 +70,9 @@ class FeaturesApp : public App {
       _window.SetShouldClose(true);
     }
 
-    if (Input::Instance().IsPressed(Input::Key::T)) {
-      _screenShader.SetBool("material.inverted", !_inverted);
-      _inverted = !_inverted;
+    _camera.SetSpeed(25.f);
+    if (Input::Instance().IsPressed(Input::Key::LEFT_CONTROL)) {
+      _camera.SetSpeed(5.f);
     }
 
     _camera.UpdatePositionCallback(_window.Get(), dt);
@@ -100,6 +100,12 @@ class FeaturesApp : public App {
         _ctx.SetClearColor({1.f, 1.f, 1.f, 1.f});
         _ctx.SetDepthTest(false);
         _ctx.ClearAll();
+
+        _inverted = false;
+        if (Input::Instance().IsPressed(Input::Key::LEFT_SHIFT)) {
+          _inverted = true;
+        }
+        _screenShader.SetBool("material.inverted", _inverted);
 
         _quad.Draw();
       });
