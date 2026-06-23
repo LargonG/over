@@ -31,6 +31,9 @@ class Texture2D : public Binded<Texture2D> {
   void Bind() const noexcept;
   void Unbind() const noexcept;
 
+  void SetParameter(GLenum pname, GLenum value);
+  GLint GetParameter(GLenum pname);
+
  private:
   void Setup(const ubyte* data, GLenum format);
 

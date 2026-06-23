@@ -75,12 +75,11 @@ void Texture2D::Setup(const ubyte* data, GLenum format) {
 
   ToGPU(data, format);
 
-  // TODO: add parameters
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  SetParameter(GL_TEXTURE_WRAP_R, GL_REPEAT);
+  SetParameter(GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  SetParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  SetParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   Unbind();
 }
@@ -114,6 +113,16 @@ void Texture2D::FreeGPU() noexcept {
   }
   glDeleteTextures(1, &_id);
   _id = 0;
+}
+
+void Texture2D::SetParameter(GLenum pname, GLenum value) {
+  glTexParameteri(GL_TEXTURE_2D, pname, value);
+}
+
+GLint Texture2D::GetParameter(GLenum pname) {
+  GLint result = 0;
+  glGetTexParameteriv(GL_TEXTURE_2D, pname, &result);
+  return result;
 }
 
 }  // namespace over

@@ -6,6 +6,11 @@ namespace over {
 template <typename T>
 class Binded {
  public:
+  Binded() {
+    static_assert(std::is_base_of_v<Binded<T>, T>,
+                  "T should be inherit from Binded<T>");
+  }
+
   template <typename F, typename... Args>
   void Use(F&& func, Args&&... args) {
     static_assert(std::is_invocable_v<F, Args...>, "F should be invokable");

@@ -37,12 +37,12 @@ add_library(over::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 target_link_libraries(
 	${PROJECT_NAME}
-	PRIVATE fmt::fmt
-	PRIVATE glfw
-	PRIVATE glad::glad
-	PRIVATE glm::glm
-	PRIVATE assimp::assimp
+	PUBLIC fmt::fmt
+	PUBLIC glfw
+	PUBLIC glad::glad
+	PUBLIC glm::glm
+	PUBLIC assimp::assimp
 )
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${Stb_INCLUDE_DIR})
+target_include_directories(${PROJECT_NAME} PUBLIC ${Stb_INCLUDE_DIR})
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)

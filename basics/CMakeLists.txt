@@ -1,11 +1,5 @@
 project(basics CXX)
 
-include(SetupFMT)
-include(SetupGlad)
-include(SetupGLFW)
-include(SetupGLM)
-include(SetupSTB)
-
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/shaders/vertex.shader
   ${CMAKE_CURRENT_BINARY_DIR}/shaders/vertex.shader COPYONLY)
@@ -29,12 +23,5 @@ add_executable(${PROJECT_NAME} main.cpp)
 
 target_link_libraries(
 	${PROJECT_NAME}
-	PRIVATE fmt::fmt
-	PRIVATE glfw
-	PRIVATE glad::glad
-	PRIVATE glm::glm
 	PRIVATE over::core
 )
-
-target_include_directories(basics PRIVATE ${Stb_INCLUDE_DIR})
-

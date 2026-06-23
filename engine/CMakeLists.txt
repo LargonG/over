@@ -1,13 +1,5 @@
 project(engine CXX)
 
-
-include(SetupFMT)
-include(SetupGlad)
-include(SetupGLFW)
-include(SetupGLM)
-include(SetupSTB)
-include(SetupAssimp)
-
 include(utils/ConfigureSources)
 
 set(p_engine_sources
@@ -22,13 +14,7 @@ add_library(over::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 target_link_libraries(
 	${PROJECT_NAME}
-	PRIVATE fmt::fmt
-	PRIVATE glfw
-	PRIVATE glad::glad
-	PRIVATE glm::glm
-	PRIVATE assimp::assimp
-	PRIVATE over::core
+	PUBLIC over::core
 )
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${Stb_INCLUDE_DIR})
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)

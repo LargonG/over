@@ -1,5 +1,6 @@
 #pragma once
 
+#include <any>
 #include <array>
 #include <cassert>
 #include <type_traits>
@@ -38,18 +39,17 @@ class Buffer : Binded<Buffer<Target>> {
 
  public:
   Buffer() : _id(0) {}
-  Buffer(usize count, const ubyte* data, GLenum usage) : Buffer() {
+  Buffer(usize count, const void* data, GLenum usage) : Buffer() {
     Alloc();
     Reserve(count, data, usage);
   }
   template <class T, usize SZ>
   Buffer(std::array<T, SZ>& data, GLenum usage)
-      : Buffer(sizeof(T) * SZ, reinterpret_cast<const ubyte*>(data.data()),
-               usage) {}
+      : Buffer(sizeof(T) * SZ, static_cast<void*>(data.data()), usage) {}
 
   template <class T>
   Buffer(std::vector<T>& v, GLenum usage)
-      : Buffer(sizeof(T) * v.size(), v.data(), usage) {}
+      : Buffer(sizeof(T) * v.size(), static_cast<void*>(v.data()), usage) {}
 
   Buffer(const Buffer&) = default;
   Buffer(Buffer&&) noexcept = default;
@@ -100,9 +100,8 @@ class Buffer : Binded<Buffer<Target>> {
     }
   }
 
-  void Reserve(usize count, const ubyte* data, GLenum usage) {
-    glBufferData(Target, static_cast<GLsizeiptr>(count),
-                 static_cast<const void*>(data), usage);
+  void Reserve(usize count, const void* data, GLenum usage) {
+    glBufferData(Target, static_cast<GLsizeiptr>(count), data, usage);
   }
 
   void Clear(GLenum usage) {
@@ -122,16 +121,17 @@ class Buffer : Binded<Buffer<Target>> {
     _id = 0;
   }
 
-  void Read(ssize offset, usize count, ubyte* dest) const {
-    Map<GL_READ_ONLY>([&](const ubyte* ptr) {
-      std::copy(ptr + offset, ptr + offset + count, dest);
+  void Read(ssize offset, usize count, void* dest) const {
+    Map<GL_READ_ONLY>([&](const void* ptr) {
+      auto bptr = static_cast<const std::byte*>(ptr);
+      auto bdest = static_cast<const std::byte*>(dest);
+      std::copy(bptr + offset, bptr + offset + count, bdest);
     });
   }
 
-  void Write(ssize offset, usize count, const ubyte* data) {
+  void Write(ssize offset, usize count, const void* data) {
     glBufferSubData(Target, static_cast<GLintptr>(offset),
-                    static_cast<GLsizeiptr>(count),
-                    static_cast<const void*>(data));
+                    static_cast<GLsizeiptr>(count), data);
   }
 
   template <GLenum OtherTarget>
@@ -180,7 +180,7 @@ class Buffer : Binded<Buffer<Target>> {
             typename = std::enable_if_t<Access == GL_WRITE_ONLY ||
                                         Access == GL_READ_WRITE>>
   void Map(F&& func) {
-    ubyte* ptr = static_cast<ubyte*>(glMapBuffer(Target, Access));
+    auto* ptr = static_cast<void*>(glMapBuffer(Target, Access));
     std::forward(func)(ptr);
     glUnmapBuffer(Target);
   }
@@ -188,7 +188,7 @@ class Buffer : Binded<Buffer<Target>> {
   template <GLenum Access, typename F,
             typename = std::enable_if_t<Access == GL_READ_ONLY>>
   void Map(F&& func) const {
-    const ubyte* ptr = static_cast<ubyte*>(glMapBuffer(Target, Access));
+    const auto* ptr = static_cast<void*>(glMapBuffer(Target, Access));
     std::forward(func)(ptr);
     glUnmapBuffer(Target);
   }

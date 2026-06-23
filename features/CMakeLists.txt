@@ -1,12 +1,5 @@
 project(features)
 
-include(SetupFMT)
-include(SetupGLFW)
-include(SetupGlad)
-include(SetupGLM)
-include(SetupAssimp)
-include(SetupSTB)
-
 include(utils/ConfigureShaders)
 include(utils/ConfigureSources)
 include(utils/ConfigureResources)
@@ -20,12 +13,6 @@ set_source_directory(p_src SOURCE_DIR "src/over" SOURCES ${p_features_sources})
 add_executable(${PROJECT_NAME} ${p_src})
 
 target_link_libraries(${PROJECT_NAME}
-	PRIVATE fmt::fmt
-	PRIVATE glfw
-	PRIVATE glad::glad
-	PRIVATE glm::glm
-	PRIVATE assimp::assimp
-	PRIVATE over::core
 	PRIVATE over::engine
 	PRIVATE imgui::imgui
 )
@@ -52,5 +39,4 @@ endif()
 
 set_resources(${m_build_mode} DIRECTORY "resources")
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${Stb_INCLUDE_DIR})
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/)
