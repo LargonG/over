@@ -1,6 +1,5 @@
 #pragma once
 
-#include <any>
 #include <array>
 #include <cassert>
 #include <type_traits>
