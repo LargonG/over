@@ -12,6 +12,8 @@ uniform struct {
 	float shininess;
 } material;
 
+uniform samplerCube cubemap;
+
 void main() {
 	FragColor = texture(material.texture_diffuse0, fTexCoord);
 }

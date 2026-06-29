@@ -32,13 +32,14 @@ void Framebuffer::Unbind() const noexcept {
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Framebuffer::Attach(GLenum attachment, Texture2D& texture) noexcept {
+void Framebuffer::Attach(GLenum attachment, const Texture2D& texture) noexcept {
   assert(0 != _id);
   glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D,
-                         texture.Get(), 0);
+                         *texture.Get(), 0);
 }
 
-void Framebuffer::Attach(GLenum attachment, RenderBuffer& buffer) noexcept {
+void Framebuffer::Attach(GLenum attachment,
+                         const RenderBuffer& buffer) noexcept {
   assert(0 != _id);
   glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER,
                             buffer.Get());

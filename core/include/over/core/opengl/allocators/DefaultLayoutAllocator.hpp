@@ -1,16 +1,14 @@
 #pragma once
 
+#include <over/core/Types.hpp>
 #include <over/core/opengl/Address.hpp>
 
 namespace over::gl {
-class DefaultBufferAllocator {
+class DefaultLayoutAllocator {
  public:
-  DefaultBufferAllocator() = default;
+  DefaultLayoutAllocator() = default;
 
   [[nodiscard]] Address Alloc();
-  void Dealloc(Address ptr) noexcept;
-
- private:
-  // stateless allocator
+  void Dealloc(Address ptr);
 };
 }  // namespace over::gl

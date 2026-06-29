@@ -11,10 +11,9 @@
 
 namespace over {
 
-Texture::Texture(uint32 id, Type type, std::string path)
-    : id(id), type(type), path(std::move(path)) {}
+MeshTexture::MeshTexture(View2D view, Type type) : view(view), type(type) {}
 
-std::string Texture::GetType() const noexcept {
+std::string MeshTexture::GetType() const noexcept {
   switch (type) {
     case Type::DIFFUSE:
       return "diffuse";
@@ -25,18 +24,16 @@ std::string Texture::GetType() const noexcept {
   }
 }
 
-Mesh::Mesh() : _vao(), _vbo(), _ibo(), _textures() {}
-
-Mesh::Mesh(std::vector<Vertex> verticies, std::vector<Element> elements,
-           std::vector<Texture> textures)
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<Element> elements,
+           std::vector<MeshTexture> textures)
     : _vao(),
-      _vbo(std::move(verticies)),
+      _vbo(std::move(vertices)),
       _ibo(std::move(elements)),
       _textures(std::move(textures)) {
   Setup();
 }
 
-Mesh::Mesh(VBO vbo, IBO ibo, std::vector<Texture> textures)
+Mesh::Mesh(VBO vbo, IBO ibo, std::vector<MeshTexture> textures)
     : _vao(),
       _vbo(std::move(vbo)),
       _ibo(std::move(ibo)),
@@ -44,74 +41,37 @@ Mesh::Mesh(VBO vbo, IBO ibo, std::vector<Texture> textures)
   Setup();
 }
 
-Mesh::Mesh(const Mesh& other) : Mesh() {
-  *this = other;
-}
-
-Mesh::Mesh(Mesh&& other) noexcept : Mesh() {
-  *this = std::move(other);
-}
-
-Mesh& Mesh::operator=(const Mesh& other) {
-  if (this == &other) {
-    return *this;
-  }
-
-  _vbo = other._vbo;
-  _ibo = other._ibo;
-  _textures = other._textures;
-  Setup();
-
-  return *this;
-}
-
-Mesh& Mesh::operator=(Mesh&& other) noexcept {
-  if (this == &other) {
-    return *this;
-  }
-
-  _vao = std::move(other._vao);
-  _vbo = std::move(other._vbo);
-  _ibo = std::move(other._ibo);
-  _textures = std::move(other._textures);
-
-  return *this;
-}
-
-Mesh::~Mesh() {}
-
 void Mesh::Setup() {
-  _vao.Bind();
-  _vbo.ToGPU();
-  _ibo.ToGPU();
+  _vao.Use([&] {
+    _vbo.ToGPU();
+    _ibo.ToGPU();
+    _vao.AttachAttribute(0, 3, GL_FLOAT, sizeof(Vertex),
+                         offsetof(Vertex, Vertex::position));
+    _vao.AttachAttribute(1, 3, GL_FLOAT, sizeof(Vertex),
+                         offsetof(Vertex, Vertex::normal));
+    _vao.AttachAttribute(2, 2, GL_FLOAT, sizeof(Vertex),
+                         offsetof(Vertex, Vertex::texCoord));
+  });
 
-  _vao.AttachAttribute(0, 3, GL_FLOAT, sizeof(Vertex),
-                       offsetof(Vertex, Vertex::position));
-  _vao.AttachAttribute(1, 3, GL_FLOAT, sizeof(Vertex),
-                       offsetof(Vertex, Vertex::normal));
-  _vao.AttachAttribute(2, 2, GL_FLOAT, sizeof(Vertex),
-                       offsetof(Vertex, Vertex::texCoord));
-
-  _vao.Unbind();
   _vbo.Unbind();
   _ibo.Unbind();
 }
 
-static void BindTextures(std::vector<Texture>& textures, Shader& shader,
+static void BindTextures(std::vector<MeshTexture>& textures, Shader& shader,
                          bool flush = false) {
   uint32 diffuseCounter = 0;
   uint32 specularCounter = 0;
   for (usize i = 0; i < textures.size(); i++) {
-    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + i));
+    gl::Texture::Activate(static_cast<GLenum>(GL_TEXTURE0 + i));
     const auto& texture = textures[i];
     auto stype = texture.GetType();
 
     uint32 n = 0;
     switch (texture.type) {
-      case Texture::Type::DIFFUSE:
+      case MeshTexture::Type::DIFFUSE:
         n = diffuseCounter++;
         break;
-      case Texture::Type::SPECULAR:
+      case MeshTexture::Type::SPECULAR:
         n = specularCounter++;
         break;
       default:
@@ -122,13 +82,14 @@ static void BindTextures(std::vector<Texture>& textures, Shader& shader,
 
     if (flush) {
       shader.SetInt(varname, 0);
-      glBindTexture(GL_TEXTURE_2D, 0);
+      texture.view
+          .Unbind();  // POTENCIAL BUG: if unbind is going to store last binded target
     } else {
       shader.SetInt(varname, static_cast<int>(i));
-      glBindTexture(GL_TEXTURE_2D, texture.id);
+      texture.view.Bind();
     }
   }
-  glActiveTexture(GL_TEXTURE0);
+  gl::Texture::Activate(GL_TEXTURE0);
 }
 
 void Mesh::Draw(Shader& shader, int32 count) {
@@ -147,7 +108,7 @@ void Mesh::Draw(int32 count) {
   Draw(shader, count);
 }
 
-Mesh Mesh::GenQuad(std::vector<Texture> textures) {
+Mesh Mesh::GenQuad(std::vector<MeshTexture> textures) {
   static std::vector<Vertex> data = {
       Vertex({-1.f, -1.f, 0.f}, {0.f, 0.f, 0.f}, {0.f, 0.f}),
       Vertex({1.f, -1.f, 0.f}, {0.f, 0.f, 0.f}, {1.f, 0.f}),

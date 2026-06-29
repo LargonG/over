@@ -23,8 +23,16 @@ class Framebuffer : public Binded<Framebuffer> {
   void Bind() const noexcept;
   void Unbind() const noexcept;
 
-  void Attach(GLenum attachment, Texture2D& texture) noexcept;
-  void Attach(GLenum attachment, RenderBuffer& buffer) noexcept;
+  template <class Allocator>
+  void Attach(GLenum attachment,
+              const gl::TextureWrapper<Allocator>& owner) noexcept {
+    glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D,
+                           *owner.Get(), 0);
+  }
+
+  void Attach(GLenum attachment, const Texture2D& texture) noexcept;
+  void Attach(GLenum attachment, const RenderBuffer& buffer) noexcept;
+
   bool IsReady();
 
  private:

@@ -12,11 +12,11 @@ int main() {
   try {
     over::Run();
   } catch (std::exception& e) {
-    fmt::println("{}", e.what());
+    fmt::println("std::exception error: {}", e.what());
     throw;
   } catch (...) {
     fmt::println(
-        "Unexpected error, does not incherit std::exception, please, correct");
+        "Unexpected error, does not inherits std::exception, please, correct");
     throw;
   }
 }

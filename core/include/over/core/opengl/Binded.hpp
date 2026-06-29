@@ -11,42 +11,35 @@ class Binded {
                   "T should be inherit from Binded<T>");
   }
 
-  template <typename F, typename... Args>
-  void Use(F&& func, Args&&... args) {
-    static_assert(std::is_invocable_v<F, Args...>, "F should be invokable");
-
+  template <typename F>
+  std::enable_if_t<std::is_invocable_v<F> && !std::is_invocable_v<F, T*>> Use(
+      F&& func) {
     static_cast<T*>(this)->Bind();
-    std::forward<F>(func)(std::forward<Args>(args)...);
+    std::forward<F>(func)();
     static_cast<T*>(this)->Unbind();
   }
 
-  template <typename F, typename... Args>
-  void Use(F&& func, Args&&... args) const {
-    static_assert(std::is_invocable_v<F, Args...>, "F should be invokable");
-
+  template <typename F>
+  std::enable_if_t<std::is_invocable_v<F> && !std::is_invocable_v<F, T*>> Use(
+      F&& func) const {
     static_cast<const T*>(this)->Bind();
-    std::forward<F>(func)(std::forward<Args>(args)...);
+    std::forward<F>(func)();
     static_cast<const T*>(this)->Unbind();
   }
 
-  template <typename F, typename... Args>
-  void Use(GLenum as, F&& func, Args&&... args) {
-    static_assert(std::is_invocable_v<F, Args...>, "F should be invokable");
-    // TODO: add check for bind/unbind
-
-    static_cast<T*>(this)->Bind(as);
-    std::forward<F>(func)(std::forward<Args>(args...)...);
-    static_cast<T*>(this)->Unbind(as);
+  template <typename F>
+  std::enable_if_t<std::is_invocable_v<F, T&>> Use(F&& func) {
+    static_cast<T*>(this)->Bind();
+    std::forward<F>(func)(static_cast<T&>(*this));
+    static_cast<T*>(this)->Unbind();
   }
 
-  template <typename F, typename... Args>
-  void Use(GLenum as, F&& func, Args&&... args) const {
-    static_assert(std::is_invocable_v<F, Args...>, "F should be invokable");
-    // TODO: add check for bind/unbind
-
-    static_cast<const T*>(this)->Bind(as);
-    std::forward<F>(func)(std::forward<Args>(args...)...);
-    static_cast<const T*>(this)->Unbind(as);
+  template <typename F>
+  std::enable_if_t<std::is_invocable_v<F, const T&>> Use(F&& func) const {
+    static_cast<const T*>(this)->Bind();
+    std::forward<F>(func)(static_cast<const T&>(*this));
+    static_cast<const T*>(this)->Unbind();
   }
 };
+
 }  // namespace over

@@ -14,8 +14,8 @@ using uint32 = uint32_t;
 using uint16 = uint16_t;
 using uint8 = uint8_t;
 
-using byte = int8;
-using ubyte = uint8;
+using byte [[deprecated("Don't use this type")]] = int8;
+using ubyte [[deprecated("Use std::byte instead")]] = uint8;
 
 using float64 = double;
 using float32 = float;

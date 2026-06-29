@@ -6,7 +6,8 @@
 #include <over/core/Includes.hpp>
 #include <over/core/Types.hpp>
 #include <over/core/opengl/Binded.hpp>
-#include <over/core/opengl/buffers/Buffer.hpp>
+#include <over/core/opengl/views/BufferView.hpp>
+#include <over/core/opengl/wrappers/BufferWrapper.hpp>
 
 namespace over {
 
@@ -21,19 +22,18 @@ class Element {
 
 class IBO : public Binded<IBO> {
  public:
-  IBO();
+  IBO() = default;
   explicit IBO(std::vector<Element> elements, GLenum usage = GL_STATIC_DRAW);
 
-  IBO(const IBO&) = default;
-  IBO(IBO&&) noexcept = default;
+  IBO(const IBO&) = delete;
+  IBO& operator=(const IBO&) = delete;
 
-  IBO& operator=(const IBO&) = default;
+  IBO(IBO&&) noexcept = default;
   IBO& operator=(IBO&&) noexcept = default;
 
-  ~IBO() noexcept;
+  ~IBO() = default;
 
   void ToGPU(bool unbind = false);
-  void FreeGPU() const noexcept;
 
   void Bind(bool copy = false) const;
   void Unbind() const;
@@ -46,8 +46,8 @@ class IBO : public Binded<IBO> {
  private:
   std::vector<Element> _elements;
 
-  mutable Buffer<GL_ELEMENT_ARRAY_BUFFER> _buffer;
-  mutable GLenum _usage;
+  gl::BufferWrapper<> _buffer;
+  GLenum _usage;
 };
 
 }  // namespace over

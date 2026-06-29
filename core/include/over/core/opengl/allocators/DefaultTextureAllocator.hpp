@@ -3,9 +3,9 @@
 #include <over/core/opengl/Address.hpp>
 
 namespace over::gl {
-class DefaultBufferAllocator {
+class DefaultTextureAllocator {
  public:
-  DefaultBufferAllocator() = default;
+  DefaultTextureAllocator() = default;
 
   [[nodiscard]] Address Alloc();
   void Dealloc(Address ptr) noexcept;

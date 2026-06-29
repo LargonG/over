@@ -17,7 +17,7 @@ class Model {
  public:
   Model(const std::string& path);
 
-  ~Model();
+  ~Model() = default;
 
   void Draw(Shader& shader);
   void Draw();
@@ -28,17 +28,19 @@ class Model {
   const std::vector<Mesh>& GetMeshes() const noexcept { return _meshes; }
 
  private:
-  Transform _transform;
-  std::vector<Mesh> _meshes;
-  std::string _directory;
-
-  mutable std::unordered_map<std::string, Texture> _loadedTextures;
-
   void LoadModel(const std::string& path);
   void ProcessNode(aiNode* node, const aiScene* scene);
   Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene);
-  std::vector<Texture> LoadMaterialTextures(aiMaterial* material,
-                                            aiTextureType assimpType,
-                                            Texture::Type overType);
+  std::vector<MeshTexture> LoadMaterialTextures(aiMaterial* material,
+                                                aiTextureType assimpType,
+                                                MeshTexture::Type overType);
+
+  std::string _directory;
+  Transform _transform;
+
+  mutable std::unordered_map<std::string, usize> _paths;
+  mutable std::vector<gl::TextureWrapper<>> _wrappers;
+
+  std::vector<Mesh> _meshes;
 };
 }  // namespace over

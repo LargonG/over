@@ -3,44 +3,48 @@
 #include <over/core/Includes.hpp>
 #include <over/core/Types.hpp>
 #include <over/core/opengl/Binded.hpp>
+#include <over/core/opengl/targets/TextureTarget.hpp>
+#include <over/core/opengl/views/TextureView.hpp>
+#include <over/core/opengl/wrappers/TextureWrapper.hpp>
 
 namespace over {
 
-class Texture;
+class MeshTexture;
 
 class Texture2D : public Binded<Texture2D> {
  public:
   Texture2D() noexcept;
-  Texture2D(uint32 width, uint32 height, const ubyte* data, GLenum format);
+  Texture2D(usize width, usize height, GLenum format, GLenum type,
+            const void* data);
 
   Texture2D(const Texture2D&) = default;
   Texture2D(Texture2D&&) noexcept = default;
 
   Texture2D& operator=(const Texture2D&);
-  Texture2D& operator=(Texture2D&&) noexcept;
+  Texture2D& operator=(Texture2D&&) noexcept = default;
 
-  explicit operator Texture() const;
+  explicit operator MeshTexture() const;
 
   ~Texture2D();
 
-  void ToGPU(const ubyte* data, GLenum format, bool unbind = false);
+  void ToGPU(const void* data, GLenum format, bool unbind = false);
   void FreeGPU() noexcept;
-
-  uint32 Get() const noexcept { return _id; }
 
   void Bind() const noexcept;
   void Unbind() const noexcept;
 
-  void SetParameter(GLenum pname, GLenum value);
+  void SetParameter(GLenum pname, GLint value);
   GLint GetParameter(GLenum pname);
 
+  const gl::Address& Get() const noexcept { return _texture.Get(); }
+
  private:
-  void Setup(const ubyte* data, GLenum format);
+  void Setup(usize width, usize height, GLenum format, GLenum type,
+             const void* data);
 
-  GLenum _format;
-
-  uint32 _width;
-  uint32 _height;
-  uint32 _id;
+  usize _width;
+  usize _height;
+  gl::TextureWrapper<> _texture;
+  gl::TextureView<gl::TextureTarget::TEXTURE_2D> _view;
 };
 }  // namespace over

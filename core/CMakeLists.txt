@@ -26,8 +26,13 @@ set(p_core_sources
 	opengl/Texture2D.cpp
 	opengl/Framebuffer.cpp
 	opengl/RenderBuffer.cpp
+	opengl/Texture.cpp
 
 	opengl/allocators/DefaultBufferAllocator.cpp
+	opengl/allocators/DefaultTextureAllocator.cpp
+	opengl/allocators/DefaultLayoutAllocator.cpp
+
+	host/images/Image2D.cpp
 )
 
 set_source_directory(p_src SOURCE_DIR "src/over/core" SOURCES ${p_core_sources})

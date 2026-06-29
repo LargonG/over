@@ -4,7 +4,8 @@
 
 #include <over/core/Includes.hpp>
 #include <over/core/opengl/Binded.hpp>
-#include <over/core/opengl/buffers/Buffer.hpp>
+#include <over/core/opengl/views/BufferView.hpp>
+#include <over/core/opengl/wrappers/BufferWrapper.hpp>
 
 #include <glm/glm.hpp>
 
@@ -22,33 +23,30 @@ class Vertex {
 
 class VBO : public Binded<VBO> {
  public:
-  VBO();
+  VBO() = default;
   explicit VBO(std::vector<Vertex> vertices, GLenum usage = GL_STATIC_DRAW);
 
-  VBO(const VBO&) = default;
-  VBO(VBO&&) noexcept = default;
+  VBO(const VBO&) = delete;
+  VBO& operator=(const VBO&) = delete;
 
-  VBO& operator=(const VBO&) = default;
+  VBO(VBO&&) noexcept = default;
   VBO& operator=(VBO&&) noexcept = default;
 
-  ~VBO() noexcept;
+  ~VBO() = default;
 
   void ToGPU(bool unbind = false);
-  void FreeGPU() const noexcept;
 
   void Bind(bool copy = false) const;
   void Unbind() const;
 
-  std::vector<Vertex>& GetVerticies() noexcept { return _verticies; }
-  const std::vector<Vertex>& GetVerticies() const noexcept {
-    return _verticies;
-  }
+  std::vector<Vertex>& GetVerticies() noexcept { return _vertices; }
+  const std::vector<Vertex>& GetVerticies() const noexcept { return _vertices; }
 
  private:
-  std::vector<Vertex> _verticies;
+  std::vector<Vertex> _vertices;
 
-  mutable Buffer<GL_ARRAY_BUFFER> _buffer;
-  mutable GLenum _usage;
+  gl::BufferWrapper<> _buffer;
+  GLenum _usage;
 };
 
 }  // namespace over

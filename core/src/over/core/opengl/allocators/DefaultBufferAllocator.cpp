@@ -1,20 +1,25 @@
 #include <over/core/opengl/allocators/DefaultBufferAllocator.hpp>
 
-namespace over {
+#include <cassert>
 
-DefaultBufferAllocator::DefaultBufferAllocator() {}
+#include <over/core/Includes.hpp>
+#include <over/core/opengl/wrappers/Exception.hpp>
 
-DefaultBufferAllocator::~DefaultBufferAllocator() {}
+namespace over::gl {
 
-GLuint DefaultBufferAllocator::Alloc() {
+Address DefaultBufferAllocator::Alloc() {
   GLuint id = 0;
-  glGenBuffers(1, &id);
-  // TODO: throw exception if soumething went wrong
-  return id;
+  glthrow(glGenBuffers(1, &id));
+  return Address(id);
 }
 
-void DefaultBufferAllocator::Dealloc(GLuint id) noexcept {
-  glDeleteBuffers(1, &id);
+void DefaultBufferAllocator::Dealloc(Address ptr) noexcept {
+  if (*ptr == 0) {
+    return;
+  }
+
+  assert(glIsBuffer(*ptr));
+  glDeleteBuffers(1, &*ptr);
 }
 
-}  // namespace over
+}  // namespace over::gl

@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include <stb_image.h>
 #include <over/core/Camera.hpp>
 #include <over/core/Mesh.hpp>
 #include <over/core/Model.hpp>
@@ -22,6 +23,10 @@ class FeaturesApp : public App {
         _defaultBuffer(),
 
         _color(),
+        _cubeMap(),
+        _cubeMapTexturesNames({"right.jpg", "left.jpg", "top.jpg", "bottom.jpg",
+                               "front.jpg", "back.jpg"}),
+
         _rbuffer(),
         _quad(),
         _model(nullptr),
@@ -32,13 +37,19 @@ class FeaturesApp : public App {
 
   void Init() override {
     PrintName();
-
     _input.SetCursor(false);
 
     auto width = _window.GetWidth();
     auto height = _window.GetHeight();
 
-    _color = Texture2D(width, height, nullptr, GL_RGB);
+    _color.As<gl::TextureTarget::TEXTURE_2D>([&](gl::Texture2DView& self) {
+      self.Reserve2D(GL_RGB, width, height, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+      self.GenerateMipmap();
+
+      self.SetParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+      self.SetParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    });
+
     _rbuffer = RenderBuffer(width, height, GL_DEPTH24_STENCIL8);
 
     _camera.SetAspectRatio(width * 1.f / height);
@@ -54,12 +65,32 @@ class FeaturesApp : public App {
       }
     });
 
+    _cubeMap.As<gl::TextureTarget::TEXTURE_CUBE_MAP>(
+        [&](gl::CubeMapView& self) {
+          for (usize i = 0; i < _cubeMapTexturesNames.size(); i++) {
+            auto img = host::Image2D::FromFile("textures/skybox/" +
+                                               _cubeMapTexturesNames[i]);
+            auto format = gl::Texture::GetFormat(img.Channels());
+            self.Reserve2DAs(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, format,
+                             img.Width(), img.Height(), format,
+                             GL_UNSIGNED_BYTE, img.Data().data());
+          }
+
+          self.SetParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+          self.SetParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+          self.SetParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+          self.SetParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+          self.SetParameter(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+        });
+
     _baseShader = Shader("shaders/DimentionVertex.shader",
                          "shaders/DimentionFragment.shader");
     _screenShader =
         Shader("shaders/ScreenVertex.shader", "shaders/ScreenFragment.shader");
 
-    _quad = Mesh::GenQuad({static_cast<Texture>(_color)});
+    _quad =
+        Mesh::GenQuad({MeshTexture(_color.As<gl::TextureTarget::TEXTURE_2D>(),
+                                   MeshTexture::Type::DIFFUSE)});
 
     _model = std::make_unique<Model>(
         "resources/backpack/backpack.obj");  // std::make_unique<Model>("resources/cube/cube.glb");
@@ -125,7 +156,11 @@ class FeaturesApp : public App {
   Framebuffer _buffer;
   Framebuffer _defaultBuffer;
 
-  Texture2D _color;
+  gl::TextureWrapper<> _color;
+
+  gl::TextureWrapper<> _cubeMap;
+  std::array<std::string, 6> _cubeMapTexturesNames;
+
   RenderBuffer _rbuffer;
   Mesh _quad;
   std::unique_ptr<Model> _model;
