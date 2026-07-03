@@ -9,6 +9,8 @@
 #include <over/core/Model.hpp>
 #include <over/core/Shader.hpp>
 #include <over/core/opengl/Framebuffer.hpp>
+#include <over/core/opengl/views/FrameBufferView.hpp>
+#include <over/core/opengl/views/RenderBufferView.hpp>
 
 namespace over {
 
@@ -18,9 +20,9 @@ class FeaturesApp : public App {
       : App("features"),
         _baseShader(),
         _screenShader(),
+        _skyboxShader(),
 
-        _buffer(),
-        _defaultBuffer(),
+        _frame(),
 
         _color(),
         _cubeMap(),
@@ -42,7 +44,10 @@ class FeaturesApp : public App {
     auto width = _window.GetWidth();
     auto height = _window.GetHeight();
 
-    _color.As<gl::TextureTarget::TEXTURE_2D>([&](gl::Texture2DView& self) {
+    auto colorTexture2D = _color.As<gl::AsTexture2D>();
+    auto renderBuffer = _rbuffer.As<gl::RenderBufferTarget::RENDER_BUFFER>();
+
+    colorTexture2D.Use([&](gl::Texture2DView& self) {
       self.Reserve2D(GL_RGB, width, height, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
       self.GenerateMipmap();
 
@@ -50,25 +55,25 @@ class FeaturesApp : public App {
       self.SetParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
     });
 
-    _rbuffer = RenderBuffer(width, height, GL_DEPTH24_STENCIL8);
+    renderBuffer.Use(
+        [&](gl::RenderBufferView<gl::RenderBufferTarget::RENDER_BUFFER>& self) {
+          self.Reserve(GL_DEPTH24_STENCIL8, width, height);
+        });
 
     _camera.SetAspectRatio(width * 1.f / height);
 
-    _buffer.Setup();
+    _frame.As<gl::FrameBufferTarget::FRAMEBUFFER>(
+        [&](gl::FrameBufferView<gl::FrameBufferTarget::FRAMEBUFFER>& self) {
+          self.Attach(GL_COLOR_ATTACHMENT0, colorTexture2D, 0);
+          self.Attach(GL_DEPTH_STENCIL_ATTACHMENT, renderBuffer);
 
-    _buffer.Use([&]() {
-      _buffer.Attach(GL_COLOR_ATTACHMENT0, _color);
-      _buffer.Attach(GL_DEPTH_STENCIL_ATTACHMENT, _rbuffer);
-
-      if (!_buffer.IsReady()) {
-        throw std::runtime_error("Cannot create frame buffer");
-      }
-    });
+          self.ReadyOrThrow("Cannot create frame buffer");
+        });
 
     _cubeMap.As<gl::TextureTarget::TEXTURE_CUBE_MAP>(
         [&](gl::CubeMapView& self) {
           for (usize i = 0; i < _cubeMapTexturesNames.size(); i++) {
-            auto img = host::Image2D::FromFile("textures/skybox/" +
+            auto img = host::Image2D::FromFile("resources/textures/skybox/" +
                                                _cubeMapTexturesNames[i]);
             auto format = gl::Texture::GetFormat(img.Channels());
             self.Reserve2DAs(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, format,
@@ -83,8 +88,8 @@ class FeaturesApp : public App {
           self.SetParameter(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
         });
 
-    _baseShader = Shader("shaders/DimentionVertex.shader",
-                         "shaders/DimentionFragment.shader");
+    _baseShader = Shader("shaders/DimensionVertex.shader",
+                         "shaders/DimensionFragment.shader");
     _screenShader =
         Shader("shaders/ScreenVertex.shader", "shaders/ScreenFragment.shader");
 
@@ -94,6 +99,67 @@ class FeaturesApp : public App {
 
     _model = std::make_unique<Model>(
         "resources/backpack/backpack.obj");  // std::make_unique<Model>("resources/cube/cube.glb");
+
+    // TODO: make some "shape" class
+    constexpr std::array<float32,
+                         /* rows */ 6 * /* blocks*/ 6 * /* per vertex */ 3>
+        box = {
+            // positions
+            -1.0f, 1.0f,  -1.0f,  // 0
+            -1.0f, -1.0f, -1.0f,  // 1
+            1.0f,  -1.0f, -1.0f,  // 2
+            1.0f,  -1.0f, -1.0f,  // 3
+            1.0f,  1.0f,  -1.0f,  // 4
+            -1.0f, 1.0f,  -1.0f,  // 5
+            -1.0f, -1.0f, 1.0f,   // 6
+
+            -1.0f, -1.0f, -1.0f,  // 7
+            -1.0f, 1.0f,  -1.0f,  // 8
+            -1.0f, 1.0f,  -1.0f,  // 9
+            -1.0f, 1.0f,  1.0f,   // 10
+            -1.0f, -1.0f, 1.0f,   // 11
+            1.0f,  -1.0f, -1.0f,  // 12
+
+            1.0f,  -1.0f, 1.0f,   // 13
+            1.0f,  1.0f,  1.0f,   // 14
+            1.0f,  1.0f,  1.0f,   // 15
+            1.0f,  1.0f,  -1.0f,  // 16
+            1.0f,  -1.0f, -1.0f,  // 17
+            -1.0f, -1.0f, 1.0f,   // 18
+
+            -1.0f, 1.0f,  1.0f,   // 19
+            1.0f,  1.0f,  1.0f,   // 20
+            1.0f,  1.0f,  1.0f,   // 21
+            1.0f,  -1.0f, 1.0f,   // 22
+            -1.0f, -1.0f, 1.0f,   // 23
+            -1.0f, 1.0f,  -1.0f,  // 24
+
+            1.0f,  1.0f,  -1.0f,  // 25
+            1.0f,  1.0f,  1.0f,   // 26
+            1.0f,  1.0f,  1.0f,   // 27
+            -1.0f, 1.0f,  1.0f,   // 28
+            -1.0f, 1.0f,  -1.0f,  // 29
+
+            -1.0f, -1.0f, -1.0f,  // 30
+            -1.0f, -1.0f, 1.0f,   // 31
+            1.0f,  -1.0f, -1.0f,  // 32
+            1.0f,  -1.0f, -1.0f,  // 33
+            -1.0f, -1.0f, 1.0f,   // 34
+            1.0f,  -1.0f, 1.0f    // 35
+        };
+
+    _skyboxBuffer.As<gl::BufferTarget::ARRAY_BUFFER>(
+        [&](gl::BufferView<gl::BufferTarget::ARRAY_BUFFER>& buf) {
+          buf.Reserve(sizeof(float32) * box.size(), box.data(), GL_STATIC_DRAW);
+          _skyboxLayout.As<gl::LayoutTarget::VERTEX_ARRAY>(
+              [&](gl::LayoutView<gl::LayoutTarget::VERTEX_ARRAY>& layout) {
+                layout.EnableAttribute(0);
+                layout.SetAttribute(0, 3, GL_FLOAT, 0, 0);
+              });
+        });
+
+    _skyboxShader =
+        Shader("shaders/SkyboxVertex.shader", "shaders/SkyboxFragment.shader");
   }
 
   void Update(float32 dt) override {
@@ -110,12 +176,19 @@ class FeaturesApp : public App {
     auto [xpos, ypos] = Input::Instance().GetCursorPosition();
     _camera.UpdateYawPitchCallback(xpos, ypos);
 
-    _buffer.Use([&]() {
+    _frame.As<gl::FrameBufferTarget::FRAMEBUFFER>([&]() {
+      _ctx.SetClearColor({0.f, 0.5f, 0.5f, 1.f});
+      _ctx.SetFaceCulling(true);
+      _ctx.SetDepthTest(true);
+      _ctx.SetStencilTest(true);
+      _ctx.ClearAll();
+      _ctx.SetFaceCulling(false);
+      _ctx.SetDepthTest(false);
+      _ctx.SetStencilTest(false);
+
       _baseShader.Use([&] {
-        _ctx.SetClearColor({0.f, 0.5f, 0.5f, 1.f});
         _ctx.SetFaceCulling(true);
         _ctx.SetDepthTest(true);
-        _ctx.ClearAll();
 
         _baseShader.SetMatrix4f(
             "mvp", _camera.GetProjection() *
@@ -123,23 +196,37 @@ class FeaturesApp : public App {
 
         _model->Draw();
       });
+
+      _skyboxShader.Use([&] {
+        _ctx.SetDepthTest(true);
+        glDepthFunc(GL_LEQUAL);
+
+        auto mvp =
+            _camera.GetProjection() * glm::mat4(glm::mat3(_camera.GetView()));
+        _skyboxShader.SetMatrix4f("mvp", mvp);
+
+        _skyboxLayout.As<gl::LayoutTarget::VERTEX_ARRAY>([&] {
+          _cubeMap.As<gl::TextureTarget::TEXTURE_CUBE_MAP>(
+              [&] { glDrawArrays(GL_TRIANGLES, 0, 36); });
+        });
+
+        glDepthFunc(GL_LESS);
+      });
     });
 
     // to default screen framebuffer
-    _defaultBuffer.Use([&]() {
-      _screenShader.Use([&]() {
-        _ctx.SetClearColor({1.f, 1.f, 1.f, 1.f});
-        _ctx.SetDepthTest(false);
-        _ctx.ClearAll();
+    _screenShader.Use([&]() {
+      _ctx.SetClearColor({1.f, 1.f, 1.f, 1.f});
+      _ctx.SetDepthTest(false);
+      _ctx.ClearAll();
 
-        _inverted = false;
-        if (Input::Instance().IsPressed(Input::Key::LEFT_SHIFT)) {
-          _inverted = true;
-        }
-        _screenShader.SetBool("material.inverted", _inverted);
+      _inverted = false;
+      if (Input::Instance().IsPressed(Input::Key::LEFT_SHIFT)) {
+        _inverted = true;
+      }
+      _screenShader.SetBool("material.inverted", _inverted);
 
-        _quad.Draw();
-      });
+      _quad.Draw();
     });
 
     _elapsedTime += dt;
@@ -152,16 +239,19 @@ class FeaturesApp : public App {
  private:
   Shader _baseShader;
   Shader _screenShader;
+  Shader _skyboxShader;
 
-  Framebuffer _buffer;
-  Framebuffer _defaultBuffer;
+  gl::BufferWrapper<> _skyboxBuffer;
+  gl::LayoutWrapper<> _skyboxLayout;
+
+  gl::FrameBufferWrapper<> _frame;
 
   gl::TextureWrapper<> _color;
 
   gl::TextureWrapper<> _cubeMap;
   std::array<std::string, 6> _cubeMapTexturesNames;
 
-  RenderBuffer _rbuffer;
+  gl::RenderBufferWrapper<> _rbuffer;
   Mesh _quad;
   std::unique_ptr<Model> _model;
 

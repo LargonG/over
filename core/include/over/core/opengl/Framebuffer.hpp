@@ -4,19 +4,22 @@
 #include <over/core/Types.hpp>
 #include <over/core/opengl/RenderBuffer.hpp>
 #include <over/core/opengl/Texture2D.hpp>
+#include <over/core/opengl/targets/FrameBufferTarget.hpp>
+#include <over/core/opengl/views/FrameBufferView.hpp>
+#include <over/core/opengl/wrappers/FrameBufferWrapper.hpp>
 
 namespace over {
 class Framebuffer : public Binded<Framebuffer> {
  public:
-  Framebuffer() noexcept;
+  Framebuffer() noexcept = default;
 
   Framebuffer(const Framebuffer&) = delete;  // лень + не факт что нужно будет
-  Framebuffer(Framebuffer&&) = delete;
-
   Framebuffer& operator=(const Framebuffer&) = delete;
-  Framebuffer& operator=(Framebuffer&&) = delete;
 
-  ~Framebuffer();
+  Framebuffer(Framebuffer&&) noexcept = default;
+  Framebuffer& operator=(Framebuffer&&) noexcept = default;
+
+  ~Framebuffer() = default;
 
   void Setup();
 
@@ -26,8 +29,8 @@ class Framebuffer : public Binded<Framebuffer> {
   template <class Allocator>
   void Attach(GLenum attachment,
               const gl::TextureWrapper<Allocator>& owner) noexcept {
-    glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D,
-                           *owner.Get(), 0);
+    _frame.As<gl::FrameBufferTarget::FRAMEBUFFER>().Attach(
+        attachment, owner.As<gl::TextureTarget::TEXTURE_2D>(), 0);
   }
 
   void Attach(GLenum attachment, const Texture2D& texture) noexcept;
@@ -36,6 +39,6 @@ class Framebuffer : public Binded<Framebuffer> {
   bool IsReady();
 
  private:
-  uint32 _id;
+  gl::FrameBufferWrapper<> _frame;
 };
 }  // namespace over

@@ -19,7 +19,8 @@ Texture2D::Texture2D(usize width, usize height, GLenum format, GLenum type,
 }
 
 Texture2D::operator MeshTexture() const {
-  return MeshTexture(_view, MeshTexture::Type::DIFFUSE);
+  return MeshTexture(_texture.As<gl::TextureTarget::TEXTURE_2D>(),
+                     MeshTexture::Type::DIFFUSE);
 }
 
 Texture2D::~Texture2D() {
@@ -28,30 +29,30 @@ Texture2D::~Texture2D() {
 
 void Texture2D::Setup(usize width, usize height, GLenum format, GLenum type,
                       const void* data) {
-  _view = _texture.As<gl::TextureTarget::TEXTURE_2D>();
-  _view.Use([&]() {
-    _view.Reserve2D(GL_RGB, width, height, format, type, data);
+  _texture.As<gl::TextureTarget::TEXTURE_2D>([&](gl::Texture2DView& self) {
+    self.Reserve2D(GL_RGB, width, height, format, type, data);
 
-    _view.SetParameter(GL_TEXTURE_WRAP_S, GL_REPEAT);
-    _view.SetParameter(GL_TEXTURE_WRAP_T, GL_REPEAT);
+    self.SetParameter(GL_TEXTURE_WRAP_S, GL_REPEAT);
+    self.SetParameter(GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    _view.SetParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    _view.SetParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    self.SetParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    self.SetParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   });
 }
 
 void Texture2D::Bind() const noexcept {
-  _view.Bind();
+  _texture.As<gl::TextureTarget::TEXTURE_2D>().Bind();
 }
 
 void Texture2D::Unbind() const noexcept {
-  _view.Unbind();
+  _texture.As<gl::TextureTarget::TEXTURE_2D>().Unbind();
 }
 
 void Texture2D::ToGPU(const void* data, GLenum format, bool unbind) {
   Bind();
 
-  _view.Reserve2D(GL_RGB, _width, _height, format, GL_UNSIGNED_BYTE, data);
+  _texture.As<gl::TextureTarget::TEXTURE_2D>().Reserve2D(
+      GL_RGB, _width, _height, format, GL_UNSIGNED_BYTE, data);
 
   if (unbind) {
     Unbind();
@@ -59,15 +60,15 @@ void Texture2D::ToGPU(const void* data, GLenum format, bool unbind) {
 }
 
 void Texture2D::FreeGPU() noexcept {
-  _view.Clear2D();
+  _texture.As<gl::TextureTarget::TEXTURE_2D>().Clear2D();
 }
 
 void Texture2D::SetParameter(GLenum pname, GLint value) {
-  _view.SetParameter(pname, value);
+  _texture.As<gl::TextureTarget::TEXTURE_2D>().SetParameter(pname, value);
 }
 
 GLint Texture2D::GetParameter(GLenum pname) {
-  return _view.GetParameter(pname);
+  return _texture.As<gl::TextureTarget::TEXTURE_2D>().GetParameter(pname);
 }
 
 }  // namespace over

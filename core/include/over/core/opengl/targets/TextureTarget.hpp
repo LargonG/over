@@ -15,4 +15,8 @@ enum class TextureTarget : GLenum {
   TEXTURE_2D_MULTISAMPLE = GL_TEXTURE_2D_MULTISAMPLE,
   TEXTURE_2D_MULTISAMPLE_ARRAY = GL_TEXTURE_2D_MULTISAMPLE_ARRAY
 };
-}
+
+constexpr TextureTarget AsTexture2D = TextureTarget::TEXTURE_2D;
+constexpr TextureTarget AsCubeMap = TextureTarget::TEXTURE_CUBE_MAP;
+
+}  // namespace over::gl

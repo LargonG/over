@@ -3,14 +3,14 @@
 #include <over/core/opengl/Address.hpp>
 
 namespace over::gl {
-class DefaultBufferAllocator {
+class DefaultFrameBufferAllocator {
  public:
-  DefaultBufferAllocator() = default;
+  DefaultFrameBufferAllocator() = default;
 
   [[nodiscard]] Address Alloc();
   void Dealloc(Address ptr);
 
  private:
-  // stateless allocator
+  // stateless
 };
 }  // namespace over::gl

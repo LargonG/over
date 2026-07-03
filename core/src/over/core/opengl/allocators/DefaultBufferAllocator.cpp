@@ -13,13 +13,13 @@ Address DefaultBufferAllocator::Alloc() {
   return Address(id);
 }
 
-void DefaultBufferAllocator::Dealloc(Address ptr) noexcept {
+void DefaultBufferAllocator::Dealloc(Address ptr) {
   if (*ptr == 0) {
     return;
   }
 
   assert(glIsBuffer(*ptr));
-  glDeleteBuffers(1, &*ptr);
+  glthrow(glDeleteBuffers(1, &*ptr));
 }
 
 }  // namespace over::gl

@@ -31,6 +31,8 @@ set(p_core_sources
 	opengl/allocators/DefaultBufferAllocator.cpp
 	opengl/allocators/DefaultTextureAllocator.cpp
 	opengl/allocators/DefaultLayoutAllocator.cpp
+	opengl/allocators/DefaultRenderBufferAllocator.cpp
+	opengl/allocators/DefaultFrameBufferAllocator.cpp
 
 	host/images/Image2D.cpp
 )

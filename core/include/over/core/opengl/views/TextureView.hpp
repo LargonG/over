@@ -1,5 +1,6 @@
 #pragma once
 
+#include <over/core/opengl/targets/FrameBufferTarget.hpp>
 #include <over/core/opengl/targets/TextureTarget.hpp>
 #include <over/core/opengl/wrappers/Exception.hpp>
 #include <over/core/opengl/wrappers/TextureWrapper.hpp>
@@ -11,8 +12,9 @@ class TextureView : public Binded<TextureView<Target>> {
   constexpr static GLenum _target = static_cast<GLenum>(Target);
 
  public:
-  TextureView() : _ptr(nullptr) {}
-  TextureView(nullptr_t) : _ptr(nullptr) {}
+  TextureView() noexcept : _ptr(nullptr) {}
+  TextureView(nullptr_t) noexcept : TextureView() {}
+  explicit TextureView(Address ptr) noexcept : _ptr(ptr) {}
 
   TextureView(const TextureView&) = default;
   TextureView& operator=(const TextureView&) = default;
@@ -21,9 +23,6 @@ class TextureView : public Binded<TextureView<Target>> {
   TextureView& operator=(TextureView&&) noexcept = default;
 
   ~TextureView() = default;
-
-  template <class Allocator>
-  explicit TextureView(const TextureWrapper<Allocator>* me) : _ptr(me->Get()) {}
 
   void Bind() const { glthrow(glBindTexture(_target, *_ptr)); }
 
@@ -61,6 +60,9 @@ class TextureView : public Binded<TextureView<Target>> {
 
  private:
   Address _ptr;
+
+  template <FrameBufferTarget>
+  friend class FrameBufferView;
 };
 
 using Texture2DView = TextureView<TextureTarget::TEXTURE_2D>;

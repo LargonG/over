@@ -2,6 +2,7 @@
 
 #include <fmt/core.h>
 #include <stb_image.h>
+#include <cassert>
 
 namespace over::host {
 
@@ -18,6 +19,7 @@ class SbtiImageWrapper final {
 
   void Load(std::string_view filename) {
     data = stbi_load(filename.data(), &width, &height, &channels, 0);
+    assert(data);
   }
 
   void Free() noexcept {

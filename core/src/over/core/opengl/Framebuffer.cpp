@@ -1,53 +1,38 @@
 #include <over/core/opengl/Framebuffer.hpp>
 
-#include <cassert>
-
 #include <over/core/Includes.hpp>
-
-#include <fmt/core.h>
+#include <over/core/opengl/views/FrameBufferView.hpp>
+#include <over/core/opengl/views/RenderBufferView.hpp>
 
 namespace over {
-Framebuffer::Framebuffer() noexcept : _id(0) {}
-
-Framebuffer::~Framebuffer() {
-  glDeleteFramebuffers(1, &_id);
-}
 
 void Framebuffer::Setup() {
-  if (0 != _id) {
-    return;
-  }
-  glGenFramebuffers(1, &_id);
+  volatile auto _ = _frame.As<gl::FrameBufferTarget::FRAMEBUFFER>();
 }
 
 void Framebuffer::Bind() const noexcept {
-  glBindFramebuffer(GL_FRAMEBUFFER, _id);
+  _frame.As<gl::FrameBufferTarget::FRAMEBUFFER>().Bind();
 }
 
 void Framebuffer::Unbind() const noexcept {
-  GLint id = 0;
-  glGetIntegerv(GL_FRAMEBUFFER_BINDING, &id);
-  assert(id == _id);
-
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  _frame.As<gl::FrameBufferTarget::FRAMEBUFFER>().Unbind();
 }
 
 void Framebuffer::Attach(GLenum attachment, const Texture2D& texture) noexcept {
-  assert(0 != _id);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D,
-                         *texture.Get(), 0);
+  _frame.As<gl::FrameBufferTarget::FRAMEBUFFER>().Attach(
+      attachment, gl::TextureView<gl::TextureTarget::TEXTURE_2D>(texture.Get()),
+      0);
 }
 
 void Framebuffer::Attach(GLenum attachment,
                          const RenderBuffer& buffer) noexcept {
-  assert(0 != _id);
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER,
-                            buffer.Get());
+  _frame.As<gl::FrameBufferTarget::FRAMEBUFFER>().Attach(
+      attachment, gl::RenderBufferView<gl::RenderBufferTarget::RENDER_BUFFER>(
+                      buffer.Get()));
 }
 
 bool Framebuffer::IsReady() {
-  // TODO: assert _id is binded
-  return glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+  return _frame.As<gl::FrameBufferTarget::FRAMEBUFFER>().IsReady();
 }
 
 }  // namespace over

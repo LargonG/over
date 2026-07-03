@@ -45,6 +45,5 @@ class Texture2D : public Binded<Texture2D> {
   usize _width;
   usize _height;
   gl::TextureWrapper<> _texture;
-  gl::TextureView<gl::TextureTarget::TEXTURE_2D> _view;
 };
 }  // namespace over

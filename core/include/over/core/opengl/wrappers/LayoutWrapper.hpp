@@ -14,7 +14,8 @@ template <LayoutTarget Target>
 class LayoutView;
 
 template <class Allocator = DefaultLayoutAllocator>
-class LayoutWrapper : public Wrapper<Allocator, LayoutTarget,
-                                     LayoutWrapper<Allocator>, LayoutView> {};
+class LayoutWrapper final
+    : public Wrapper<Allocator, LayoutTarget, LayoutWrapper<Allocator>,
+                     LayoutView> {};
 
 }  // namespace over::gl

@@ -30,7 +30,7 @@ class Wrapper {
     }
     Allocator().Dealloc(_ptr);
 
-    *_ptr = std::exchange(*other._ptr, 0);
+    _ptr = std::exchange(other._ptr, Address(nullptr));
 
     return *this;
   }
@@ -42,7 +42,7 @@ class Wrapper {
     if (0 == *_ptr) {
       _ptr = Allocator().Alloc();
     }
-    return View<Target>(static_cast<Owner*>(this));
+    return View<Target>(_ptr);
   }
 
   template <TargetList Target>

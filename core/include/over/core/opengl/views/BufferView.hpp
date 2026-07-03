@@ -15,8 +15,9 @@ class BufferView : public Binded<BufferView<Target>> {
   constexpr static GLenum _target = static_cast<GLenum>(Target);
 
  public:
-  BufferView() : _ptr(nullptr) {}
+  BufferView() noexcept : _ptr(nullptr) {}
   BufferView(nullptr_t) : BufferView() {}
+  explicit BufferView(Address ptr) noexcept : _ptr(ptr) {}
 
   BufferView(const BufferView&) = default;
   BufferView& operator=(const BufferView&) = default;
@@ -25,10 +26,6 @@ class BufferView : public Binded<BufferView<Target>> {
   BufferView& operator=(BufferView&&) noexcept = default;
 
   ~BufferView() = default;
-
-  template <class Allocator>
-  explicit BufferView(const BufferWrapper<Allocator>* me) noexcept
-      : _ptr(me->Get()) {}
 
   void Bind() const { glthrow(glBindBuffer(_target, *_ptr)); }
 

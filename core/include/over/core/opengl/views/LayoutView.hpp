@@ -11,8 +11,9 @@ namespace over::gl {
 template <LayoutTarget Target>
 class LayoutView : public Binded<LayoutView<Target>> {
  public:
-  LayoutView() : _ptr(nullptr) {}
-  LayoutView(nullptr_t) : ptr(nullptr_t) {}
+  LayoutView() noexcept : _ptr(nullptr) {}
+  LayoutView(nullptr_t) noexcept : LayoutView() {}
+  explicit LayoutView(Address ptr) noexcept : _ptr(ptr) {}
 
   LayoutView(const LayoutView&) = default;
   LayoutView& operator=(const LayoutView&) = default;
@@ -21,9 +22,6 @@ class LayoutView : public Binded<LayoutView<Target>> {
   LayoutView& operator=(LayoutView&&) noexcept = default;
 
   ~LayoutView() = default;
-
-  template <class Allocator>
-  explicit LayoutView(const LayoutWrapper<Allocator>* me) : _ptr(me->Get()) {}
 
   void Bind() const { glthrow(glBindVertexArray(*_ptr)); }
 

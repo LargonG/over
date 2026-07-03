@@ -21,8 +21,11 @@ set(shaders
 	ScreenVertex.shader
 	ScreenFragment.shader
 
-	DimentionVertex.shader
-	DimentionFragment.shader
+	DimensionVertex.shader
+	DimensionFragment.shader
+
+	SkyboxVertex.shader
+	SkyboxFragment.shader
 )
 
 compile_shaders(

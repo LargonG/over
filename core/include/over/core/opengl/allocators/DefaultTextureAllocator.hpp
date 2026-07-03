@@ -8,7 +8,7 @@ class DefaultTextureAllocator {
   DefaultTextureAllocator() = default;
 
   [[nodiscard]] Address Alloc();
-  void Dealloc(Address ptr) noexcept;
+  void Dealloc(Address ptr);
 
  private:
   // stateless allocator

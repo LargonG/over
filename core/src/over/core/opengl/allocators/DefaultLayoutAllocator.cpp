@@ -1,11 +1,12 @@
 #include <over/core/opengl/allocators/DefaultLayoutAllocator.hpp>
 
 #include <over/core/Includes.hpp>
+#include <over/core/opengl/wrappers/Exception.hpp>
 
 namespace over::gl {
 Address DefaultLayoutAllocator::Alloc() {
   GLuint id = 0;
-  glGenVertexArrays(1, &id);
+  glthrow(glGenVertexArrays(1, &id));
   return Address(id);
 }
 
@@ -15,6 +16,6 @@ void DefaultLayoutAllocator::Dealloc(Address ptr) {
   }
 
   assert(glIsVertexArray(*ptr));
-  glDeleteVertexArrays(1, &*ptr);
+  glthrow(glDeleteVertexArrays(1, &*ptr));
 }
 }  // namespace over::gl

@@ -3,6 +3,7 @@
 #include <over/core/Includes.hpp>
 #include <over/core/Types.hpp>
 #include <over/core/opengl/Binded.hpp>
+#include <over/core/opengl/wrappers/RenderBufferWrapper.hpp>
 
 #include <functional>
 
@@ -10,29 +11,26 @@ namespace over {
 
 class RenderBuffer : public Binded<RenderBuffer> {
  public:
+  RenderBuffer() noexcept = default;
   RenderBuffer(uint32 width, uint32 height, GLenum internalFormat);
 
-  RenderBuffer() noexcept;
-
   RenderBuffer(const RenderBuffer&) = delete;
-  RenderBuffer(RenderBuffer&&) noexcept = default;
-
   RenderBuffer& operator=(const RenderBuffer&) = delete;
-  RenderBuffer& operator=(RenderBuffer&&) noexcept;
 
-  ~RenderBuffer();
+  RenderBuffer(RenderBuffer&&) noexcept = default;
+  RenderBuffer& operator=(RenderBuffer&&) noexcept = default;
 
-  void Bind() const noexcept;
-  void Unbind() const noexcept;
+  ~RenderBuffer() = default;
 
-  void FreeGPU() noexcept;
+  void Bind() const;
+  void Unbind() const;
 
   // Use only for low level functions
-  GLuint Get() const noexcept { return _id; }
+  GLuint Get() const noexcept { return *_buffer.Get(); }
 
  private:
   void Setup(uint32 width, uint32 height, GLenum internalFormat);
 
-  GLuint _id;
+  gl::RenderBufferWrapper<> _buffer;
 };
 }  // namespace over
