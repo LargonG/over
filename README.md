@@ -62,8 +62,17 @@ Also it is a playground for me to test architecture of render engine & algorithm
 - => Kernel matrix in shader
 - Hold `Left-Shift` to change view mode
 - Hold `Left-Control` to slow down camera
+- Hold `Q` to change refraction to reflection
 
 <img width="1123" height="954" alt="image" src="https://github.com/user-attachments/assets/4bddcc44-4c68-4e57-9b0a-29db2b45c7f4" />
 
 ### With skybox (and "kernel view" on)
 <img width="1978" height="954" alt="image" src="https://github.com/user-attachments/assets/6519b67e-6b66-4054-ac90-877d51759671" />
+
+### Environment mapping
+
+#### Refraction
+<img width="2034" height="1915" alt="image" src="https://github.com/user-attachments/assets/bb05ee20-c200-41d3-9f7c-8569d7a92d1f" />
+
+#### Reflection
+<img width="3336" height="1738" alt="image" src="https://github.com/user-attachments/assets/71111d44-48b5-4929-b46b-2ebc401d9f53" />
