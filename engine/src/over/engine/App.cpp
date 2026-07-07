@@ -54,6 +54,8 @@ void App::Run(int32 width, int32 height, int32 swapInterval) {
       _fps = fpsCounter;
       fpsCounter = 0;
     }
+
+    _ctx.Viewport(0, 0, _window.GetWidth(), _window.GetHeight());
   }
 }
 

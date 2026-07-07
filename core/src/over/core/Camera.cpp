@@ -103,7 +103,7 @@ glm::mat4 Camera::GetView() const noexcept {
 }
 
 glm::mat4 Camera::GetProjection() const noexcept {
-  return glm::perspective(_fov, _aspectRatio, _near, _far);
+  return glm::infinitePerspective(_fov, _aspectRatio, _near);
 }
 
 }  // namespace over

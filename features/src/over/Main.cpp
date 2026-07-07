@@ -33,7 +33,9 @@ class FeaturesApp : public App {
         _quad(),
         _model(nullptr),
 
-        _camera({0.f, 0.f, 3.f}, {0.f, 0.f, 0.f}, 25.f, 120.f, 1.f),
+        _camera({0.f, 0.f, 3.f}, {0.f, 0.f, 0.f}, 25.f, 45.f, 16.f / 9.f),
+
+        //_camera({0.f, 0.f, 3.f}, {0.f, 0.f, 0.f}, 25.f, 90.f, 1.f),
 
         _elapsedTime(0.f) {}
 
@@ -50,6 +52,9 @@ class FeaturesApp : public App {
     colorTexture2D.Use([&](gl::Texture2DView& self) {
       self.Reserve2D(GL_RGB, width, height, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
       self.GenerateMipmap();
+
+      self.SetParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      self.SetParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
       self.SetParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
       self.SetParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
@@ -172,6 +177,9 @@ class FeaturesApp : public App {
       _camera.SetSpeed(5.f);
     }
 
+    _inverted = Input::Instance().IsPressed(Input::Key::LEFT_SHIFT);
+    _reflectFlag = Input::Instance().IsPressed(Input::Key::Q);
+
     _camera.UpdatePositionCallback(_window.Get(), dt);
     auto [xpos, ypos] = Input::Instance().GetCursorPosition();
     _camera.UpdateYawPitchCallback(xpos, ypos);
@@ -193,8 +201,14 @@ class FeaturesApp : public App {
         _baseShader.SetMatrix4f(
             "mvp", _camera.GetProjection() *
                        (_camera.GetView() * _model->GetTransform().GetModel()));
+        _baseShader.SetMatrix4f("model", _model->GetTransform().GetModel());
+        _baseShader.SetVec3f("cameraPosition", _camera.GetPosition());
 
-        _model->Draw();
+        gl::Texture::Activate(GL_TEXTURE0 + 2);
+        _baseShader.SetInt("skybox", 2);
+        _baseShader.SetBool("doReflect", _reflectFlag);
+        _cubeMap.As<gl::TextureTarget::TEXTURE_CUBE_MAP>(
+            [&] { _model->Draw(); });
       });
 
       _skyboxShader.Use([&] {
@@ -220,10 +234,7 @@ class FeaturesApp : public App {
       _ctx.SetDepthTest(false);
       _ctx.ClearAll();
 
-      _inverted = false;
-      if (Input::Instance().IsPressed(Input::Key::LEFT_SHIFT)) {
-        _inverted = true;
-      }
+      
       _screenShader.SetBool("material.inverted", _inverted);
 
       _quad.Draw();
@@ -234,6 +245,22 @@ class FeaturesApp : public App {
       _elapsedTime = 0.f;
       fmt::println("fps: {}", _fps);
     }
+
+    auto [width, height] = _window.GetSize();
+
+    _camera.SetAspectRatio(width * 1.0 / height);
+    _color.As<gl::AsTexture2D>([&](gl::Texture2DView& self) {
+      self.Reserve2D(GL_RGB, width, height, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+      self.GenerateMipmap();
+
+      self.SetParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+      self.SetParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    });
+
+    _rbuffer.As<gl::RenderBufferTarget::RENDER_BUFFER>(
+        [&](gl::RenderBufferView<gl::RenderBufferTarget::RENDER_BUFFER>& self) {
+          self.Reserve(GL_DEPTH24_STENCIL8, width, height);
+        });
   }
 
  private:
@@ -260,6 +287,7 @@ class FeaturesApp : public App {
   float32 _elapsedTime;
 
   bool _inverted = false;
+  bool _reflectFlag = false;
 };
 
 void Run() {

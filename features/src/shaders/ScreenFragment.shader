@@ -26,15 +26,22 @@ void main() {
 		vec2(0.0, -offset),
 		vec2(offset, -offset)
 	);
-
+	
 	float kernel[KERNEL_SIZE] = float[](
 		-1.0, 3.0, -1.0,
 		3.0, -8.0, 3.0,
 		-1.0, 3.0, -1.0
 	);
 
-	if (!material.inverted) {
+	/*
+	float kernel[KERNEL_SIZE] = float[](
+		1.0, 2.0, 1.0,
+		2.0, 4.0, 2.0,
+		1.0, 2.0, 1.0
+	);*/
+
 		FragColor = texture(material.texture_diffuse0, fTexCoord);
+	if (!material.inverted) {
 	} else {
 		vec3 samples[KERNEL_SIZE];
 		for (int i = 0; i < KERNEL_SIZE; i++) {
