@@ -4,16 +4,23 @@ layout (location = 0) in vec3 vPosition;
 layout (location = 1) in vec3 vNormal;
 layout (location = 2) in vec2 vTexCoord;
 
-out vec3 fPosition;
-out vec3 fNormal;
-out vec2 fTexCoord;
+out VS_OUT {
+	vec3 position;
+	vec3 normal;
+	vec2 texCoord;
+} vs_out;
+
+layout (std140) uniform Camera {
+	mat4 projection;
+	mat4 view;
+};
 
 uniform mat4 model;
-uniform mat4 mvp;
 
 void main() {
-	fNormal = mat3(transpose(inverse(model))) * vNormal;
-	fPosition = vec3(model * vec4(vPosition, 1.0));
-	gl_Position = mvp * vec4(vPosition, 1.0);
-	fTexCoord = vTexCoord;
+	gl_Position = projection * view * model * vec4(vPosition, 1.0);
+
+	vs_out.position = vec3(model * vec4(vPosition, 1.0));
+	vs_out.normal = mat3(transpose(inverse(model))) * vNormal;
+	vs_out.texCoord = vTexCoord;
 }

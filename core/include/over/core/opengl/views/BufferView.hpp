@@ -31,6 +31,21 @@ class BufferView : public Binded<BufferView<Target>> {
 
   void Unbind() const { glthrow(glBindBuffer(_target, 0)); }
 
+#pragma region Uniform
+  // For Uniform & Transform feedback buffers ONLY
+
+  void BindBase(usize index) {
+    glthrow(glBindBufferBase(_target, static_cast<GLuint>(index), *_ptr));
+  }
+
+  void BindRange(usize index, usize offset, usize size) {
+    glBindBufferRange(_target, static_cast<GLuint>(index), *_ptr,
+                      static_cast<GLintptr>(offset),
+                      static_cast<GLsizeiptr>(size));
+  }
+
+#pragma endregion
+
   void Reserve(usize size, const void* data, GLenum usage) {
     if (0 == *_ptr) {
       return;

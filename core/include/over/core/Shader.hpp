@@ -45,6 +45,8 @@ class Shader : public Binded<Shader> {
   void SetVec2f(const std::string& name, glm::vec2 v);
   void SetVec2f(const std::string& name, float32* ptr);
 
+  void BindUniform(std::string_view name, usize index);
+
   static Shader GetCurrent() noexcept;
 
  private:

@@ -192,6 +192,12 @@ void Shader::SetVec2f(const std::string& name, float32* ptr) {
   glUniform2fv(GetUniformLocation(name), 1, ptr);
 }
 
+void Shader::BindUniform(std::string_view name, usize index) {
+  uint32 uniformId = glGetUniformBlockIndex(program_, name.data());
+  glUniformBlockBinding(program_, static_cast<GLuint>(uniformId),
+                        static_cast<GLuint>(index));
+}
+
 Shader Shader::GetCurrent() noexcept {
   return Shader(s_currentProgram);
 }

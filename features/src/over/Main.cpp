@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <stb_image.h>
+#include <glm/gtc/type_ptr.hpp>
 #include <over/core/Camera.hpp>
 #include <over/core/Mesh.hpp>
 #include <over/core/Model.hpp>
@@ -34,6 +35,7 @@ class FeaturesApp : public App {
         _model(nullptr),
 
         _camera({0.f, 0.f, 3.f}, {0.f, 0.f, 0.f}, 25.f, 45.f, 16.f / 9.f),
+        _cameraBuffer(),
 
         //_camera({0.f, 0.f, 3.f}, {0.f, 0.f, 0.f}, 25.f, 90.f, 1.f),
 
@@ -165,6 +167,17 @@ class FeaturesApp : public App {
 
     _skyboxShader =
         Shader("shaders/SkyboxVertex.shader", "shaders/SkyboxFragment.shader");
+
+    _cameraBuffer.As<gl::BufferTarget::UNIFORM_BUFFER>(
+        [&](gl::BufferView<gl::BufferTarget::UNIFORM_BUFFER>& self) {
+          auto matsz = sizeof(glm::mat4);
+          self.Reserve(matsz * 2, nullptr, GL_STATIC_DRAW);
+          self.Write(0, matsz, glm::value_ptr(_camera.GetProjection()));
+          self.BindBase(0);
+        });
+
+    _baseShader.BindUniform("Camera", 0);
+    _skyboxShader.BindUniform("Camera", 0);
   }
 
   void Update(float32 dt) override {
@@ -184,6 +197,12 @@ class FeaturesApp : public App {
     auto [xpos, ypos] = Input::Instance().GetCursorPosition();
     _camera.UpdateYawPitchCallback(xpos, ypos);
 
+    _cameraBuffer.As<gl::BufferTarget::UNIFORM_BUFFER>(
+        [&](gl::BufferView<gl::BufferTarget::UNIFORM_BUFFER>& self) {
+          auto matsz = sizeof(glm::mat4);
+          self.Write(matsz, matsz, glm::value_ptr(_camera.GetView()));
+        });
+
     _frame.As<gl::FrameBufferTarget::FRAMEBUFFER>([&]() {
       _ctx.SetClearColor({0.f, 0.5f, 0.5f, 1.f});
       _ctx.SetFaceCulling(true);
@@ -194,13 +213,11 @@ class FeaturesApp : public App {
       _ctx.SetDepthTest(false);
       _ctx.SetStencilTest(false);
 
+      // Model rendering
       _baseShader.Use([&] {
         _ctx.SetFaceCulling(true);
         _ctx.SetDepthTest(true);
 
-        _baseShader.SetMatrix4f(
-            "mvp", _camera.GetProjection() *
-                       (_camera.GetView() * _model->GetTransform().GetModel()));
         _baseShader.SetMatrix4f("model", _model->GetTransform().GetModel());
         _baseShader.SetVec3f("cameraPosition", _camera.GetPosition());
 
@@ -211,13 +228,10 @@ class FeaturesApp : public App {
             [&] { _model->Draw(); });
       });
 
+      // Skybox rendering (after model for optimization)
       _skyboxShader.Use([&] {
         _ctx.SetDepthTest(true);
         glDepthFunc(GL_LEQUAL);
-
-        auto mvp =
-            _camera.GetProjection() * glm::mat4(glm::mat3(_camera.GetView()));
-        _skyboxShader.SetMatrix4f("mvp", mvp);
 
         _skyboxLayout.As<gl::LayoutTarget::VERTEX_ARRAY>([&] {
           _cubeMap.As<gl::TextureTarget::TEXTURE_CUBE_MAP>(
@@ -234,7 +248,6 @@ class FeaturesApp : public App {
       _ctx.SetDepthTest(false);
       _ctx.ClearAll();
 
-      
       _screenShader.SetBool("material.inverted", _inverted);
 
       _quad.Draw();
@@ -283,6 +296,7 @@ class FeaturesApp : public App {
   std::unique_ptr<Model> _model;
 
   Camera _camera;
+  gl::BufferWrapper<> _cameraBuffer;
 
   float32 _elapsedTime;
 

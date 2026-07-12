@@ -1,8 +1,10 @@
 #version 330 core
 
-in vec3 fPosition;
-in vec3 fNormal;
-in vec2 fTexCoord;
+in VS_OUT {
+	vec3 position;
+	vec3 normal;
+	vec2 texCoord;
+} fs_in;
 
 out vec4 FragColor;
 
@@ -20,15 +22,16 @@ uniform bool doReflect;
 
 void main() {
 	float ratio = 1.00 / 1.52;
-	vec3 viewDirection = normalize(fPosition - cameraPosition);
+	vec3 viewDirection = normalize(fs_in.position - cameraPosition);
 	vec3 resultVector = vec3(0);
+
 	if (doReflect) {
-		resultVector = reflect(viewDirection, normalize(fNormal));
+		resultVector = reflect(viewDirection, normalize(fs_in.normal));
 	} else {
-		resultVector = refract(viewDirection, normalize(fNormal), ratio);
+		resultVector = refract(viewDirection, normalize(fs_in.normal), ratio);
 	}
 
-	FragColor = vec4((texture(skybox, resultVector).rgb + texture(material.texture_diffuse0, fTexCoord).rgb) / 2.0, 1.0);
+	FragColor = vec4((texture(skybox, resultVector).rgb + texture(material.texture_diffuse0, fs_in.texCoord).rgb) / 2.0, 1.0);
 	//FragColor += texture(material.texture_diffuse0, fTexCoord);
 	//FragColor = vec4(FragColor.rgb, 1.0);
 }
