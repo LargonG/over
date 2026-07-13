@@ -14,10 +14,13 @@ class Shader : public Binded<Shader> {
   explicit Shader(GLuint id) noexcept;
   Shader(std::string vertexPath, std::string fragmentPath);
 
+  Shader(std::string_view vertex, std::string_view fragment,
+         std::string_view geometry);
+
   Shader(const Shader&) = delete;
   Shader& operator=(const Shader&) = delete;
 
-  Shader(Shader&&) noexcept = default;
+  Shader(Shader&&) noexcept;
   Shader& operator=(Shader&&) noexcept;
 
   ~Shader();
@@ -55,6 +58,7 @@ class Shader : public Binded<Shader> {
 
   std::string vertexPath_;
   std::string fragmentPath_;
+  std::string geometryPath_;
 
   GLuint program_;
 

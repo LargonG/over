@@ -28,6 +28,19 @@ static std::string ReadShaderFile(const std::string& filename) {
   return shaderStream.str();
 }
 
+static std::string_view GetShaderType(GLenum value) {
+  switch (value) {
+    case GL_VERTEX_SHADER:
+      return "VERTEX_SHADER";
+    case GL_FRAGMENT_SHADER:
+      return "FRAGMENT_SHADER";
+    case GL_GEOMETRY_SHADER:
+      return "GEOMETRY_SHADER";
+    default:
+      throw std::runtime_error("Unknown shader type");
+  }
+}
+
 static GLuint CompileShader(const char* source, GLenum type) {
   GLuint shader = glCreateShader(type);
   glShaderSource(shader, 1, &source, nullptr);
@@ -38,8 +51,8 @@ static GLuint CompileShader(const char* source, GLenum type) {
   glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
   if (!success) {
     glGetShaderInfoLog(shader, sizeof(infoLog), nullptr, infoLog);
-    fmt::println("shader compilation error: {}", infoLog);
-    throw fmt::system_error(-1, "shader compilation error: {}", infoLog);
+    throw fmt::system_error(-1, "shader {} compilation error: {}",
+                            GetShaderType(type), infoLog);
   }
   return shader;
 }
@@ -52,8 +65,22 @@ Shader::Shader(GLuint id) noexcept
 Shader::Shader(std::string vertexPath, std::string fragmentPath)
     : vertexPath_(std::move(vertexPath)),
       fragmentPath_(std::move(fragmentPath)),
+      geometryPath_(),
       program_(0) {
   Compile();
+}
+
+Shader::Shader(std::string_view vertex, std::string_view fragment,
+               std::string_view geometry)
+    : vertexPath_(vertex),
+      fragmentPath_(fragment),
+      geometryPath_(geometry),
+      program_(0) {
+  Compile();
+}
+
+Shader::Shader(Shader&& other) noexcept : Shader() {
+  *this = std::move(other);
 }
 
 Shader& Shader::operator=(Shader&& other) noexcept {
@@ -64,6 +91,7 @@ Shader& Shader::operator=(Shader&& other) noexcept {
   FreeGPU();
   vertexPath_ = std::move(other.vertexPath_);
   fragmentPath_ = std::move(other.fragmentPath_);
+  geometryPath_ = std::move(other.geometryPath_);
   program_ = std::exchange(other.program_, 0);
   // can be only
   // 1) Empty, so no compile needed
@@ -78,11 +106,16 @@ Shader::~Shader() {
 }
 
 void Shader::Compile() {
-  std::string vertexShaderSource = "";
-  std::string fragmentShaderSource = "";
+  std::string vertexShaderSource;
+  std::string fragmentShaderSource;
+  std::string geometryShaderSource;
+
   try {
     vertexShaderSource = ReadShaderFile(vertexPath_);
     fragmentShaderSource = ReadShaderFile(fragmentPath_);
+    if (geometryPath_ != std::string()) {
+      geometryShaderSource = ReadShaderFile(geometryPath_);
+    }
   } catch (std::ifstream::failure& e) {
     fmt::println("cannot read shader file: {}", e.what());
     throw fmt::system_error(-1, "cannot read shader file: {}", e.what());
@@ -92,14 +125,26 @@ void Shader::Compile() {
       CompileShader(vertexShaderSource.c_str(), GL_VERTEX_SHADER);
   GLuint fragmentShader =
       CompileShader(fragmentShaderSource.c_str(), GL_FRAGMENT_SHADER);
+  GLuint geometryShader = 0;
+  if (geometryShaderSource != std::string()) {
+    geometryShader =
+        CompileShader(geometryShaderSource.c_str(), GL_GEOMETRY_SHADER);
+  }
 
   GLuint program = glCreateProgram();
   glAttachShader(program, vertexShader);
   glAttachShader(program, fragmentShader);
+  if (0 != geometryShader) {
+    glAttachShader(program, geometryShader);
+  }
+
   glLinkProgram(program);
 
   glDeleteShader(vertexShader);
   glDeleteShader(fragmentShader);
+  if (0 != geometryShader) {
+    glDeleteShader(geometryShader);
+  }
 
   int32 success;
   char infoLog[512];

@@ -22,7 +22,12 @@ set(shaders
 	ScreenFragment.shader
 
 	DimensionVertex.shader
+	DimensionGeometry.shader
 	DimensionFragment.shader
+
+	NormalDebugVertex.shader
+	NormalDebugGeometry.shader
+	NormalDebugFragment.shader
 
 	SkyboxVertex.shader
 	SkyboxFragment.shader

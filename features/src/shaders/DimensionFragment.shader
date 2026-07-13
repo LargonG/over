@@ -31,7 +31,7 @@ void main() {
 		resultVector = refract(viewDirection, normalize(fs_in.normal), ratio);
 	}
 
-	FragColor = vec4((texture(skybox, resultVector).rgb + texture(material.texture_diffuse0, fs_in.texCoord).rgb) / 2.0, 1.0);
+	FragColor = vec4((texture(skybox, resultVector) + texture(material.texture_diffuse0, fs_in.texCoord)).rgb / 2.0, 1.0);
 	//FragColor += texture(material.texture_diffuse0, fTexCoord);
 	//FragColor = vec4(FragColor.rgb, 1.0);
 }

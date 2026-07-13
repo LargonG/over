@@ -39,7 +39,10 @@ class FeaturesApp : public App {
 
         //_camera({0.f, 0.f, 3.f}, {0.f, 0.f, 0.f}, 25.f, 90.f, 1.f),
 
-        _elapsedTime(0.f) {}
+        _elapsedTime(0.f),
+        _explode(0.f),
+
+        _debug(false) {}
 
   void Init() override {
     PrintName();
@@ -96,7 +99,8 @@ class FeaturesApp : public App {
         });
 
     _baseShader = Shader("shaders/DimensionVertex.shader",
-                         "shaders/DimensionFragment.shader");
+                         "shaders/DimensionFragment.shader",
+                         "shaders/DimensionGeometry.shader");
     _screenShader =
         Shader("shaders/ScreenVertex.shader", "shaders/ScreenFragment.shader");
 
@@ -178,6 +182,10 @@ class FeaturesApp : public App {
 
     _baseShader.BindUniform("Camera", 0);
     _skyboxShader.BindUniform("Camera", 0);
+
+    _debugShader = Shader("shaders/NormalDebugVertex.shader",
+                          "shaders/NormalDebugFragment.shader",
+                          "shaders/NormalDebugGeometry.shader");
   }
 
   void Update(float32 dt) override {
@@ -190,8 +198,42 @@ class FeaturesApp : public App {
       _camera.SetSpeed(5.f);
     }
 
+    if (Input::Instance().IsPressed(Input::Key::E)) {
+      _explode += dt;
+    }
+    if (Input::Instance().IsPressed(Input::Key::R)) {
+      _explode = 0.f;
+    }
+
+    float32 rotationSpeed = glm::radians(0.25f);
+
+    if (Input::Instance().IsPressed(Input::Key::Y)) {
+      _model->GetTransform().rotation.x += rotationSpeed;
+    }
+
+    if (Input::Instance().IsPressed(Input::Key::H)) {
+      _model->GetTransform().rotation.x -= rotationSpeed;
+    }
+
+    if (Input::Instance().IsPressed(Input::Key::J)) {
+      _model->GetTransform().rotation.y += rotationSpeed;
+    }
+
+    if (Input::Instance().IsPressed(Input::Key::G)) {
+      _model->GetTransform().rotation.y -= rotationSpeed;
+    }
+
+    if (Input::Instance().IsPressed(Input::Key::N)) {
+      _model->GetTransform().rotation.z += rotationSpeed;
+    }
+
+    if (Input::Instance().IsPressed(Input::Key::B)) {
+      _model->GetTransform().rotation.z -= rotationSpeed;
+    }
+
     _inverted = Input::Instance().IsPressed(Input::Key::LEFT_SHIFT);
     _reflectFlag = Input::Instance().IsPressed(Input::Key::Q);
+    _debug = Input::Instance().IsPressed(Input::Key::TAB);
 
     _camera.UpdatePositionCallback(_window.Get(), dt);
     auto [xpos, ypos] = Input::Instance().GetCursorPosition();
@@ -205,10 +247,14 @@ class FeaturesApp : public App {
 
     _frame.As<gl::FrameBufferTarget::FRAMEBUFFER>([&]() {
       _ctx.SetClearColor({0.f, 0.5f, 0.5f, 1.f});
+
+      // Because _ctx.ClearAll() only cleans enabled tests
       _ctx.SetFaceCulling(true);
       _ctx.SetDepthTest(true);
       _ctx.SetStencilTest(true);
+
       _ctx.ClearAll();
+
       _ctx.SetFaceCulling(false);
       _ctx.SetDepthTest(false);
       _ctx.SetStencilTest(false);
@@ -224,6 +270,7 @@ class FeaturesApp : public App {
         gl::Texture::Activate(GL_TEXTURE0 + 2);
         _baseShader.SetInt("skybox", 2);
         _baseShader.SetBool("doReflect", _reflectFlag);
+        _baseShader.SetFloat("time", _explode);
         _cubeMap.As<gl::TextureTarget::TEXTURE_CUBE_MAP>(
             [&] { _model->Draw(); });
       });
@@ -240,6 +287,15 @@ class FeaturesApp : public App {
 
         glDepthFunc(GL_LESS);
       });
+
+      if (_debug) {
+        _debugShader.Use([&] {
+          _debugShader.SetMatrix4f("model", _model->GetTransform().GetModel());
+          _debugShader.SetFloat("magnitude", 0.4f);
+
+          _model->Draw();
+        });
+      }
     });
 
     // to default screen framebuffer
@@ -280,6 +336,7 @@ class FeaturesApp : public App {
   Shader _baseShader;
   Shader _screenShader;
   Shader _skyboxShader;
+  Shader _debugShader;
 
   gl::BufferWrapper<> _skyboxBuffer;
   gl::LayoutWrapper<> _skyboxLayout;
@@ -302,6 +359,8 @@ class FeaturesApp : public App {
 
   bool _inverted = false;
   bool _reflectFlag = false;
+  float32 _explode;
+  bool _debug;
 };
 
 void Run() {
