@@ -51,6 +51,9 @@ class FeaturesApp : public App {
     auto width = _window.GetWidth();
     auto height = _window.GetHeight();
 
+    _windowWidth = width;
+    _windowHeight = height;
+
     auto colorTexture2D = _color.As<gl::AsTexture2D>();
     auto renderBuffer = _rbuffer.As<gl::RenderBufferTarget::RENDER_BUFFER>();
 
@@ -317,19 +320,24 @@ class FeaturesApp : public App {
 
     auto [width, height] = _window.GetSize();
 
-    _camera.SetAspectRatio(width * 1.0 / height);
-    _color.As<gl::AsTexture2D>([&](gl::Texture2DView& self) {
-      self.Reserve2D(GL_RGB, width, height, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
-      self.GenerateMipmap();
+    if (width != _windowWidth || height != _windowHeight) {
+      _windowWidth = width;
+      _windowHeight = height;
 
-      self.SetParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-      self.SetParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    });
+      _camera.SetAspectRatio(width * 1.0 / height);
+      _color.As<gl::AsTexture2D>([&](gl::Texture2DView& self) {
+        self.Reserve2D(GL_RGB, width, height, GL_RGB, GL_UNSIGNED_BYTE,
+                       nullptr);
+        self.GenerateMipmap();
 
-    _rbuffer.As<gl::RenderBufferTarget::RENDER_BUFFER>(
-        [&](gl::RenderBufferView<gl::RenderBufferTarget::RENDER_BUFFER>& self) {
-          self.Reserve(GL_DEPTH24_STENCIL8, width, height);
-        });
+        self.SetParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        self.SetParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+      });
+
+      _rbuffer.As<gl::RenderBufferTarget::RENDER_BUFFER>(
+          [&](gl::RenderBufferView<gl::RenderBufferTarget::RENDER_BUFFER>&
+                  self) { self.Reserve(GL_DEPTH24_STENCIL8, width, height); });
+    }
   }
 
  private:
@@ -361,6 +369,8 @@ class FeaturesApp : public App {
   bool _reflectFlag = false;
   float32 _explode;
   bool _debug;
+
+  uint32 _windowWidth, _windowHeight;
 };
 
 void Run() {
