@@ -42,7 +42,10 @@ class FeaturesApp : public App {
         _elapsedTime(0.f),
         _explode(0.f),
 
-        _debug(false) {}
+        _debug(false),
+
+        _windowWidth(),
+        _windowHeight() {}
 
   void Init() override {
     PrintName();
@@ -57,7 +60,7 @@ class FeaturesApp : public App {
     auto colorTexture2D = _color.As<gl::AsTexture2D>();
     auto renderBuffer = _rbuffer.As<gl::RenderBufferTarget::RENDER_BUFFER>();
 
-    colorTexture2D.Use([&](gl::Texture2DView& self) {
+    colorTexture2D.Use([&](gl::Texture2DView self) {
       self.Reserve2D(GL_RGB, width, height, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
       self.GenerateMipmap();
 
@@ -69,37 +72,36 @@ class FeaturesApp : public App {
     });
 
     renderBuffer.Use(
-        [&](gl::RenderBufferView<gl::RenderBufferTarget::RENDER_BUFFER>& self) {
+        [&](gl::RenderBufferView<gl::RenderBufferTarget::RENDER_BUFFER> self) {
           self.Reserve(GL_DEPTH24_STENCIL8, width, height);
         });
 
     _camera.SetAspectRatio(width * 1.f / height);
 
     _frame.As<gl::FrameBufferTarget::FRAMEBUFFER>(
-        [&](gl::FrameBufferView<gl::FrameBufferTarget::FRAMEBUFFER>& self) {
+        [&](gl::FrameBufferView<gl::FrameBufferTarget::FRAMEBUFFER> self) {
           self.Attach(GL_COLOR_ATTACHMENT0, colorTexture2D, 0);
           self.Attach(GL_DEPTH_STENCIL_ATTACHMENT, renderBuffer);
 
           self.ReadyOrThrow("Cannot create frame buffer");
         });
 
-    _cubeMap.As<gl::TextureTarget::TEXTURE_CUBE_MAP>(
-        [&](gl::CubeMapView& self) {
-          for (usize i = 0; i < _cubeMapTexturesNames.size(); i++) {
-            auto img = host::Image2D::FromFile("resources/textures/skybox/" +
-                                               _cubeMapTexturesNames[i]);
-            auto format = gl::Texture::GetFormat(img.Channels());
-            self.Reserve2DAs(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, format,
-                             img.Width(), img.Height(), format,
-                             GL_UNSIGNED_BYTE, img.Data().data());
-          }
+    _cubeMap.As<gl::TextureTarget::TEXTURE_CUBE_MAP>([&](gl::CubeMapView self) {
+      for (usize i = 0; i < _cubeMapTexturesNames.size(); i++) {
+        auto img = host::Image2D::FromFile("resources/textures/skybox/" +
+                                           _cubeMapTexturesNames[i]);
+        auto format = gl::Texture::GetFormat(img.Channels());
+        self.Reserve2DAs(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, format,
+                         img.Width(), img.Height(), format, GL_UNSIGNED_BYTE,
+                         img.Data().data());
+      }
 
-          self.SetParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-          self.SetParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-          self.SetParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-          self.SetParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-          self.SetParameter(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-        });
+      self.SetParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      self.SetParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      self.SetParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      self.SetParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      self.SetParameter(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    });
 
     _baseShader = Shader("shaders/DimensionVertex.shader",
                          "shaders/DimensionFragment.shader",
@@ -163,10 +165,10 @@ class FeaturesApp : public App {
         };
 
     _skyboxBuffer.As<gl::BufferTarget::ARRAY_BUFFER>(
-        [&](gl::BufferView<gl::BufferTarget::ARRAY_BUFFER>& buf) {
+        [&](gl::BufferView<gl::BufferTarget::ARRAY_BUFFER> buf) {
           buf.Reserve(sizeof(float32) * box.size(), box.data(), GL_STATIC_DRAW);
           _skyboxLayout.As<gl::LayoutTarget::VERTEX_ARRAY>(
-              [&](gl::LayoutView<gl::LayoutTarget::VERTEX_ARRAY>& layout) {
+              [&](gl::LayoutView<gl::LayoutTarget::VERTEX_ARRAY> layout) {
                 layout.EnableAttribute(0);
                 layout.SetAttribute(0, 3, GL_FLOAT, 0, 0);
               });
@@ -176,7 +178,7 @@ class FeaturesApp : public App {
         Shader("shaders/SkyboxVertex.shader", "shaders/SkyboxFragment.shader");
 
     _cameraBuffer.As<gl::BufferTarget::UNIFORM_BUFFER>(
-        [&](gl::BufferView<gl::BufferTarget::UNIFORM_BUFFER>& self) {
+        [&](gl::BufferView<gl::BufferTarget::UNIFORM_BUFFER> self) {
           auto matsz = sizeof(glm::mat4);
           self.Reserve(matsz * 2, nullptr, GL_STATIC_DRAW);
           self.Write(0, matsz, glm::value_ptr(_camera.GetProjection()));
@@ -208,7 +210,7 @@ class FeaturesApp : public App {
       _explode = 0.f;
     }
 
-    float32 rotationSpeed = glm::radians(0.25f);
+    constexpr float32 rotationSpeed = glm::radians(0.25f);
 
     if (Input::Instance().IsPressed(Input::Key::Y)) {
       _model->GetTransform().rotation.x += rotationSpeed;
@@ -243,7 +245,7 @@ class FeaturesApp : public App {
     _camera.UpdateYawPitchCallback(xpos, ypos);
 
     _cameraBuffer.As<gl::BufferTarget::UNIFORM_BUFFER>(
-        [&](gl::BufferView<gl::BufferTarget::UNIFORM_BUFFER>& self) {
+        [&](gl::BufferView<gl::BufferTarget::UNIFORM_BUFFER> self) {
           auto matsz = sizeof(glm::mat4);
           self.Write(matsz, matsz, glm::value_ptr(_camera.GetView()));
         });
@@ -325,7 +327,7 @@ class FeaturesApp : public App {
       _windowHeight = height;
 
       _camera.SetAspectRatio(width * 1.0 / height);
-      _color.As<gl::AsTexture2D>([&](gl::Texture2DView& self) {
+      _color.As<gl::AsTexture2D>([&](gl::Texture2DView self) {
         self.Reserve2D(GL_RGB, width, height, GL_RGB, GL_UNSIGNED_BYTE,
                        nullptr);
         self.GenerateMipmap();
@@ -335,7 +337,7 @@ class FeaturesApp : public App {
       });
 
       _rbuffer.As<gl::RenderBufferTarget::RENDER_BUFFER>(
-          [&](gl::RenderBufferView<gl::RenderBufferTarget::RENDER_BUFFER>&
+          [&](gl::RenderBufferView<gl::RenderBufferTarget::RENDER_BUFFER>
                   self) { self.Reserve(GL_DEPTH24_STENCIL8, width, height); });
     }
   }
