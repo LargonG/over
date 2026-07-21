@@ -61,6 +61,7 @@ Also it is a playground for me to test architecture of render engine & algorithm
 - FrameBuffer + RenderBuffer + Texture2D = Post-processing
 - => Kernel matrix in shader
 - MSAA x4 is used (not for post-processing)
+- Gamma correction
 - Hold `Left-Shift` to change view mode
 - Hold `Left-Control` to slow down camera
 - Hold `Q` to change refraction to reflection
@@ -68,12 +69,11 @@ Also it is a playground for me to test architecture of render engine & algorithm
 - Hold `E` to blow up model (avg normal vectors of primitives are taken). Enter `R` to restore.
 - Use `Y`, `H`, `G`, `J`, `B` and `N` to rotate model
 
-<img width="1123" height="954" alt="image" src="https://github.com/user-attachments/assets/4bddcc44-4c68-4e57-9b0a-29db2b45c7f4" />
+<img width="2411" height="1412" alt="image" src="https://github.com/user-attachments/assets/87c86b73-4e26-40af-a30f-1ea8f29971bc" />
 
-### With skybox (and "kernel view" on)
-<img width="1978" height="954" alt="image" src="https://github.com/user-attachments/assets/6519b67e-6b66-4054-ac90-877d51759671" />
+### Environment mapping 
 
-### Environment mapping
+*photos without gamma correction*
 
 #### Refraction
 <img width="2034" height="1915" alt="image" src="https://github.com/user-attachments/assets/bb05ee20-c200-41d3-9f7c-8569d7a92d1f" />
@@ -83,9 +83,18 @@ Also it is a playground for me to test architecture of render engine & algorithm
 
 
 ### Geometry shader
+
+*photos without gamma correction*
+
 #### Blow up
 <img width="2145" height="1542" alt="image" src="https://github.com/user-attachments/assets/148c9a99-dd81-4e10-bc0d-d1d5134cf537" />
 
 #### Normals
 <img width="2712" height="1730" alt="image" src="https://github.com/user-attachments/assets/853e24ed-19c7-4ff9-836e-8e8db2841327" />
+
+### Legacy
+<img width="1123" height="954" alt="image" src="https://github.com/user-attachments/assets/4bddcc44-4c68-4e57-9b0a-29db2b45c7f4" />
+
+### With skybox (and "kernel view" on)
+<img width="1978" height="954" alt="image" src="https://github.com/user-attachments/assets/6519b67e-6b66-4054-ac90-877d51759671" />
 
