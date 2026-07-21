@@ -80,3 +80,12 @@ Also it is a playground for me to test architecture of render engine & algorithm
 
 #### Reflection
 <img width="3336" height="1738" alt="image" src="https://github.com/user-attachments/assets/71111d44-48b5-4929-b46b-2ebc401d9f53" />
+
+
+### Geometry shader
+#### Blow up
+<img width="2145" height="1542" alt="image" src="https://github.com/user-attachments/assets/148c9a99-dd81-4e10-bc0d-d1d5134cf537" />
+
+#### Normals
+<img width="2712" height="1730" alt="image" src="https://github.com/user-attachments/assets/853e24ed-19c7-4ff9-836e-8e8db2841327" />
+
