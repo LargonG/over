@@ -25,11 +25,8 @@ void main() {
 	vec3 viewDirection = normalize(fs_in.position - cameraPosition);
 	vec3 resultVector = vec3(0);
 
-	if (doReflect) {
-		resultVector = reflect(viewDirection, normalize(fs_in.normal));
-	} else {
-		resultVector = refract(viewDirection, normalize(fs_in.normal), ratio);
-	}
+	resultVector = float(doReflect) * reflect(viewDirection, normalize(fs_in.normal)) +
+				float(!doReflect) * refract(viewDirection, normalize(fs_in.normal), ratio);
 
 	FragColor = vec4((texture(skybox, resultVector) + texture(material.texture_diffuse0, fs_in.texCoord)).rgb / 2.0, 1.0);
 	//FragColor += texture(material.texture_diffuse0, fTexCoord);

@@ -42,6 +42,7 @@ void main() {
 
 		FragColor = texture(material.texture_diffuse0, fTexCoord);
 	if (!material.inverted) {
+		return;
 	} else {
 		vec3 samples[KERNEL_SIZE];
 		for (int i = 0; i < KERNEL_SIZE; i++) {
