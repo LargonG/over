@@ -25,12 +25,12 @@ class FeaturesApp : public App {
 
         _frame(),
 
-        _color(),
+        _frameColor(),
         _cubeMap(),
         _cubeMapTexturesNames({"right.jpg", "left.jpg", "top.jpg", "bottom.jpg",
                                "front.jpg", "back.jpg"}),
 
-        _rbuffer(),
+        _frameDepth(),
         _quad(),
         _model(nullptr),
 
@@ -57,34 +57,58 @@ class FeaturesApp : public App {
     _windowWidth = width;
     _windowHeight = height;
 
-    auto colorTexture2D = _color.As<gl::AsTexture2D>();
-    auto renderBuffer = _rbuffer.As<gl::RenderBufferTarget::RENDER_BUFFER>();
+    _frameColor.As<gl::TextureTarget::TEXTURE_2D_MULTISAMPLE>(
+        [&](gl::TextureView<gl::TextureTarget::TEXTURE_2D_MULTISAMPLE> self) {
+          self.Reserve2DMultisample(GL_RGB, 4, true, width, height, GL_RGB,
+                                    GL_UNSIGNED_BYTE, nullptr);
+        });
 
-    colorTexture2D.Use([&](gl::Texture2DView self) {
-      self.Reserve2D(GL_RGB, width, height, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
-      self.GenerateMipmap();
+    _frameDepth.As<gl::RenderBufferTarget::RENDER_BUFFER>(
+        [&](gl::RenderBufferView<gl::RenderBufferTarget::RENDER_BUFFER> self) {
+          self.ReserveMultisample(4, GL_DEPTH24_STENCIL8, width, height);
+        });
 
-      self.SetParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      self.SetParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    _frame.As<gl::FrameBufferTarget::FRAMEBUFFER>(
+        [&](gl::FrameBufferView<gl::FrameBufferTarget::FRAMEBUFFER> self) {
+          self.Attach(
+              GL_COLOR_ATTACHMENT0,
+              _frameColor.As<gl::TextureTarget::TEXTURE_2D_MULTISAMPLE>(), 0);
+          self.Attach(GL_DEPTH_STENCIL_ATTACHMENT,
+                      _frameDepth.As<gl::RenderBufferTarget::RENDER_BUFFER>());
 
-      self.SetParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-      self.SetParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    });
+          self.ReadyOrThrow("Cannot create frame buffer");
+        });
 
-    renderBuffer.Use(
+    _middlewareColor.As<gl::TextureTarget::TEXTURE_2D>(
+        [&](gl::TextureView<gl::TextureTarget::TEXTURE_2D> self) {
+          self.Reserve2D(GL_RGB, width, height, GL_RGB, GL_UNSIGNED_BYTE,
+                         nullptr);
+          self.GenerateMipmap();
+
+          self.SetParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+          self.SetParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+          self.SetParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+          self.SetParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        });
+
+    _middlewareDepth.As<gl::RenderBufferTarget::RENDER_BUFFER>(
         [&](gl::RenderBufferView<gl::RenderBufferTarget::RENDER_BUFFER> self) {
           self.Reserve(GL_DEPTH24_STENCIL8, width, height);
         });
 
-    _camera.SetAspectRatio(width * 1.f / height);
-
-    _frame.As<gl::FrameBufferTarget::FRAMEBUFFER>(
+    _middlewareFrame.As<gl::FrameBufferTarget::FRAMEBUFFER>(
         [&](gl::FrameBufferView<gl::FrameBufferTarget::FRAMEBUFFER> self) {
-          self.Attach(GL_COLOR_ATTACHMENT0, colorTexture2D, 0);
-          self.Attach(GL_DEPTH_STENCIL_ATTACHMENT, renderBuffer);
+          self.Attach(GL_COLOR_ATTACHMENT0,
+                      _middlewareColor.As<gl::TextureTarget::TEXTURE_2D>(), 0);
+          self.Attach(
+              GL_DEPTH_STENCIL_ATTACHMENT,
+              _middlewareDepth.As<gl::RenderBufferTarget::RENDER_BUFFER>());
 
-          self.ReadyOrThrow("Cannot create frame buffer");
+          self.ReadyOrThrow("Cannot create middleware frame buffer");
         });
+
+    _camera.SetAspectRatio(width * 1.f / height);
 
     _cubeMap.As<gl::TextureTarget::TEXTURE_CUBE_MAP>([&](gl::CubeMapView self) {
       for (usize i = 0; i < _cubeMapTexturesNames.size(); i++) {
@@ -109,9 +133,9 @@ class FeaturesApp : public App {
     _screenShader =
         Shader("shaders/ScreenVertex.shader", "shaders/ScreenFragment.shader");
 
-    _quad =
-        Mesh::GenQuad({MeshTexture(_color.As<gl::TextureTarget::TEXTURE_2D>(),
-                                   MeshTexture::Type::DIFFUSE)});
+    _quad = Mesh::GenQuad(
+        {MeshTexture(_middlewareColor.As<gl::TextureTarget::TEXTURE_2D>(),
+                     MeshTexture::Type::DIFFUSE)});
 
     _model = std::make_unique<Model>(
         "resources/backpack/backpack.obj");  // std::make_unique<Model>("resources/cube/cube.glb");
@@ -191,9 +215,12 @@ class FeaturesApp : public App {
     _debugShader = Shader("shaders/NormalDebugVertex.shader",
                           "shaders/NormalDebugFragment.shader",
                           "shaders/NormalDebugGeometry.shader");
+
+    glthrow(glEnable(GL_MULTISAMPLE));
   }
 
   void Update(float32 dt) override {
+#pragma region Input
     if (Input::Instance().IsPressed(Input::Key::ESCAPE)) {
       _window.SetShouldClose(true);
     }
@@ -239,6 +266,7 @@ class FeaturesApp : public App {
     _inverted = Input::Instance().IsPressed(Input::Key::LEFT_SHIFT);
     _reflectFlag = Input::Instance().IsPressed(Input::Key::Q);
     _debug = Input::Instance().IsPressed(Input::Key::TAB);
+#pragma endregion
 
     _camera.UpdatePositionCallback(_window.Get(), dt);
     auto [xpos, ypos] = Input::Instance().GetCursorPosition();
@@ -303,6 +331,10 @@ class FeaturesApp : public App {
       }
     });
 
+    gl::FrameBuffer::Copy(
+        _frame, _middlewareFrame, {0, 0, _windowWidth, _windowHeight},
+        {0, 0, _windowWidth, _windowHeight}, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
     // to default screen framebuffer
     _screenShader.Use([&]() {
       _ctx.SetClearColor({1.f, 1.f, 1.f, 1.f});
@@ -327,16 +359,27 @@ class FeaturesApp : public App {
       _windowHeight = height;
 
       _camera.SetAspectRatio(width * 1.0 / height);
-      _color.As<gl::AsTexture2D>([&](gl::Texture2DView self) {
-        self.Reserve2D(GL_RGB, width, height, GL_RGB, GL_UNSIGNED_BYTE,
-                       nullptr);
-        self.GenerateMipmap();
 
-        self.SetParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-        self.SetParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-      });
+      _frameColor.As<gl::TextureTarget::TEXTURE_2D_MULTISAMPLE>(
+          [&](gl::TextureView<gl::TextureTarget::TEXTURE_2D_MULTISAMPLE> self) {
+            self.Reserve2DMultisample(GL_RGB, 4, true, width, height, GL_RGB,
+                                      GL_UNSIGNED_BYTE, nullptr);
+          });
 
-      _rbuffer.As<gl::RenderBufferTarget::RENDER_BUFFER>(
+      _frameDepth.As<gl::RenderBufferTarget::RENDER_BUFFER>(
+          [&](gl::RenderBufferView<gl::RenderBufferTarget::RENDER_BUFFER>
+                  self) {
+            self.ReserveMultisample(4, GL_DEPTH24_STENCIL8, width, height);
+          });
+
+      _middlewareColor.As<gl::TextureTarget::TEXTURE_2D>(
+          [&](gl::TextureView<gl::TextureTarget::TEXTURE_2D> self) {
+            self.Reserve2D(GL_RGB, width, height, GL_RGB, GL_UNSIGNED_BYTE,
+                           nullptr);
+            self.GenerateMipmap();
+          });
+
+      _middlewareDepth.As<gl::RenderBufferTarget::RENDER_BUFFER>(
           [&](gl::RenderBufferView<gl::RenderBufferTarget::RENDER_BUFFER>
                   self) { self.Reserve(GL_DEPTH24_STENCIL8, width, height); });
     }
@@ -351,14 +394,17 @@ class FeaturesApp : public App {
   gl::BufferWrapper<> _skyboxBuffer;
   gl::LayoutWrapper<> _skyboxLayout;
 
+  gl::TextureWrapper<> _frameColor;
+  gl::RenderBufferWrapper<> _frameDepth;
   gl::FrameBufferWrapper<> _frame;
 
-  gl::TextureWrapper<> _color;
+  gl::TextureWrapper<> _middlewareColor;
+  gl::RenderBufferWrapper<> _middlewareDepth;
+  gl::FrameBufferWrapper<> _middlewareFrame;
 
   gl::TextureWrapper<> _cubeMap;
   std::array<std::string, 6> _cubeMapTexturesNames;
 
-  gl::RenderBufferWrapper<> _rbuffer;
   Mesh _quad;
   std::unique_ptr<Model> _model;
 

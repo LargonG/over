@@ -36,6 +36,12 @@ class RenderBufferView : public Binded<RenderBufferView<Target>> {
                                   static_cast<GLsizei>(height)));
   }
 
+  void ReserveMultisample(usize samples, GLenum format, usize width,
+                          usize height) {
+    glthrow(glRenderbufferStorageMultisample(_target, samples, format, width,
+                                             height));
+  }
+
  private:
   Address _ptr;
 

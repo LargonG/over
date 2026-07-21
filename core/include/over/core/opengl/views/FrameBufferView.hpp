@@ -2,8 +2,10 @@
 
 #include <over/core/Includes.hpp>
 #include <over/core/opengl/Address.hpp>
+#include <over/core/opengl/Binded.hpp>
 #include <over/core/opengl/targets/RenderBufferTarget.hpp>
 #include <over/core/opengl/targets/TextureTarget.hpp>
+#include <over/core/opengl/views/RenderBufferView.hpp>
 #include <over/core/opengl/wrappers/Exception.hpp>
 #include <over/core/opengl/wrappers/FrameBufferWrapper.hpp>
 

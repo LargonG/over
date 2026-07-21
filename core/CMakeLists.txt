@@ -24,7 +24,6 @@ set(p_core_sources
 	opengl/VBO.cpp
 	opengl/IBO.cpp
 	opengl/Texture2D.cpp
-	opengl/Framebuffer.cpp
 	opengl/RenderBuffer.cpp
 	opengl/Texture.cpp
 

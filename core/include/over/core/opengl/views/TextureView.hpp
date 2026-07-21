@@ -33,11 +33,26 @@ class TextureView : public Binded<TextureView<Target>> {
     Reserve2DAs(_target, internalFormat, width, height, format, type, data);
   }
 
+  void Reserve2DMultisample(int32 internalFormat, usize samples,
+                            bool fixedLocations, usize width, usize height,
+                            GLenum format, GLenum type, const void* data) {
+    Reserve2DAsMultisample(_target, internalFormat, samples, fixedLocations,
+                           width, height, format, type, data);
+  }
+
   void Reserve2DAs(GLenum target, int32 internalFormat, usize width,
                    usize height, GLenum format, GLenum type, const void* data) {
     glthrow(glTexImage2D(target, 0, static_cast<GLint>(internalFormat),
                          static_cast<GLsizei>(width),
                          static_cast<GLsizei>(height), 0, format, type, data));
+  }
+
+  void Reserve2DAsMultisample(GLenum target, int32 internalFormat,
+                              usize samples, bool fixedLocations, usize width,
+                              usize height, GLenum format, GLenum type,
+                              const void* data) {
+    glthrow(glTexImage2DMultisample(target, samples, internalFormat, width,
+                                    height, fixedLocations));
   }
 
   void Clear2D(GLenum internalFormat = GL_RGB, GLenum format = GL_RGB,
