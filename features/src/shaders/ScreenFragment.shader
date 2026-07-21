@@ -12,38 +12,34 @@ uniform struct {
 	bool inverted;
 } material;
 
-const float offset = 1.0 / 300.0;
+layout (std140) uniform Screen {
+	ivec2 size;
+};
 
 void main() {
+	float offset_x = 1.0 / size.x * 2.0;
+	float offset_y = 1.0 / size.y * 2.0;
+
 	vec2 offsets[KERNEL_SIZE] = vec2[](
-		vec2(-offset, offset),
-		vec2(0.0, offset),
-		vec2(offset, offset),
-		vec2(-offset, 0.0),
+		vec2(-offset_x, offset_y),
+		vec2(0.0, offset_y),
+		vec2(offset_x, offset_y),
+		vec2(-offset_x, 0.0),
 		vec2(0.0, 0.0),
-		vec2(offset, 0.0),
-		vec2(-offset, -offset),
-		vec2(0.0, -offset),
-		vec2(offset, -offset)
+		vec2(offset_x, 0.0),
+		vec2(-offset_x, -offset_y),
+		vec2(0.0, -offset_y),
+		vec2(offset_x, -offset_y)
 	);
 	
 	float kernel[KERNEL_SIZE] = float[](
-		-1.0, 3.0, -1.0,
-		3.0, -8.0, 3.0,
-		-1.0, 3.0, -1.0
+		1.0, 1.0, 1.0,
+		1.0, -8.0, 1.0,
+		1.0, 1.0, 1.0
 	);
 
-	/*
-	float kernel[KERNEL_SIZE] = float[](
-		1.0, 2.0, 1.0,
-		2.0, 4.0, 2.0,
-		1.0, 2.0, 1.0
-	);*/
-
-		FragColor = texture(material.texture_diffuse0, fTexCoord);
-	if (!material.inverted) {
-		return;
-	} else {
+	FragColor = texture(material.texture_diffuse0, fTexCoord);
+	if (material.inverted) {
 		vec3 samples[KERNEL_SIZE];
 		for (int i = 0; i < KERNEL_SIZE; i++) {
 			samples[i] = vec3(texture(material.texture_diffuse0, fTexCoord + offsets[i]));
@@ -55,18 +51,7 @@ void main() {
 		}
 		FragColor = vec4(result, 1.0);
 	}
-	
-	// FragColor = texture(material.texture_diffuse0, fTexCoord);
-	// if (material.inverted) {
-	// 	FragColor = vec4(vec3(1.0 - FragColor), 1.0);
-	// 	float avg = (FragColor.r + FragColor.g + FragColor.b) / 3.0;
-	// 	FragColor = vec4(avg, avg, avg, 1.0);
-	// 	FragColor = vec4(FragColor.b, FragColor.r, FragColor.g, 1.0);
-	// 	float rw = 0.2126;
-	// 	float gw = 0.7152;
-	// 	float bw = 0.0722;
 
-	// 	float avg = rw * FragColor.r + gw * FragColor.g + bw * FragColor.b;
-	// 	FragColor = vec4(avg, avg, avg, 1.0);	
-	// }
+	float gamma = 2.2;
+	FragColor.rgb = pow(FragColor.rgb, vec3(1.0 / gamma));
 }

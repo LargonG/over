@@ -209,8 +209,19 @@ class FeaturesApp : public App {
           self.BindBase(0);
         });
 
+    _screenBuffer.As<gl::BufferTarget::UNIFORM_BUFFER>(
+        [&](gl::BufferView<gl::BufferTarget::UNIFORM_BUFFER> self) {
+          auto vec2isz = sizeof(glm::i32vec2);
+          self.Reserve(vec2isz, nullptr, GL_STATIC_DRAW);
+          auto sz = glm::i32vec2(_windowWidth, _windowHeight);
+          self.Write(0, vec2isz, glm::value_ptr(sz));
+          self.BindBase(1);
+        });
+
     _baseShader.BindUniform("Camera", 0);
     _skyboxShader.BindUniform("Camera", 0);
+
+    _screenShader.BindUniform("Screen", 1);
 
     _debugShader = Shader("shaders/NormalDebugVertex.shader",
                           "shaders/NormalDebugFragment.shader",
@@ -382,6 +393,12 @@ class FeaturesApp : public App {
       _middlewareDepth.As<gl::RenderBufferTarget::RENDER_BUFFER>(
           [&](gl::RenderBufferView<gl::RenderBufferTarget::RENDER_BUFFER>
                   self) { self.Reserve(GL_DEPTH24_STENCIL8, width, height); });
+
+      _screenBuffer.As<gl::BufferTarget::UNIFORM_BUFFER>(
+          [&](gl::BufferView<gl::BufferTarget::UNIFORM_BUFFER> self) {
+            auto sz = glm::i32vec2(width, height);
+            self.Write(0, sizeof(glm::i32vec2), glm::value_ptr(sz));
+          });
     }
   }
 
@@ -410,6 +427,7 @@ class FeaturesApp : public App {
 
   Camera _camera;
   gl::BufferWrapper<> _cameraBuffer;
+  gl::BufferWrapper<> _screenBuffer;
 
   float32 _elapsedTime;
 

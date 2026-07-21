@@ -36,9 +36,9 @@ void main() {
 	for (int i = 0; i < 3; i++) {
 		avg += gs_in[i].normal;
 	}
-	avg /= 3.0;
+	avg = normalize(avg);
 	for (int i = 0; i < 3; i++) {
-		gs_out.position = Explode(magnitude, gs_in[i].position, normalize(avg));
+		gs_out.position = Explode(magnitude, gs_in[i].position, avg);
 		gl_Position = vp(gs_out.position, 1.0);
 		
 		gs_out.normal = gs_in[i].normal;
