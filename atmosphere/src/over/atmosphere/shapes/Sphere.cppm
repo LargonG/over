@@ -82,8 +82,8 @@ export class Sphere {
 
     _geometryCount = vertices.size();
     _elementsCount = elements.size();
-    fmt::println("geom count: {}", _geometryCount);
-    fmt::println("elems count: {}", _elementsCount);
+    //fmt::println("geom count: {}", _geometryCount);
+    //fmt::println("elems count: {}", _elementsCount);
   }
 
   gl::LayoutWrapper<> _layout;
@@ -124,8 +124,8 @@ auto GeneratePoints(usize n) -> std::vector<glm::vec4> {
 
     auto currentAngle = glm::radians(360.f) / m;
     auto currentLen = 2 * glm::abs(glm::sin(currentAngle / 2));
-    fmt::println("circleRadius = {}, circleLen = {}, etalonAngle = {}, m = {}",
-                 circleRadius, circleLen, etalonAngle, m);
+    //fmt::println("circleRadius = {}, circleLen = {}, etalonAngle = {}, m = {}",
+    //             circleRadius, circleLen, etalonAngle, m);
 
     for (usize j = 0; j < m; j++) {
       auto pt = offset + glm::vec2(etalonAngle * i, currentAngle * j);
@@ -144,7 +144,7 @@ auto GeneratePoints(usize n) -> std::vector<glm::vec4> {
 }
 
 auto AddPolusTriangle(std::vector<glm::ivec3>& elements, usize size, usize n) {
-  fmt::println("{} {}", elements.size(), n);
+  //fmt::println("{} {}", elements.size(), n);
   auto start = glm::ivec3(size - n);
   bool reversed = start.x > 0;
   for (usize j = 0; j < n / 2; j++) {
@@ -239,7 +239,7 @@ auto GenerateElements(usize n) -> std::vector<glm::ivec3> {
     }
 
     size += m;
-    fmt::println("m = {}, previous m = {}", m, previousM);
+    //fmt::println("m = {}, previous m = {}", m, previousM);
     if (previousM == 0 && m > 0 || previousM > 0 && m == 0 || i == maxN) {
       AddPolusTriangle(elements, size, m == 0 ? previousM : m);
     }

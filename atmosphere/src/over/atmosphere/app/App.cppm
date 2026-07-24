@@ -96,7 +96,6 @@ export class AtmosphereApp final : public over::App {
     });
 
     _elapsedTime += dt;
-    fmt::println("elapsed time {} {}", _elapsedTime, dt);
 
     if (_elapsedTime > 0.5f) {
       _elapsedTime -= 0.5f;
