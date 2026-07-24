@@ -30,7 +30,8 @@ export class AtmosphereApp final : public over::App {
         _planetShader(),
         _camera({0, 0, 0}, {0, 0, 0}, .25f, 45.f, 16.f / 9.f, 0.001f),
         _planet(),
-        _ubo() {}
+        _ubo(),
+        _elapsedTime(0) {}
 
   void Init() override {
     PrintName();
@@ -93,14 +94,25 @@ export class AtmosphereApp final : public over::App {
                        GL_UNSIGNED_INT, nullptr);
       });
     });
+
+    _elapsedTime += dt;
+    fmt::println("elapsed time {} {}", _elapsedTime, dt);
+
+    if (_elapsedTime > 0.5f) {
+      _elapsedTime -= 0.5f;
+      n += 1;
+      _planet = Sphere(n);
+    }
   }
 
   Shader _planetShader;
 
   Camera _camera;
 
+  float32 _elapsedTime;
+
   gl::BufferWrapper<> _ubo;
   Sphere _planet;
-  uint32 n = 250;
+  uint32 n = 1;
 };
 }  // namespace over

@@ -82,6 +82,8 @@ export class Sphere {
 
     _geometryCount = vertices.size();
     _elementsCount = elements.size();
+    fmt::println("geom count: {}", _geometryCount);
+    fmt::println("elems count: {}", _elementsCount);
   }
 
   gl::LayoutWrapper<> _layout;
@@ -107,20 +109,23 @@ auto GeneratePoints(usize n) -> std::vector<glm::vec4> {
   auto minN = -maxN;
 
   auto etalonAngle = glm::radians(360.f) / n;
-  auto etalonLen = 2 * glm::sin(etalonAngle / 2);
 
   auto offset = glm::vec2(0.f);
 
   for (int64 i = minN; i <= maxN; i++) {
-    auto circleRadius = glm::cos(etalonAngle * i);
-    auto circleLen = 2 * glm::pi<float>() * glm::abs(circleRadius);
+    auto circleRadius = glm::abs(glm::cos(etalonAngle * i));
+    auto circleLen = 2 * glm::pi<float>() * circleRadius;
 
-    auto m = static_cast<usize>(circleLen / etalonLen);
+    auto m = static_cast<usize>(circleLen / etalonAngle);
+
+    if (m == 0) {
+      continue;
+    }
 
     auto currentAngle = glm::radians(360.f) / m;
-    auto currentLen = 2 * glm::sin(currentAngle / 2);
-    fmt::println("circleRadius = {}, circleLen = {}, etalonLen = {}, m = {}",
-                 circleRadius, circleLen, etalonLen, m);
+    auto currentLen = 2 * glm::abs(glm::sin(currentAngle / 2));
+    fmt::println("circleRadius = {}, circleLen = {}, etalonAngle = {}, m = {}",
+                 circleRadius, circleLen, etalonAngle, m);
 
     for (usize j = 0; j < m; j++) {
       auto pt = offset + glm::vec2(etalonAngle * i, currentAngle * j);
@@ -174,22 +179,16 @@ auto GenerateElements(usize n) -> std::vector<glm::ivec3> {
   auto minN = -maxN;
 
   auto etalonAngle = glm::radians(360.f) / n;
-  auto etalonLen = 2 * glm::sin(etalonAngle / 2);
-
-  auto circleRadius = glm::abs(glm::cos(etalonAngle * minN));
-  auto circleLen = 2 * glm::pi<float>() * circleRadius;
 
   usize previousStart = 0;
-  usize previousM = static_cast<usize>(circleLen / etalonLen);
-  usize size = previousM;
+  usize previousM = 0;
+  usize size = 0;
 
-  AddPolusTriangle(elements, size, previousM);
-
-  for (int64 i = minN + 1; i <= maxN; i++) {
+  for (int64 i = minN; i <= maxN; i++) {
     auto circleRadius = glm::abs(glm::cos(etalonAngle * i));
     auto circleLen = 2 * glm::pi<float>() * circleRadius;
 
-    auto m = static_cast<usize>(circleLen / etalonLen);
+    auto m = static_cast<usize>(circleLen / etalonAngle);
     auto start = size;
 
     auto currentAngle = glm::radians(360.f) / m;
@@ -202,32 +201,34 @@ auto GenerateElements(usize n) -> std::vector<glm::ivec3> {
       std::swap(currentAngle, previousAngle);
     }
 
-    for (usize j = 0; j < m; j++) {
-      auto it = start + j;
-      auto right = start + ((j + 1) % m);
+    if (previousM > 0 && m > 0) {
+      for (usize j = 0; j < m; j++) {
+        auto it = start + j;
+        auto right = start + ((j + 1) % m);
 
-      auto downLeft =
-          previousStart +
-          static_cast<usize>((j * currentAngle + previousAngle / 2.f) /
-                             previousAngle) %
-              previousM;
-      auto downRight =
-          previousStart +
-          static_cast<usize>(((j + 1) * currentAngle + previousAngle / 2.f) /
-                             previousAngle) %
-              previousM;
+        auto downLeft =
+            previousStart +
+            static_cast<usize>((j * currentAngle + previousAngle / 2.f) /
+                               previousAngle) %
+                previousM;
+        auto downRight =
+            previousStart +
+            static_cast<usize>(((j + 1) * currentAngle + previousAngle / 2.f) /
+                               previousAngle) %
+                previousM;
 
-      auto mainTriangle = glm::ivec3(it, right, downLeft);
-      auto fillTriangle = glm::ivec3(right, downRight, downLeft);
+        auto mainTriangle = glm::ivec3(it, right, downLeft);
+        auto fillTriangle = glm::ivec3(right, downRight, downLeft);
 
-      if (topPart) {
-        std::swap(mainTriangle.x, mainTriangle.z);
-        std::swap(fillTriangle.x, fillTriangle.z);
-      }
+        if (topPart) {
+          std::swap(mainTriangle.x, mainTriangle.z);
+          std::swap(fillTriangle.x, fillTriangle.z);
+        }
 
-      elements.push_back(mainTriangle);
-      if (downLeft != downRight) {
-        elements.push_back(fillTriangle);
+        elements.push_back(mainTriangle);
+        if (downLeft != downRight) {
+          elements.push_back(fillTriangle);
+        }
       }
     }
 
@@ -238,12 +239,14 @@ auto GenerateElements(usize n) -> std::vector<glm::ivec3> {
     }
 
     size += m;
+    fmt::println("m = {}, previous m = {}", m, previousM);
+    if (previousM == 0 && m > 0 || previousM > 0 && m == 0 || i == maxN) {
+      AddPolusTriangle(elements, size, m == 0 ? previousM : m);
+    }
 
     previousM = m;
     previousStart = start;
   }
-
-  AddPolusTriangle(elements, size, previousM);
 
   return elements;
 }
