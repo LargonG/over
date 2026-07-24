@@ -30,8 +30,9 @@ export class AtmosphereApp final : public over::App {
         _planetShader(),
         _camera({0, 0, 0}, {0, 0, 0}, .25f, 45.f, 16.f / 9.f, 0.001f),
         _planet(),
+        _atmosphere(),
         _ubo(),
-        _elapsedTime(0) {}
+        _elapsedTime(0.f) {}
 
   void Init() override {
     PrintName();
@@ -58,8 +59,11 @@ export class AtmosphereApp final : public over::App {
     _planetShader = Shader("shaders/Planet.vert", "shaders/Planet.frag");
     _planetShader.BindUniform("Camera", 0);
 
-    _planet = Sphere(n);
+    _planet = Sphere(n, false);
+
+    _atmosphere = Sphere(m, true);
   }
+
   void Update(float32 dt) override {
     if (_input.IsPressed(Input::Key::ESCAPE)) {
       _window.SetShouldClose(true);
@@ -87,31 +91,51 @@ export class AtmosphereApp final : public over::App {
     _planetShader.Use([&] {
       _ctx.SetDepthTest(true);
       _ctx.SetFaceCulling(true);
+
       _planet.Layout().Use([&] {
-        glDrawArrays(GL_POINTS, 0, _planet.VerticesCount());
+        //glDrawArrays(GL_POINTS, 0, _planet.VerticesCount());
+
+        _ubo.As<gl::BufferTarget::UNIFORM_BUFFER>(
+            [&](gl::BufferView<gl::BufferTarget::UNIFORM_BUFFER> self) {
+              self.Write(sizeof(glm::mat4) * 2, sizeof(glm::mat4),
+                         glm::value_ptr(glm::mat4(1.f)));
+            });
 
         glDrawElements(GL_TRIANGLES, _planet.ElementsCount() * 3,
+                       GL_UNSIGNED_INT, nullptr);
+      });
+
+      _atmosphere.Layout().Use([&] {
+        _ubo.As<gl::BufferTarget::UNIFORM_BUFFER>(
+            [&](gl::BufferView<gl::BufferTarget::UNIFORM_BUFFER> self) {
+              auto m = glm::mat4(1.f);
+              m = glm::scale(m, glm::vec3(1.19f));
+              m = glm::rotate(m, glm::radians(90.f) * _elapsedTime,
+                              glm::vec3(0.f, 1.f, 0.f));
+              self.Write(sizeof(glm::mat4) * 2, sizeof(glm::mat4),
+                         glm::value_ptr(m));
+            });
+
+        glDrawElements(GL_TRIANGLES, _atmosphere.ElementsCount() * 3,
                        GL_UNSIGNED_INT, nullptr);
       });
     });
 
     _elapsedTime += dt;
-
-    if (_elapsedTime > 0.5f) {
-      _elapsedTime -= 0.5f;
-      n += 1;
-      _planet = Sphere(n);
-    }
   }
+
+  float32 _elapsedTime;
 
   Shader _planetShader;
 
   Camera _camera;
 
-  float32 _elapsedTime;
-
   gl::BufferWrapper<> _ubo;
+
   Sphere _planet;
-  uint32 n = 1;
+  Sphere _atmosphere;
+
+  uint32 n = 1000;
+  uint32 m = 1000;
 };
 }  // namespace over

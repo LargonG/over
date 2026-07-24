@@ -16,7 +16,8 @@ module;
 export module shapes;
 
 namespace {
-auto GeneratePoints(over::usize n) -> std::vector<glm::vec4>;
+auto GeneratePoints(over::usize n)
+    -> std::tuple<std::vector<glm::vec3>, std::vector<glm::vec3>>;
 auto GenerateElements(over::usize n) -> std::vector<glm::ivec3>;
 }  // namespace
 
@@ -31,7 +32,7 @@ export class Sphere {
   Sphere(Sphere&&) noexcept = default;
   Sphere& operator=(Sphere&&) noexcept = default;
 
-  Sphere(usize n) { Generate(n); }
+  Sphere(usize n, bool inverted) { Generate(n, inverted); }
 
   auto Layout() const -> gl::LayoutView<gl::LayoutTarget::VERTEX_ARRAY> {
     return _layout.As<gl::LayoutTarget::VERTEX_ARRAY>();
@@ -51,14 +52,26 @@ export class Sphere {
   auto ElementsCount() const noexcept { return _elementsCount; }
 
  private:
-  auto Generate(usize n) -> void {
-    auto vertices = GeneratePoints(n);
+  auto Generate(usize n, bool inverted) -> void {
+    auto [vertices, colors] = GeneratePoints(n);
     auto elements = GenerateElements(n);
+
+    if (inverted) {
+      for (usize i = 0; i < elements.size(); i++) {
+        std::swap(elements[i].x, elements[i].z);
+      }
+    }
 
     _geometry.As<gl::BufferTarget::ARRAY_BUFFER>(
         [&](gl::BufferView<gl::BufferTarget::ARRAY_BUFFER> self) {
           self.Reserve(sizeof(vertices.back()) * vertices.size(),
                        vertices.data(), GL_STATIC_DRAW);
+        });
+
+    _colors.As<gl::BufferTarget::ARRAY_BUFFER>(
+        [&](gl::BufferView<gl::BufferTarget::ARRAY_BUFFER> self) {
+          self.Reserve(sizeof(colors.back()) * colors.size(), colors.data(),
+                       GL_STATIC_DRAW);
         });
 
     _elements.As<gl::BufferTarget::ELEMENT_ARRAY_BUFFER>(
@@ -74,7 +87,11 @@ export class Sphere {
 
           // geometry
           self.EnableAttribute(0);
-          self.SetAttribute(0, 4, GL_FLOAT, 0, 0);
+          self.SetAttribute(0, 3, GL_FLOAT, 0, 0);
+
+          _colors.As<gl::BufferTarget::ARRAY_BUFFER>().Bind();
+          self.EnableAttribute(1);
+          self.SetAttribute(1, 3, GL_FLOAT, 0, 0);
         });
 
     _geometry.As<gl::BufferTarget::ARRAY_BUFFER>().Unbind();
@@ -89,6 +106,7 @@ export class Sphere {
   gl::LayoutWrapper<> _layout;
   gl::BufferWrapper<> _geometry;
   gl::BufferWrapper<> _elements;
+  gl::BufferWrapper<> _colors;
 
   usize _geometryCount;
   usize _elementsCount;
@@ -101,9 +119,11 @@ namespace {
 using over::int64;
 using over::usize;
 
-auto GeneratePoints(usize n) -> std::vector<glm::vec4> {
-  std::vector<glm::vec4> result;
+auto GeneratePoints(usize n)
+    -> std::tuple<std::vector<glm::vec3>, std::vector<glm::vec3>> {
+  std::vector<glm::vec3> result;
   result.reserve(n * n);
+  std::vector<glm::vec3> colors;
 
   auto maxN = static_cast<int64>(n / 4);
   auto minN = -maxN;
@@ -130,17 +150,18 @@ auto GeneratePoints(usize n) -> std::vector<glm::vec4> {
     for (usize j = 0; j < m; j++) {
       auto pt = offset + glm::vec2(etalonAngle * i, currentAngle * j);
 
-      result.push_back(glm::vec4(glm::euclidean(pt), result.size()));
+      result.push_back(glm::vec3(glm::euclidean(pt)));
+      auto v = result.back();
+      colors.push_back((v + glm::vec3(1.f)) / 2.f);
+      //colors.push_back(glm::vec3(
+      //    (pt / glm::vec2(glm::radians(360.f)) + glm::vec2(1.f)) / 2.f,
+      //    (v.z + 1) / 2));
     }
 
     offset += glm::vec2(0, currentLen / 2);
   }
 
-  for (auto& x : result) {
-    x.w /= 1.f * result.size();
-  }
-
-  return result;
+  return {result, colors};
 }
 
 auto AddPolusTriangle(std::vector<glm::ivec3>& elements, usize size, usize n) {
@@ -154,8 +175,8 @@ auto AddPolusTriangle(std::vector<glm::ivec3>& elements, usize size, usize n) {
     auto l1 = (j + 1) % n;
     auto r1 = (r + n - 1) % n;
 
-    auto first = glm::ivec3(l1, r1, r) + start;
-    auto second = glm::ivec3(r, l, l1) + start;
+    auto first = glm::ivec3(r, r1, l1) + start;
+    auto second = glm::ivec3(l1, l, r) + start;
 
     if (reversed) {
       std::swap(first.x, first.z);
@@ -217,8 +238,8 @@ auto GenerateElements(usize n) -> std::vector<glm::ivec3> {
                                previousAngle) %
                 previousM;
 
-        auto mainTriangle = glm::ivec3(it, right, downLeft);
-        auto fillTriangle = glm::ivec3(right, downRight, downLeft);
+        auto mainTriangle = glm::ivec3(downLeft, right, it);
+        auto fillTriangle = glm::ivec3(downLeft, downRight, right);
 
         if (topPart) {
           std::swap(mainTriangle.x, mainTriangle.z);
