@@ -40,8 +40,8 @@ export class AtmosphereApp final : public over::App {
     _input.SetCursor(false);
 
     // TODO
-    // - Create 2 spheres, one - planet, another - sky dome (inverted sphere)
-    // - Of course use gamma correction & multisampling
+    // - Create 2 spheres, one - planet, another - sky dome (inverted sphere) [DONE]
+    // - Of course use gamma correction & multisampling [DONE - multisampling]
     // - Implement camera space shader
     // - Implement camera atmosphere shader
     // - Profit
@@ -93,8 +93,6 @@ export class AtmosphereApp final : public over::App {
       _ctx.SetFaceCulling(true);
 
       _planet.Layout().Use([&] {
-        //glDrawArrays(GL_POINTS, 0, _planet.VerticesCount());
-
         _ubo.As<gl::BufferTarget::UNIFORM_BUFFER>(
             [&](gl::BufferView<gl::BufferTarget::UNIFORM_BUFFER> self) {
               self.Write(sizeof(glm::mat4) * 2, sizeof(glm::mat4),
@@ -104,24 +102,19 @@ export class AtmosphereApp final : public over::App {
         glDrawElements(GL_TRIANGLES, _planet.ElementsCount() * 3,
                        GL_UNSIGNED_INT, nullptr);
       });
-
       _atmosphere.Layout().Use([&] {
         _ubo.As<gl::BufferTarget::UNIFORM_BUFFER>(
             [&](gl::BufferView<gl::BufferTarget::UNIFORM_BUFFER> self) {
               auto m = glm::mat4(1.f);
               m = glm::scale(m, glm::vec3(1.19f));
-              m = glm::rotate(m, glm::radians(90.f) * _elapsedTime,
-                              glm::vec3(0.f, 1.f, 0.f));
+
               self.Write(sizeof(glm::mat4) * 2, sizeof(glm::mat4),
                          glm::value_ptr(m));
             });
-
         glDrawElements(GL_TRIANGLES, _atmosphere.ElementsCount() * 3,
                        GL_UNSIGNED_INT, nullptr);
       });
     });
-
-    _elapsedTime += dt;
   }
 
   float32 _elapsedTime;
@@ -135,7 +128,7 @@ export class AtmosphereApp final : public over::App {
   Sphere _planet;
   Sphere _atmosphere;
 
-  uint32 n = 1000;
-  uint32 m = 1000;
+  uint32 n = 200;
+  uint32 m = 300;
 };
 }  // namespace over

@@ -15,6 +15,7 @@ set(p_at_modules
 	Main.cppm
 	app/App.cppm
 	shapes/Sphere.cppm
+	shapes/Experimental.cppm
 )
 
 set(p_at_headers
