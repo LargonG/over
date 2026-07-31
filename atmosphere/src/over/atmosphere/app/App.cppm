@@ -115,6 +115,13 @@ export class AtmosphereApp final : public over::App {
                        GL_UNSIGNED_INT, nullptr);
       });
     });
+
+    _elapsedTime += dt;
+
+    if (_elapsedTime >= 1.f) {
+      _elapsedTime -= 1.f;
+      fmt::println("fps: {}", _fps);
+    }
   }
 
   float32 _elapsedTime;

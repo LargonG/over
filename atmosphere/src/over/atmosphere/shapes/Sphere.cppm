@@ -1,6 +1,5 @@
 module;
 
-#include <numbers>
 #include <vector>
 
 #include <over/core/Types.hpp>
@@ -8,10 +7,6 @@ module;
 #include <over/core/opengl/views/LayoutView.hpp>
 #include <over/core/opengl/wrappers/BufferWrapper.hpp>
 #include <over/core/opengl/wrappers/LayoutWrapper.hpp>
-
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/ext/scalar_constants.hpp>
-#include <glm/gtx/polar_coordinates.hpp>
 
 export module shapes;
 
