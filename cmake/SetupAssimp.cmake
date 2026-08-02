@@ -9,5 +9,5 @@ else()
 
 	init_submodule(libs/assimp)
 
-	add_subdirectory(${CMAKE_SOURCE_DIR}/libs/assimp ${CMAKE_BINARY_DIR}/libs/assimp)
+	add_subdirectory(${CMAKE_SOURCE_DIR}/libs/assimp ${CMAKE_BINARY_DIR}/libs/assimp EXCLUDE_FROM_ALL)
 endif()

@@ -7,5 +7,5 @@ else()
 
 	init_submodule(libs/glfw)
 
-	add_subdirectory(${CMAKE_SOURCE_DIR}/libs/glfw ${CMAKE_BINARY_DIR}/libs/glfw)
+	add_subdirectory(${CMAKE_SOURCE_DIR}/libs/glfw ${CMAKE_BINARY_DIR}/libs/glfw EXCLUDE_FROM_ALL)
 endif()
