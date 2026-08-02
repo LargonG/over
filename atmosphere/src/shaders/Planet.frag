@@ -5,7 +5,7 @@ in VS_OUT {
 } fs_in;
 
 void main() {
-	gl_FragColor = vec4(fs_in.color, 1.0);
+	gl_FragColor = vec4(0.5, 0.5, 0.5, 1.0);
 
 	float gamma = 2.2;
 	gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(1.0 / gamma));

@@ -135,16 +135,16 @@ export class AtmosphereApp final : public over::App {
     _atmosphere = Sphere(m, true);
 
     _cameraData = {.position = glm::vec4(_camera.GetPosition(), 0)};
-    _sunData = {.direction = glm::vec4(0, -1, 1, 0),
-                .light = glm::vec4(1.0, 1.0, 1.0, 0.0)};
+    _sunData = {.direction = glm::vec4(0, -1, 0, 0),
+                .light = glm::vec4(1.8, 1.8, 1.8, 0.0)};
 
-    _argsData = {.rayleigh_kernel = {.3f, .4f, 1.f, 0.f},
-                 .mie_kernel = {1.f, .01f, .01f, 0.f},
+    _argsData = {.rayleigh_kernel = {0.0025, 0.0075, 0.025, 0},
+                 .mie_kernel = {0.02, 0.02, 0.02, 0},
                  .radius = {_planetRadius, _skyRadius},
                  .h0 = {_rayleighH0, _mieH0},
-                 .g = {0.f, -0.75f},
+                 .g = {0.f, -0.9f},
 
-                 .samples = {10, 5},
+                 .samples = {12, 12},
                  .pi = glm::pi<float32>()};
   }
 
@@ -249,10 +249,10 @@ export class AtmosphereApp final : public over::App {
   Shader _skyShader;
 
   float32 _planetRadius = 1.f;
-  float32 _skyRadius = 1.19f;
+  float32 _skyRadius = 1.5f;
 
   float32 _rayleighH0 = 0.25f;
-  float32 _mieH0 = 0.12f;
+  float32 _mieH0 = 0.012f;
 
   Camera _camera;
 
@@ -271,6 +271,6 @@ export class AtmosphereApp final : public over::App {
   LookupTable _table;
 
   uint32 n = 200;
-  uint32 m = 3000;
+  uint32 m = 500;
 };
 }  // namespace over
