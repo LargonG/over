@@ -14,6 +14,7 @@ set(p_at_sources
 set(p_at_modules
 	Main.cppm
 	app/App.cppm
+	algo/LookupTable.cppm
 	shapes/Sphere.cppm
 	shapes/Experimental.cppm
 )
@@ -25,6 +26,15 @@ set(p_at_headers
 set(p_at_shaders
 	Planet.vert
 	Planet.frag
+
+	LookupTable.vert
+	LookupTable.frag
+
+	Frame.vert
+	Frame.frag
+
+	SkyFromSpace.vert
+	SkyFromSpace.frag
 )
 
 set_source_directory(p_src SOURCE_DIR "src/over/atmosphere/" SOURCES ${p_at_sources})

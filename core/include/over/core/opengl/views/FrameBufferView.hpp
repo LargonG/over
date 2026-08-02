@@ -6,6 +6,7 @@
 #include <over/core/opengl/targets/RenderBufferTarget.hpp>
 #include <over/core/opengl/targets/TextureTarget.hpp>
 #include <over/core/opengl/views/RenderBufferView.hpp>
+#include <over/core/opengl/views/TextureView.hpp>
 #include <over/core/opengl/wrappers/Exception.hpp>
 #include <over/core/opengl/wrappers/FrameBufferWrapper.hpp>
 
