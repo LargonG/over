@@ -11,7 +11,7 @@ in VS_OUT {
 out vec4 fs_out_color;
 
 void main() {
-    fs_out_color = texture(material.texture_diffuse0, fs_in.tex_position);
+    fs_out_color = texture(material.texture_diffuse0, fs_in.tex_position.yx);
 
 
     float gamma = 2.2;

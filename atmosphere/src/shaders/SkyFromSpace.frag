@@ -11,8 +11,8 @@ layout (std140) uniform Camera {
 } camera;
 
 layout (std140) uniform Light {
-    vec3 direction;
-    vec3 light;
+    vec4 direction;
+    vec4 light;
 } sun;
 
 layout (std140) uniform Args {
@@ -47,7 +47,7 @@ float PhaseFunction(float cosine, float g) {
 }
 
 void main() {
-    vec3 to_light = normalize(-sun.direction);
+    vec3 to_light = normalize(-sun.direction.xyz);
     float cosine = dot(to_light, fs_in.direction) / length(fs_in.direction);
 
     vec3 rayleigh = fs_in.rayleigh * PhaseFunction(cosine, args.g.x);

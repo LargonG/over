@@ -63,14 +63,15 @@ export class AtmosphereApp final : public over::App {
   AtmosphereApp()
       : App("atmosphere"),
         _planetShader(),
-        _camera({0, 0, 3}, {0, 0, 0}, 1.25f, 45.f, 16.f / 9.f, 0.001f),
+        _camera({0, 0, 170}, {0, 0, 0}, 25.f, 45.f, 16.f / 9.f, 0.001f),
         _planet(),
         _atmosphere(),
         _ubo(),
         _cameraData(),
         _sunData(),
         _argsData(),
-        _elapsedTime(0.f) {}
+        _elapsedTime(0.f),
+        _ctrlUp(true) {}
 
   void Init() override {
     PrintName();
@@ -84,8 +85,8 @@ export class AtmosphereApp final : public over::App {
     // TODO
     // - Create 2 spheres, one - planet, another - sky dome (inverted sphere) [DONE]
     // - Of course use gamma correction & multisampling [DONE - multisampling]
-    // - Implement camera space shader
-    // - Implement camera atmosphere shader
+    // - Implement camera space shader [DONE]
+    // - Implement camera atmosphere shader [DONE]
     // - Profit
 
     _ubo.As<gl::BufferTarget::UNIFORM_BUFFER>(
@@ -130,12 +131,14 @@ export class AtmosphereApp final : public over::App {
     _skyShader.BindUniform("Light", 2);
     _skyShader.BindUniform("Args", 3);
 
+    _frameShader = Shader("shaders/Frame.vert", "shaders/Frame.frag");
+
     _planet = Sphere(n, false);
 
     _atmosphere = Sphere(m, true);
 
     _cameraData = {.position = glm::vec4(_camera.GetPosition(), 0)};
-    _sunData = {.direction = glm::vec4(0, -1, 0, 0),
+    _sunData = {.direction = glm::vec4(0, 0, 1, 0),
                 .light = glm::vec4(1.8, 1.8, 1.8, 0.0)};
 
     _argsData = {.rayleigh_kernel = {0.0025, 0.0075, 0.025, 0},
@@ -146,6 +149,11 @@ export class AtmosphereApp final : public over::App {
 
                  .samples = {12, 12},
                  .pi = glm::pi<float32>()};
+
+    _quad = Mesh::GenQuad(
+        {MeshTexture(_table.Values(), MeshTexture::Type::DIFFUSE)});
+
+    _window.SetSwapInterval(1);
   }
 
   void Update(float32 dt) override {
@@ -156,14 +164,21 @@ export class AtmosphereApp final : public over::App {
 
     bool shift = _input.IsPressed(Input::Key::LEFT_SHIFT);
 
+    auto ctrl = _input.IsPressed(Input::Key::LEFT_CONTROL);
+
+    if (ctrl && _ctrlUp) {
+      _show = !_show;
+    }
+
     _camera.UpdatePositionCallback(_window.Get(), dt);
     auto [xpos, ypos] = Input::Instance().GetCursorPosition();
     _camera.UpdateYawPitchCallback(xpos, ypos);
 
-    if (glm::length(_camera.GetPosition()) < _planetRadius + 0.01f) {
-      _camera.GetPosition() =
-          glm::normalize(_camera.GetPosition()) * (_planetRadius + 0.01f);
-    }
+    //if (glm::length(_camera.GetPosition()) < _planetRadius + 0.01f) {
+    //  // BUG: yaw & pitch are updated implicitly, but not for code
+    //  _camera.GetPosition() =
+    //      glm::normalize(_camera.GetPosition()) * (_planetRadius + 0.01f);
+    //}
 
     _ubo.As<gl::BufferTarget::UNIFORM_BUFFER>(
         [&](gl::BufferView<gl::BufferTarget::UNIFORM_BUFFER> self) {
@@ -206,8 +221,11 @@ export class AtmosphereApp final : public over::App {
       _planet.Layout().Use([&] {
         _ubo.As<gl::BufferTarget::UNIFORM_BUFFER>(
             [&](gl::BufferView<gl::BufferTarget::UNIFORM_BUFFER> self) {
+              auto m = glm::mat4(1);
+              m = glm::scale(m, glm::vec3(_planetRadius));
+
               self.Write(sizeof(glm::mat4) * 2, sizeof(glm::mat4),
-                         glm::value_ptr(glm::mat4(1.f)));
+                         glm::value_ptr(m));
             });
 
         glDrawElements(GL_TRIANGLES, _planet.ElementsCount() * 3,
@@ -219,8 +237,8 @@ export class AtmosphereApp final : public over::App {
       _atmosphere.Layout().Use([&] {
         _ubo.As<gl::BufferTarget::UNIFORM_BUFFER>(
             [&](gl::BufferView<gl::BufferTarget::UNIFORM_BUFFER> self) {
-              auto m = glm::mat4(1.f);
-              m = glm::scale(m, glm::vec3(1.19f));
+              auto m = glm::mat4(1);
+              m = glm::scale(m, glm::vec3(_skyRadius));
 
               self.Write(sizeof(glm::mat4) * 2, sizeof(glm::mat4),
                          glm::value_ptr(m));
@@ -235,21 +253,28 @@ export class AtmosphereApp final : public over::App {
       });
     });
 
+    if (_show) {
+      _frameShader.Use([&] { _quad.Draw(); });
+    }
+
     _elapsedTime += dt;
 
     if (_elapsedTime >= 1.f) {
       _elapsedTime -= 1.f;
       fmt::println("fps: {}", _fps);
     }
+
+    _ctrlUp = _input.IsReleased(Input::Key::LEFT_CONTROL);
   }
 
   float32 _elapsedTime;
 
   Shader _planetShader;
   Shader _skyShader;
+  Shader _frameShader;
 
-  float32 _planetRadius = 1.f;
-  float32 _skyRadius = 1.5f;
+  float32 _planetRadius = 100.f;
+  float32 _skyRadius = 150.f;
 
   float32 _rayleighH0 = 0.25f;
   float32 _mieH0 = 0.012f;
@@ -271,6 +296,11 @@ export class AtmosphereApp final : public over::App {
   LookupTable _table;
 
   uint32 n = 200;
-  uint32 m = 500;
+  uint32 m = 400;
+
+  Mesh _quad;
+
+  bool _ctrlUp;
+  bool _show = false;
 };
 }  // namespace over

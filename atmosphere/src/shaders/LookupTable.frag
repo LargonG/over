@@ -65,12 +65,11 @@ float OpticalDepth(int samples, float x, float y, float h0, float planet_radius,
     vec3 sky_cast = RayCast(startv3, directionv3, sky_radius);
 
     bool planet_intersection = RayCastIntersect(planet_cast);
-    bool sky_intersection = RayCastIntersect(sky_cast);
 
     float planet_near = RayCastNear(planet_cast);
     float sky_far = RayCastFar(sky_cast);
 
-    float point = float(planet_intersection) * planet_near + float(!planet_intersection && sky_intersection) * sky_far;
+    float point = float(planet_intersection) * planet_near + float(!planet_intersection) * sky_far;
 
     vec2 end = start + direction * point;
 
@@ -85,6 +84,7 @@ float OpticalDepth(int samples, float x, float y, float h0, float planet_radius,
         // incorrect: h = length(position) - planet_radius, because h0 is in percent (coefficient) mode!
         // correct:
         float h = (length(position) - planet_radius) / sky_thickness;
+
         result += exp(- h / h0);
     }
 
