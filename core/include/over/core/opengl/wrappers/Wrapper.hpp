@@ -56,12 +56,6 @@ class Wrapper {
     As<Target>().Use(std::forward<F>(func));
   }
 
-  template <TargetList Target, class F>
-  void As(F&& func) const {
-    const_cast<MutableOwner*>(static_cast<ConstOwner*>(this))
-        ->As<Target>(std::forward<F>(func));
-  }
-
   const Address& Get() const noexcept { return _ptr; }
 
  private:

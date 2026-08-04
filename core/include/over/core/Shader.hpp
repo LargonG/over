@@ -52,6 +52,8 @@ class Shader : public Binded<Shader> {
 
   static Shader GetCurrent() noexcept;
 
+  static bool s_debug;
+
  private:
   void Compile();
   void FreeGPU() noexcept;

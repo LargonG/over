@@ -14,6 +14,8 @@
 
 namespace over {
 
+bool Shader::s_debug = false;
+
 static std::string ReadShaderFile(const std::string& filename) {
   std::ifstream file(filename);
   std::stringstream shaderStream;
@@ -184,7 +186,15 @@ void Shader::Unbind() noexcept {
 }
 
 GLint Shader::GetUniformLocation(const std::string& name) const {
-  return glGetUniformLocation(program_, name.c_str());
+  auto id = glGetUniformLocation(program_, name.c_str());
+#ifdef _DEBUG
+  if (s_debug && id == -1) {
+    fmt::println("Warning: name {} was not found is shader {} (vertex path)",
+                 name, this->vertexPath_);
+  }
+#endif  // _DEBUG
+
+  return id;
 }
 
 void Shader::SetBool(const std::string& name, bool value) {

@@ -14,10 +14,9 @@ class Camera {
   static glm::vec3 GetUp() { return up; }
   static void SetUp(glm::vec3 newUp) { up = newUp; }
 
-  void Camera::UpdatePositionCallback(GLFWwindow* window, float32 deltaTime);
-  void Camera::UpdateYawPitchCallback(float32 xpos, float32 ypos,
-                                      bool flush = false);
-  void Camera::UpdateFOVCallback(float32 yoffset);
+  void UpdatePositionCallback(GLFWwindow* window, float32 deltaTime);
+  void UpdateYawPitchCallback(float32 xpos, float32 ypos, bool flush = false);
+  void UpdateFOVCallback(float32 yoffset);
 
   glm::mat4 GetView() const noexcept;
   glm::mat4 GetProjection() const noexcept;

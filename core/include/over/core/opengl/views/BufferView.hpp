@@ -39,9 +39,9 @@ class BufferView : public Binded<BufferView<Target>> {
   }
 
   void BindRange(usize index, usize offset, usize size) {
-    glBindBufferRange(_target, static_cast<GLuint>(index), *_ptr,
-                      static_cast<GLintptr>(offset),
-                      static_cast<GLsizeiptr>(size));
+    glthrow(glBindBufferRange(_target, static_cast<GLuint>(index), *_ptr,
+                              static_cast<GLintptr>(offset),
+                              static_cast<GLsizeiptr>(size)));
   }
 
 #pragma endregion
