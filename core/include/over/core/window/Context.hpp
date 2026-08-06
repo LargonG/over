@@ -1,4 +1,5 @@
 #pragma once
+#pragma once
 
 #include <over/core/Includes.hpp>
 #include <over/core/Types.hpp>
