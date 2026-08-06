@@ -1,0 +1,6 @@
+#define HandlerCtor \
+    template <class Id, class Allocator> \
+    Handler<Id, Allocator>
+#define HandlerImpl \
+    template <class Id, class Allocator> \
+    auto Handler<Id, Allocator>

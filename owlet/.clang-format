@@ -1,0 +1,24 @@
+---
+Language: Cpp
+BasedOnStyle: Google
+
+AccessModifierOffset: -2
+IndentWidth: 4
+SpacesBeforeTrailingComments: 4
+ColumnLimit: 120
+
+IncludeBlocks: Preserve
+
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+
+DerivePointerAlignment: false
+
+Standard: c++20
+
+Macros:
+    - HandlerImpl=template <class Id, class Allocator> auto Handler<Id, Allocator>
+    - HandlerCtor=template <class Id, class Allocator> Handler<Id, Allocator>
+
+---
