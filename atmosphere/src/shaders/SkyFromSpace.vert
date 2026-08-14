@@ -1,5 +1,7 @@
 #version 330 core
 
+#define PI 3.14
+
 layout (std140) uniform World {
     mat4 projection;
     mat4 view;
@@ -7,7 +9,7 @@ layout (std140) uniform World {
 } mvp;
 
 layout (std140) uniform Camera {
-    vec3 position;
+    vec4 position;
 } camera;
 
 layout (std140) uniform Light {
@@ -16,14 +18,16 @@ layout (std140) uniform Light {
 } sun;
 
 layout (std140) uniform Args {
-    vec4 rayleigh_kernel;
-    vec4 mie_kernel;
-    vec2 radius;
+    ivec2 samples;
     vec2 h0;
     vec2 g;
-    ivec2 samples;
-    float pi;
-} args;
+    float scale_factor;
+} u_args;
+
+layout (std140) uniform Kernels {
+    vec4 rayleigh;
+    vec4 mie;
+} u_kernels;
 
 uniform sampler2D lookup;
 
@@ -37,113 +41,175 @@ out VS_OUT {
     vec3 mie;
 } vs_out;
 
-vec3 RayCast(vec3 start, vec3 direction, float radius) {
-    float angle = dot(start, direction);
+
+vec3 ray_cast( in vec3 pos, in vec3 ray, in float radius2)
+{
+    // Invariants:
+    // vec3(0) == sphere_center
+    // length(ray) == 1
+    // radius2 = sphere radius ^ 2
+      
+    float angle = dot(pos, ray);
     float angle2 = angle * angle;
-    float start_length2 = dot(start, start);
-    float radius2 = radius * radius;
-
-    float F2 = angle2 - (start_length2 - radius2);
-    float near = -angle - sqrt(max(0, F2));
-    float far = -angle + sqrt(max(0, F2));
-    
-    return vec3(F2, near, far);
-
+    float pos_length2 = dot(pos, pos);
+      
+    float D2 = angle2 + radius2 - pos_length2;
+    float D = sqrt(max(0.0, D2));
+    float near = -angle - D;
+    float far = -angle + D;
+      
+    // note: returns D2, not D
+    return vec3(D2, near, far);
 }
 
-bool RayCastIntersect(vec3 cst) {
-    return cst.x >= 0 && cst.z >= 0;
+float intersect(in vec3 raycast, in float epsIn, in float epsFar)
+{
+    return smoothstep(-epsIn, epsIn, raycast.x) * smoothstep(0.0, epsFar, raycast.z);
+}
+   
+float near(in vec3 raycast)
+{
+    return raycast.y;
+}
+   
+float far(in vec3 raycast)
+{
+    return raycast.z;
 }
 
-float RayCastNear(vec3 cst) {
-    return cst.y;
-}
-
-float RayCastFar(vec3 cst) {
-    return cst.z;
-}
-
-vec2 LookupPosition(float h, float cosine) {
+vec2 lookup_position(float h, float cosine) {
     return vec2(h, (cosine + 1.0)/ 2.0);
 }
 
-vec3 InScattering(int samples, vec3 near, vec3 far, float h0,
-                  vec3 light_value, vec3 light_direction,
-                  vec3 kernel, mat2x3 kernels,
-                  float planet_radius, float sky_radius) {
-    float sky_thickness = sky_radius - planet_radius;
+float get_h(vec3 pos, float thickness)
+{
+    return (length(pos) - 1.0) / thickness;
+}
 
-    vec3 ray = far - near;
+vec3 scatter_loop(
+in int samples,
+in float h0,
+in vec3 start,
+in vec3 end,
+in vec3 light_dir,
+in vec3 light_val,
+in mat2x3 kernels,
+in float thickness)
+{
+    const float epsIn = 0.212;
+    const float epsFar = 1.125;
+    vec3 ray = end - start;
+    float ds = length(ray) / float(samples);
 
-    float ds = length(ray) / (samples * sky_thickness);
-    float near_angle = dot(ray, near) / (length(ray) * length(near));
-    vec2 near_depth = texture(lookup, LookupPosition(1, near_angle)).rg;
-
-    vec3 result = vec3(0);
-    for (int i = 0; i < samples; i++) {
-        float percent = (i + 0.5) / samples;
+    float start_h = get_h(start, thickness);
+    float start_angle = dot(ray, start) / (length(ray) * length(start));
+    vec2 start_depth = texture(lookup, lookup_position(start_h, start_angle)).rg;
+      
+    vec3 result = vec3(0.0);
+    for (int i = 0; i < samples; i++)
+    {
+        float percent = float(i) * 1.0 / float(samples);
+        vec3 pos = start + ray * percent; // absolute coords
+         
+          
+        // pos_h in percents of atm_thickness
+        float pos_h = get_h(pos, thickness);
+         
+        float intp = max(0.0, pos_h); 
         
-        vec3 position = near + ray * percent;
-
-        float h = (length(position) - planet_radius) / sky_thickness;
-
-        if (h < 0) {
-            continue;
-        }
-
-        // cosines in [-1, 1]
-        float light_angle = dot(light_direction, position) / (length(position) * length(light_direction));
-        float camera_angle = dot(ray, position) / (length(ray) * length(position));
-
-        float density = exp(-h / h0);
-
+        float depth = exp(-intp / h0);
         
-        vec2 light_depth = texture(lookup, LookupPosition(h, light_angle)).rg;
-        vec2 sample_depth = texture(lookup, LookupPosition(h, camera_angle)).rg;
+        float light_cos = dot(pos, light_dir) / (length(pos) * length(light_dir));
+        float camera_cos = dot(ray, pos) / (length(ray) * length(pos));
 
-        // scattering from rayleigh & mie at the same time
-        vec2 scatter = (near_depth - sample_depth) + light_depth;
-        
+        vec3 planet_cast = ray_cast(pos, light_dir, 1.0);
+        vec3 planet_pos = pos + light_dir * near(planet_cast);
+
+        float lightp = get_h(planet_pos, thickness);
+
+        vec2 light_depth =  texture(lookup, lookup_position(intp, light_cos)).rg;
+        vec2 sample_depth = texture(lookup, lookup_position(intp, camera_cos)).rg;
+        vec2 light_ground_depth = intersect(planet_cast, epsIn, epsFar) *
+        texture(lookup, lookup_position(lightp, light_cos)).rg;
+
+        vec2 scatter = start_depth + ((light_depth) - sample_depth);
+
         vec3 k_scatter = kernels * scatter;
 
-        vec3 attenute = exp(-4.0 * args.pi * k_scatter);
-        result += density * attenute;
+        vec3 attenute = exp(-4.0 * PI * k_scatter);
+
+        result += attenute * depth * ds;
     }
-
-    result = result * ds * light_value * kernel;
-
+       
     return result;
 }
 
+vec3 in_scattering(
+    in int samples,
+    in vec3 start,
+    in vec3 end,
+    in vec3 light_dir,
+    in vec3 light_val,
+    in vec3 kernel,
+    in mat2x3 kernels,
+    in float h0,
+    in float scale_factor)
+{
+    // Invariants:
+    // samples - integral precision
+    // h, h0 - in atm_thickness percents; (h in [0, 1])
+    // cos_angle in [-1, 1] (it's cos...)
+    // angle in [180, 0] (inverted)
+       
+    // planet_radius = 1.f;
+
+    const float epsIn = 0.212;
+    const float epsFar = 1.125;
+   
+    float thickness = scale_factor - 1.0;
+    vec3 dir = normalize(end - start);
+
+    vec3 all_result = scatter_loop(samples, h0, start, end, light_dir, light_val, kernels, thickness);
+
+    vec3 planet_cast = ray_cast(start, dir, 1.0);
+
+    vec3 planet_start = start + near(planet_cast) * dir;
+
+    vec3 planet_result = intersect(planet_cast, epsIn, epsFar) *
+    scatter_loop(samples, h0, planet_start, end, light_dir, light_val, kernels, thickness);
+
+    return (all_result - planet_result) * light_val * kernel;
+}
+
 void main() {
-    float planet_radius = args.radius.x;
-    float sky_radius = args.radius.y;
+    // camera_position should be in RELATIVE coordinates
+    vec3 camera_position = camera.position.xyz;
 
-    // Calculate real position of vertex
-    vec4 position = mvp.model * vec4(in_position, 1.0);
-    gl_Position = mvp.projection * mvp.view * position;
-
-    vec3 direction = normalize(in_position * sky_radius - camera.position);
+    vec3 direction = normalize(in_position * u_args.scale_factor - camera_position);
 
     // Intersection must be
-    vec3 sky_cast = RayCast(camera.position, direction, sky_radius);
-    vec3 planet_cast = RayCast(camera.position, direction, planet_radius);
+    vec3 sky_cast = ray_cast(camera_position, direction, u_args.scale_factor * u_args.scale_factor);
     
-    float t = float(RayCastNear(sky_cast) > 0) * RayCastNear(sky_cast);
-    vec3 near = camera.position + direction * t;
-    vec3 far = camera.position + direction * RayCastFar(sky_cast);
-
-
+    // camera could be inside atmosphere
+    vec3 near = camera_position + direction * near(sky_cast) * float(near(sky_cast) > 0);
+    vec3 far = camera_position + direction * far(sky_cast);
 
     vec3 to_light = normalize(-sun.direction.xyz);
     float light_angle = dot(to_light, near) / length(near);
     
-    vec3 rayleigh_kernel = args.rayleigh_kernel.xyz;
-    vec3 mie_kernel = args.mie_kernel.xyz;
-    mat2x3 kernels = mat2x3(rayleigh_kernel, mie_kernel);
+    mat2x3 kernels = mat2x3(u_kernels.rayleigh.xyz, u_kernels.mie.xyz);
 
     vs_out.direction = direction;
     
-    vs_out.rayleigh = InScattering(args.samples.x, near, far, args.h0.x, sun.light.xyz, to_light, rayleigh_kernel, kernels, planet_radius, sky_radius);
-    vs_out.mie = InScattering(args.samples.y, near, far, args.h0.y, sun.light.xyz, to_light, mie_kernel, kernels, planet_radius, sky_radius);
+    vs_out.rayleigh = in_scattering(u_args.samples.x, near, far,
+                                    to_light, sun.light.xyz,
+                                    u_kernels.rayleigh.xyz, kernels,
+                                    u_args.h0.x, u_args.scale_factor);
+    vs_out.mie = in_scattering( u_args.samples.y, near, far,
+                                to_light, sun.light.xyz,
+                                u_kernels.mie.xyz, kernels,
+                                u_args.h0.y, u_args.scale_factor);
+                                
+
+    gl_Position = mvp.projection * mvp.view * mvp.model * vec4(in_position, 1.0);
 }

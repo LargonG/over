@@ -8,6 +8,17 @@
 #include <over/core/opengl/wrappers/BufferWrapper.hpp>
 #include <over/core/opengl/wrappers/Exception.hpp>
 
+#define DEF_UNIFORM_FIELD(kclass, field, data) \
+  offsetof(kclass, field), sizeof(field), data
+
+#define DEF_UNIFORM_BUFFER(data) 0, sizeof(decltype(data)), &data
+
+#define DEF_UPDATE_UNIFORM_BUFFER(buffer, data)      \
+  buffer.As<over::gl::BufferTarget::UNIFORM_BUFFER>( \
+      [&](over::gl::UniformBuffer self) {            \
+        self.Write(DEF_UNIFORM_BUFFER(data));        \
+      });
+
 namespace over::gl {
 
 template <BufferTarget Target>
@@ -87,4 +98,9 @@ class BufferView : public Binded<BufferView<Target>> {
  private:
   Address _ptr;
 };
+
+using VertexBuffer = gl::BufferView<gl::BufferTarget::ARRAY_BUFFER>;
+using UniformBuffer = gl::BufferView<gl::BufferTarget::UNIFORM_BUFFER>;
+using ElementBuffer = gl::BufferView<gl::BufferTarget::ELEMENT_ARRAY_BUFFER>;
+
 }  // namespace over::gl

@@ -1,21 +1,14 @@
 module;
+#include <cstddef>
 
 #include <glm/gtc/type_ptr.hpp>
+
 #include <over/core/Camera.hpp>
 #include <over/core/Mesh.hpp>
 #include <over/core/Shader.hpp>
 #include <over/core/Types.hpp>
+#include <over/core/opengl/GL.hpp>
 
-#include <over/core/opengl/Texture.hpp>
-#include <over/core/opengl/targets/TextureTarget.hpp>
-#include <over/core/opengl/views/BufferView.hpp>
-#include <over/core/opengl/views/TextureView.hpp>
-#include <over/core/opengl/wrappers/BufferWrapper.hpp>
-#include <over/core/opengl/wrappers/FrameBufferWrapper.hpp>
-#include <over/core/opengl/wrappers/RenderBufferWrapper.hpp>
-#include <over/core/opengl/wrappers/TextureWrapper.hpp>
-
-#include <cstddef>
 #include <over/engine/App.hpp>
 
 export module app;
@@ -24,30 +17,35 @@ import shapes;
 import lookup;
 
 namespace over {
-
-namespace detail {
-struct CameraPos {
-  glm::vec4 position;
-};
-
-struct Light {
-  glm::vec4 direction;
-  glm::vec4 light;
-};
-
-struct Args {
-  glm::vec4 rayleigh_kernel;
-  glm::vec4 mie_kernel;
-  glm::vec2 radius;
-  glm::vec2 h0;
-  glm::vec2 g;
-  glm::ivec2 samples;
-  float32 pi;
-};
-
-}  // namespace detail
-
 export class AtmosphereApp final : public over::App {
+ private:
+  struct WorldMatrix {
+    glm::mat4 projection;
+    glm::mat4 view;
+    glm::mat4 model;
+  } _worldData;
+
+  struct CameraPos {
+    glm::vec4 position;
+  } _cameraData;
+
+  struct Light {
+    glm::vec4 direction;
+    glm::vec4 light;
+  } _lightData;
+
+  struct Args {
+    glm::ivec2 samples;
+    glm::vec2 h0;
+    glm::vec2 g;
+    float32 scaleFactor;
+  } _argsData;
+
+  struct Kernels {
+    glm::vec4 rayleigh;
+    glm::vec4 mie;
+  } _kernelsData;
+
  public:
   // out-scattering - use for sample point (how much light scattered)
   // in-scattering - use for sample point to camera (how much light camera get from sample point)
@@ -62,25 +60,29 @@ export class AtmosphereApp final : public over::App {
 
   AtmosphereApp()
       : App("atmosphere"),
+        _cameraData(),
+        _lightData(),
+        _argsData(),
+        _kernelsData(),
         _planetShader(),
-        _camera({0, 0, 170}, {0, 0, 0}, 25.f, 45.f, 16.f / 9.f, 0.001f),
+        _camera({0, 0, _planetRadius + (_skyRadius - _planetRadius) * (0.01)},
+                {0, 0, 0}, 250.f, 45.f, 16.f / 9.f, 0.001f),
         _planet(),
         _atmosphere(),
-        _ubo(),
-        _cameraData(),
-        _sunData(),
-        _argsData(),
+        worldBuffer(),
         _elapsedTime(0.f),
         _ctrlUp(true) {}
 
   void Init() override {
     PrintName();
 
+    glm::vec2 h0 = {0.25, 0.12};
+
     _input.SetCursor(false);
 
     // Precalculate lookup table
-    _table = LookupTable(_rayleighH0, _mieH0, _skyRadius, 500, 500);
-    _table.Calculate(1000, 1800);
+    _table = LookupTable(h0.x, h0.y, _skyRadius / _planetRadius, 500, 500);
+    _table.Calculate(500, 500);
 
     // TODO
     // - Create 2 spheres, one - planet, another - sky dome (inverted sphere) [DONE]
@@ -89,19 +91,18 @@ export class AtmosphereApp final : public over::App {
     // - Implement camera atmosphere shader [DONE]
     // - Profit
 
-    _ubo.As<gl::BufferTarget::UNIFORM_BUFFER>(
-        [&](gl::BufferView<gl::BufferTarget::UNIFORM_BUFFER> self) {
-          self.Reserve(sizeof(glm::mat4) * 3, nullptr, GL_DYNAMIC_DRAW);
-          self.Write(0, sizeof(glm::mat4),
-                     glm::value_ptr(_camera.GetProjection()));
-          self.Write(sizeof(glm::mat4) * 2, sizeof(glm::mat4),
-                     glm::value_ptr(glm::mat4(1.f)));
+    _worldData = {
+        .projection = _camera.GetProjection(),
+        .view = _camera.GetView(),
+        .model = glm::mat4(1.0),
+    };
+
+    worldBuffer.As<gl::BufferTarget::UNIFORM_BUFFER>(
+        [&](gl::UniformBuffer self) {
+          self.Reserve(sizeof(WorldMatrix), &_worldData, GL_DYNAMIC_DRAW);
+
           self.BindBase(0);
         });
-
-    using detail::Args;
-    using detail::CameraPos;
-    using detail::Light;
 
     _cameraBuffer.As<gl::BufferTarget::UNIFORM_BUFFER>(
         [&](gl::BufferView<gl::BufferTarget::UNIFORM_BUFFER> self) {
@@ -121,6 +122,12 @@ export class AtmosphereApp final : public over::App {
           self.BindBase(3);
         });
 
+    _kernelsBuffer.As<gl::BufferTarget::UNIFORM_BUFFER>(
+        [&](gl::BufferView<gl::BufferTarget::UNIFORM_BUFFER> self) {
+          self.Reserve(sizeof(Kernels), nullptr, GL_DYNAMIC_DRAW);
+          self.BindBase(4);
+        });
+
     _planetShader = Shader("shaders/Planet.vert", "shaders/Planet.frag");
     _planetShader.BindUniform("Camera", 0);
 
@@ -130,6 +137,7 @@ export class AtmosphereApp final : public over::App {
     _skyShader.BindUniform("Camera", 1);
     _skyShader.BindUniform("Light", 2);
     _skyShader.BindUniform("Args", 3);
+    _skyShader.BindUniform("Kernels", 4);
 
     _frameShader = Shader("shaders/Frame.vert", "shaders/Frame.frag");
 
@@ -137,18 +145,26 @@ export class AtmosphereApp final : public over::App {
 
     _atmosphere = Sphere(m, true);
 
-    _cameraData = {.position = glm::vec4(_camera.GetPosition(), 0)};
-    _sunData = {.direction = glm::vec4(0, 0, 1, 0),
-                .light = glm::vec4(1.8, 1.8, 1.8, 0.0)};
+    _cameraData = {
+        .position = glm::vec4(_camera.GetPosition() / _planetRadius, 0),
+    };
 
-    _argsData = {.rayleigh_kernel = {0.0025, 0.0075, 0.025, 0},
-                 .mie_kernel = {0.02, 0.02, 0.02, 0},
-                 .radius = {_planetRadius, _skyRadius},
-                 .h0 = {_rayleighH0, _mieH0},
-                 .g = {0.f, -0.9f},
+    _lightData = {
+        .direction = glm::vec4(0, 0, 1, 0),
+        .light = glm::vec4(3., 3., 3., 0.0),
+    };
 
-                 .samples = {12, 12},
-                 .pi = glm::pi<float32>()};
+    _argsData = {
+        .samples = {30, 30},
+        .h0 = h0,
+        .g = {0.f, -0.9f},
+        .scaleFactor = _skyRadius / _planetRadius,
+    };
+
+    _kernelsData = {
+        .rayleigh = {.1f, .2f, .8f, 0},
+        .mie = {0.02, 0.02, 0.02, 0},
+    };
 
     _quad = Mesh::GenQuad(
         {MeshTexture(_table.Values(), MeshTexture::Type::DIFFUSE)});
@@ -174,38 +190,15 @@ export class AtmosphereApp final : public over::App {
     auto [xpos, ypos] = Input::Instance().GetCursorPosition();
     _camera.UpdateYawPitchCallback(xpos, ypos);
 
-    //if (glm::length(_camera.GetPosition()) < _planetRadius + 0.01f) {
-    //  // BUG: yaw & pitch are updated implicitly, but not for code
-    //  _camera.GetPosition() =
-    //      glm::normalize(_camera.GetPosition()) * (_planetRadius + 0.01f);
-    //}
+    _worldData.view = _camera.GetView();
+    _cameraData.position =
+        glm::vec4(_camera.GetPosition() / _planetRadius, 0.f);
 
-    _ubo.As<gl::BufferTarget::UNIFORM_BUFFER>(
-        [&](gl::BufferView<gl::BufferTarget::UNIFORM_BUFFER> self) {
-          self.Write(sizeof(glm::mat4), sizeof(glm::mat4),
-                     glm::value_ptr(_camera.GetView()));
-        });
-
-    _cameraData.position = glm::vec4(_camera.GetPosition(), 0.f);
-
-    using detail::Args;
-    using detail::CameraPos;
-    using detail::Light;
-
-    _cameraBuffer.As<gl::BufferTarget::UNIFORM_BUFFER>(
-        [&](gl::BufferView<gl::BufferTarget::UNIFORM_BUFFER> self) {
-          self.Write(0, sizeof(CameraPos), &_cameraData);
-        });
-
-    _sunBuffer.As<gl::BufferTarget::UNIFORM_BUFFER>(
-        [&](gl::BufferView<gl::BufferTarget::UNIFORM_BUFFER> self) {
-          self.Write(0, sizeof(Light), &_sunData);
-        });
-
-    _argsBuffer.As<gl::BufferTarget::UNIFORM_BUFFER>(
-        [&](gl::BufferView<gl::BufferTarget::UNIFORM_BUFFER> self) {
-          self.Write(0, sizeof(Args), &_argsData);
-        });
+    DEF_UPDATE_UNIFORM_BUFFER(worldBuffer, _worldData);
+    DEF_UPDATE_UNIFORM_BUFFER(_cameraBuffer, _cameraData);
+    DEF_UPDATE_UNIFORM_BUFFER(_sunBuffer, _lightData);
+    DEF_UPDATE_UNIFORM_BUFFER(_argsBuffer, _argsData);
+    DEF_UPDATE_UNIFORM_BUFFER(_kernelsBuffer, _kernelsData);
 
     glEnable(GL_PROGRAM_POINT_SIZE);
     if (shift) {
@@ -219,14 +212,8 @@ export class AtmosphereApp final : public over::App {
       _ctx.SetFaceCulling(true);
 
       _planet.Layout().Use([&] {
-        _ubo.As<gl::BufferTarget::UNIFORM_BUFFER>(
-            [&](gl::BufferView<gl::BufferTarget::UNIFORM_BUFFER> self) {
-              auto m = glm::mat4(1);
-              m = glm::scale(m, glm::vec3(_planetRadius));
-
-              self.Write(sizeof(glm::mat4) * 2, sizeof(glm::mat4),
-                         glm::value_ptr(m));
-            });
+        _worldData.model = glm::scale(glm::mat4(1.0), glm::vec3(_planetRadius));
+        DEF_UPDATE_UNIFORM_BUFFER(worldBuffer, _worldData);
 
         glDrawElements(GL_TRIANGLES, _planet.ElementsCount() * 3,
                        GL_UNSIGNED_INT, nullptr);
@@ -235,14 +222,8 @@ export class AtmosphereApp final : public over::App {
 
     _skyShader.Use([&] {
       _atmosphere.Layout().Use([&] {
-        _ubo.As<gl::BufferTarget::UNIFORM_BUFFER>(
-            [&](gl::BufferView<gl::BufferTarget::UNIFORM_BUFFER> self) {
-              auto m = glm::mat4(1);
-              m = glm::scale(m, glm::vec3(_skyRadius));
-
-              self.Write(sizeof(glm::mat4) * 2, sizeof(glm::mat4),
-                         glm::value_ptr(m));
-            });
+        _worldData.model = glm::scale(glm::mat4(1.0), glm::vec3(_skyRadius));
+        DEF_UPDATE_UNIFORM_BUFFER(worldBuffer, _worldData);
 
         gl::Texture::Activate(GL_TEXTURE0);
         _skyShader.SetInt("lookup", 0);
@@ -276,19 +257,13 @@ export class AtmosphereApp final : public over::App {
   float32 _planetRadius = 100.f;
   float32 _skyRadius = 150.f;
 
-  float32 _rayleighH0 = 0.25f;
-  float32 _mieH0 = 0.012f;
-
   Camera _camera;
 
-  gl::BufferWrapper<> _ubo;
+  gl::BufferWrapper<> worldBuffer;
   gl::BufferWrapper<> _cameraBuffer;
   gl::BufferWrapper<> _sunBuffer;
   gl::BufferWrapper<> _argsBuffer;
-
-  detail::CameraPos _cameraData;
-  detail::Light _sunData;
-  detail::Args _argsData;
+  gl::BufferWrapper<> _kernelsBuffer;
 
   Sphere _planet;
   Sphere _atmosphere;
@@ -296,7 +271,7 @@ export class AtmosphereApp final : public over::App {
   LookupTable _table;
 
   uint32 n = 200;
-  uint32 m = 400;
+  uint32 m = 200;
 
   Mesh _quad;
 
