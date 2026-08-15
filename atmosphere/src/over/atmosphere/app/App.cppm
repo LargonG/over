@@ -82,7 +82,7 @@ export class AtmosphereApp final : public over::App {
 
     // Precalculate lookup table
     _table = LookupTable(h0.x, h0.y, _skyRadius / _planetRadius, 500, 500);
-    _table.Calculate(500, 500);
+    _table.Calculate(1000, 1000);
 
     // TODO
     // - Create 2 spheres, one - planet, another - sky dome (inverted sphere) [DONE]
@@ -151,7 +151,7 @@ export class AtmosphereApp final : public over::App {
 
     _lightData = {
         .direction = glm::vec4(0, 0, 1, 0),
-        .light = glm::vec4(3., 3., 3., 0.0),
+        .light = glm::vec4(1.8, 1.8, 1.8, 0.0),
     };
 
     _argsData = {
@@ -162,7 +162,7 @@ export class AtmosphereApp final : public over::App {
     };
 
     _kernelsData = {
-        .rayleigh = {.1f, .2f, .8f, 0},
+        .rayleigh = {.025f, .25f, .75f, 0},
         .mie = {0.02, 0.02, 0.02, 0},
     };
 
@@ -255,7 +255,7 @@ export class AtmosphereApp final : public over::App {
   Shader _frameShader;
 
   float32 _planetRadius = 100.f;
-  float32 _skyRadius = 150.f;
+  float32 _skyRadius = 119.f;
 
   Camera _camera;
 

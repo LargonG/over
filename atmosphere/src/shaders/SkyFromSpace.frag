@@ -35,8 +35,8 @@ void main() {
     vec3 to_light = normalize(-sun.direction.xyz);
     float cosine = dot(to_light, fs_in.direction) / length(fs_in.direction);
 
-    vec3 rayleigh = fs_in.rayleigh;// * PhaseFunction(cosine, u_args.g.x);
-    vec3 mie = fs_in.mie;// * PhaseFunction(cosine, u_args.g.y);
+    vec3 rayleigh = fs_in.rayleigh * PhaseFunction(cosine, u_args.g.x);
+    vec3 mie = fs_in.mie * PhaseFunction(cosine, u_args.g.y);
     
     fs_out_color.rgb = rayleigh + mie;
     fs_out_color.a = fs_out_color.b;

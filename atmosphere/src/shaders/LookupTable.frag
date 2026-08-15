@@ -137,8 +137,8 @@ float optical_depth_table(
     vec3 end = start + k * dir * p;
     vec3 planet = start + ground * dir * p;
       
-    return depth_loop(samples, h0, start, end, thickness) - 
-        intersect(planet_cast, epsIn, epsFar) * depth_loop(samples, h0, planet, end, thickness);
+    return depth_loop(samples, h0, start, end, thickness); 
+        //intersect(planet_cast, epsIn, epsFar) * depth_loop(samples, h0, planet, end, thickness);
 }
 
 

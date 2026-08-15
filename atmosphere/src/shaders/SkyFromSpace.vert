@@ -122,22 +122,14 @@ in float thickness)
         float light_cos = dot(pos, light_dir) / (length(pos) * length(light_dir));
         float camera_cos = dot(ray, pos) / (length(ray) * length(pos));
 
-        vec3 planet_cast = ray_cast(pos, light_dir, 1.0);
-        vec3 planet_pos = pos + light_dir * near(planet_cast);
-
-        float lightp = get_h(planet_pos, thickness);
-
         vec2 light_depth =  texture(lookup, lookup_position(intp, light_cos)).rg;
         vec2 sample_depth = texture(lookup, lookup_position(intp, camera_cos)).rg;
-        vec2 light_ground_depth = intersect(planet_cast, epsIn, epsFar) *
-        texture(lookup, lookup_position(lightp, light_cos)).rg;
 
-        vec2 scatter = start_depth + ((light_depth) - sample_depth);
+        vec2 scatter = start_depth + (light_depth - sample_depth);
 
         vec3 k_scatter = kernels * scatter;
 
         vec3 attenute = exp(-4.0 * PI * k_scatter);
-
         result += attenute * depth * ds;
     }
        
