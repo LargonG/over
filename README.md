@@ -24,10 +24,9 @@ Using Wrapper-Target-View pattern for OpenGL objects.
 [Atmosphere scattering algorithm from gpu gems 2](https://developer.nvidia.com/gpugems/gpugems2/part-ii-shading-lighting-and-shadows/chapter-16-accurate-atmospheric-scattering)
 
 _Current state:_
-- [bug] Light on opposite site of planet
 - [bug] Non-optimal constants
 
-<img width="963" height="866" alt="Снимок экрана 2026-08-14 212615" src="https://github.com/user-attachments/assets/1287ef0c-d2c1-424a-8564-0b418dae8753" />
+<img width="912" height="914" alt="image" src="https://github.com/user-attachments/assets/16fa319d-d383-48d3-846d-d3da0f0f7fa5" />
 
 _For more information see [`atmosphere`](atmosphere)_
 
