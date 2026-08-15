@@ -26,6 +26,10 @@ Using Wrapper-Target-View pattern for OpenGL objects.
 _Current state:_
 - [bug] Non-optimal constants
 
+_Scale factor: 1.5_
+<img width="952" height="889" alt="image" src="https://github.com/user-attachments/assets/40c48fd2-f6c8-4f22-b9ef-11c42fa19203" />
+
+_Scale factor: 1.19_
 <img width="912" height="914" alt="image" src="https://github.com/user-attachments/assets/16fa319d-d383-48d3-846d-d3da0f0f7fa5" />
 
 _For more information see [`atmosphere`](atmosphere)_
