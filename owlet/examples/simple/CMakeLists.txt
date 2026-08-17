@@ -8,14 +8,14 @@ set(CXX_STANDARD_REQUIRED ON)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 
 set(p_example
-    main.cppm
+    main.cpp
 )
 list(TRANSFORM p_example PREPEND "src/")
 
 
 target_sources(
     ${PROJECT_NAME}
-    PRIVATE FILE_SET src TYPE CXX_MODULES FILES ${p_example}
+    PRIVATE ${p_example}
 )
 
 target_link_libraries(
