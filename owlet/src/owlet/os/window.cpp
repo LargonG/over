@@ -5,19 +5,21 @@
 
 #include <GLFW/glfw3.h>
 
+#include <owlet/debug/core.h>
 #include <owlet/gl/buffer.h>
 #include <owlet/gl/context.h>
 #include <owlet/os/monitor.h>
+#include <utility>
 
 namespace owlet::os {
 
-Window::Window(const Settings settings, GLFWerrorfun error_callback, GLFWkeyfun key_callback) {
+Window::Window(const Settings settings, GLFWerrorfun error_callback, GLFWkeyfun key_callback)
+    : m_gl_version(settings.gl) {
     debug::Require(settings.gl.has_value(), "Does not support other render api's for now");
-    debug::Require(settings.gl.value().version.major == 4 && settings.gl.value().version.minor == 6,
-                   "Support OpenGL 4.6 and above");
+    debug::Require(settings.gl.value().major == 4 && settings.gl.value().minor == 6, "Support OpenGL 4.6 and above");
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, settings.gl.value_or({0, 0}).version.major);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, settings.gl.value_or({0, 0}).version.minor);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, settings.gl.value_or({0, 0}).major);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, settings.gl.value_or({0, 0}).minor);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     glfwWindowHint(GLFW_SAMPLES, settings.samples);
@@ -32,11 +34,6 @@ Window::Window(const Settings settings, GLFWerrorfun error_callback, GLFWkeyfun 
     }
 
     glfwSetKeyCallback(m_self, key_callback);
-
-    if (settings.gl) {
-        m_gl_settings = settings.gl.value();
-        GL();
-    }
 }
 
 Window::~Window() {
@@ -68,15 +65,15 @@ void Window::SetCurrent() {
     glfwMakeContextCurrent(m_self);
 }
 
-gl::Context* Window::GL(std::optional<gl::Settings> settings) {
+gl::Context* Window::GL(gl::Settings&& settings) {
     if (!m_gl) {
-        CreateContext(settings.value_or(m_gl_settings));
+        CreateContext(std::move(settings));
     }
 
     return m_gl.get();
 }
 
-void Window::CreateContext(gl::Settings settings) {
+void Window::CreateContext(gl::Settings&& settings) {
     SetCurrent();
     m_gl.reset();
 
@@ -86,11 +83,12 @@ void Window::CreateContext(gl::Settings settings) {
     auto actual_version_major = GLAD_VERSION_MAJOR(version);
     auto actual_version_minor = GLAD_VERSION_MINOR(version);
 
-    debug::Require(settings.version.major < actual_version_major ||
-                       settings.version.major == actual_version_major && settings.version.minor <= actual_version_minor,
-                   "Owlet support OpenGL 4.6 or greater");
+    debug::Require(
+        m_gl_version.value().major < actual_version_major ||
+            m_gl_version.value().major == actual_version_major && m_gl_version.value().minor <= actual_version_minor,
+        "Owlet support OpenGL 4.6 or greater");
 
-    m_gl->m_default_buffer_allocator = std::unique_ptr<gl::BufferAllocator>(settings.default_buffer_allocator);
+    std::swap(m_gl->m_default_buffer_allocator, settings.default_buffer_allocator);
 }
 
 }    // namespace owlet::os

@@ -5,8 +5,9 @@
 #include <fmt/core.h>
 
 #include <fmt/format.h>
-#include <owlet/gl/context.h>
 #include <owlet/gl/core.h>
+#include <owlet/gl/targets/core.h>
+#include <owlet/gl/utils/typed_buffer.h>
 #include <owlet/os/core.h>
 #include <owlet/types.h>
 
@@ -42,22 +43,25 @@ void Run() {
             .width = 1980,
             .height = 920,
             .title = "Simple example",
-            .gl = std::make_optional(gl::Settings{
-                .default_buffer_allocator = new gl::SimpleBufferAllocator(),
-            }),
+            .gl = std::make_optional<gl::Version>({4, 6}),
         },
         err_call, key_call);
 
-    auto* ctx = window.GL();
+    auto* ctx = window.GL({.default_buffer_allocator = std::make_unique_for_overwrite<gl::SimpleBufferAllocator>()});
 
     auto buf = gl::Buffer(ctx);
-    std::vector<int32> vec = {0, 1, 2, 3};
-    buf.Write(vec.size() * sizeof(int32), vec.data(), gl::Buffer::Usage::StaticDraw);
+
+    std::vector<int32> vec = {0, 1, 2};
+    buf.Alloc(vec.size() * sizeof(int32), vec.data(), gl::Buffer::Usage::StaticDraw);
 
     int32 result = 0;
 
-    buf.Map<int32>(gl::Buffer::Access::Read, [&](auto* self) {
-        for (usize i = 0; i < vec.size(); i++) {
+    buf.As<gl::IndexBuffer>([&](gl::IndexBuffer idxbuf) { idxbuf.Do([&] {}); });
+
+    auto typed = gl::TypedBuffer<int32>(buf);
+
+    typed.Map(gl::Buffer::Access::Read, [&](int32* self, usize sz) {
+        for (usize i = 0; i < sz; i++) {
             result += self[i];
         }
     });

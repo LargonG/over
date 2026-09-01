@@ -1,20 +1,27 @@
 #pragma once
 
-#include <glad/gl.h>
+#include <string_view>
+#include <utility>
 
-#include <owlet/debug/core.h>
+#include <fmt/core.h>
+
+#include <glad/gl.h>
+#include <owlet/debug/consts.h>
 #include <owlet/gl/context.h>
 
 namespace owlet::debug {
 
+std::string_view ErrorName(GLenum err) noexcept;
+
 template <bool Debug = g_owlet_debug>
 void GLCheckError(gl::Context* context) {
     if constexpr (Debug) {
-        GLint err = context->GetError();
+        auto err = context->GetError();
         if (err != GL_NO_ERROR) {
-            fmt::println("Error: {} (code {})", "", err);
+            fmt::println("GL Error: {} (code {})", ErrorName(err), err);
             std::terminate();
         }
     }
 }
+
 }    // namespace owlet::debug

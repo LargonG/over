@@ -1,20 +1,11 @@
 #pragma once
-#pragma once
 
 #include <glad/gl.h>
 
 #include <owlet/debug/gl.h>
-#include <owlet/gl/allocator.h>
-#include <owlet/gl/context.h>
-#include <owlet/gl/handler.h>
+#include <owlet/gl/memory.h>
 
 namespace owlet::gl {
-
-struct Context;
-
-enum class BufferId : GLuint { Null = 0 };
-
-struct BufferAllocator : Allocator<BufferId> {};
 
 struct SimpleBufferAllocator : BufferAllocator {
     SimpleBufferAllocator() {}
@@ -23,6 +14,9 @@ struct SimpleBufferAllocator : BufferAllocator {
 
     void Dealloc(Context*, BufferId) noexcept override;
 };
+
+template <class T>
+struct BufferTarget;
 
 struct Buffer {
   public:
@@ -48,10 +42,12 @@ struct Buffer {
 
     Buffer(Context* context, BufferAllocator* allocator = nullptr);
 
-    void Write(usize size, anytype data, Usage usage);
+    void Alloc(usize size, const void* data, Usage usage);
+
+    void Write(usize offset, usize size, const void* data);
 
     template <class T, typename F>
-        requires std::is_invocable_v<F, T*>
+        requires std::is_invocable_v<F, T*, usize>
     void Map(Access access, F&& func) {
         auto* gl = m_handler.Context();
         auto id = m_handler.GetRaw();
@@ -59,13 +55,28 @@ struct Buffer {
         T* value = reinterpret_cast<T*>(gl->MapNamedBuffer(id, static_cast<GLenum>(access)));
         debug::GLCheckError(gl);
 
-        std::forward<F>(func)(value);
+        std::forward<F>(func)(value, Size<T>());
 
         gl->UnmapNamedBuffer(id);
         debug::GLCheckError(gl);
     }
 
+    template <class T, typename F>
+    void As(F&& func) {
+        auto val = T(*this);
+        std::forward<F>(func)(val);
+    }
+
+    template <class T>
+    usize Size() {
+        return m_size_in_bytes / sizeof(T);
+    }
+
   private:
     Handler<BufferId> m_handler;
+    usize m_size_in_bytes;
+
+    template <class T>
+    friend struct ::owlet::gl::BufferTarget;
 };
 }    // namespace owlet::gl

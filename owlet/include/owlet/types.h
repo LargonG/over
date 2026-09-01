@@ -16,8 +16,6 @@ using usize = std::size_t;
 
 using float32 = float;
 
-using anytype = void*;
-
 // No need of using double precision in render-engine
 // using float64 = double;
 }    // namespace owlet

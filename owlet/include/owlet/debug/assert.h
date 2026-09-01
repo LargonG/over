@@ -4,7 +4,7 @@
 
 #include <fmt/core.h>
 
-#include <owlet/debug/core.h>
+#include <owlet/debug/consts.h>
 
 namespace owlet::debug {
 

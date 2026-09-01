@@ -25,10 +25,10 @@ struct [[nodiscard]] Window {
         int32 height;
         std::string_view title;
 
-        std::optional<gl::Settings> gl = std::make_optional<gl::Settings>({4, 6});
-
         int32 samples = 0;
         int32 swap_interval = 1;
+
+        std::optional<gl::Version> gl = {};
 
         std::optional<Monitor> monitor = {};
     };
@@ -48,14 +48,14 @@ struct [[nodiscard]] Window {
 
     void SetCurrent();
 
-    gl::Context* GL(std::optional<gl::Settings> settings = {});
+    gl::Context* GL(gl::Settings&& settings);
 
   private:
     void Free() noexcept;
 
-    void CreateContext(gl::Settings);
+    void CreateContext(gl::Settings&&);
 
-    gl::Settings m_gl_settings;
+    std::optional<gl::Version> m_gl_version;
 
     GLFWwindow* m_self;
     std::unique_ptr<gl::Context> m_gl;

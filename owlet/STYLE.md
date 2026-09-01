@@ -1,5 +1,5 @@
 
-- Use `struct` instead of `class` for every definition: private inheritance is not always prefered
+- Use `struct` instead of `class` for every definition: private inheritance is not always preferred
 - Use float32 and do not mix them with double
 - Don't use C++20 modules: unreadable linker exceptions
 - Don't use unsigned variants of int

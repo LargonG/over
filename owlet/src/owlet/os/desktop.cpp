@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include <owlet/debug/assert.h>
+#include <owlet/debug/core.h>
 #include <owlet/os/monitor.h>
 #include <owlet/types.h>
 

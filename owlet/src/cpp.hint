@@ -1,6 +1,6 @@
-#define HandlerCtor \
-    template <class Id, class Allocator> \
-    Handler<Id, Allocator>
-#define HandlerImpl \
-    template <class Id, class Allocator> \
-    auto Handler<Id, Allocator>
+#define WL_DEF_BUFFER_TARGET(target) constexpr static GLenum s_target = target
+#define AllocatorImpl(name, id)          \
+    enum class id : GLuint { Null = 0 }; \
+    struct name : Allocator<name> {      \
+        using Id = id;                   \
+    };
