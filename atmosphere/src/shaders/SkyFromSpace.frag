@@ -26,14 +26,13 @@ float PhaseFunction(float cosine, float g) {
     float g2 = g * g;
     
     float first = 3.0 / 2.0 * (1.0 - g2) / (2.0 + g2);
-    float second = pow((1.0 + cosine2) / (1.0 + g2 - 2.0 * g * cosine2), 3.0 / 2.0);
+    float second = (1.0 + cosine2) / pow((1.0 + g2 - 2.0 * g * cosine), 3.0 / 2.0);
 
     return first * second;
 }
 
 void main() {
-    vec3 to_light = normalize(-sun.direction.xyz);
-    float cosine = dot(to_light, fs_in.direction) / length(fs_in.direction);
+    float cosine = dot(-normalize(sun.direction.xyz), -fs_in.direction) / length(-fs_in.direction);
 
     vec3 rayleigh = fs_in.rayleigh * PhaseFunction(cosine, u_args.g.x);
     vec3 mie = fs_in.mie * PhaseFunction(cosine, u_args.g.y);
