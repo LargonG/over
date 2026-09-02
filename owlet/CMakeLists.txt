@@ -36,6 +36,7 @@ set(p_core
     gl/context.cpp
     gl/buffer.cpp
     gl/texture.cpp
+    gl/frame_buffer.cpp
 
     gl/targets/buffer_target.cpp
     gl/targets/uniform_buffer.cpp

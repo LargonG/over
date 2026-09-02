@@ -9,7 +9,7 @@
 #include <GLFW/glfw3.h>
 #undef GLFW_INCLUDE_NONE
 
-#include <owlet/gl/buffer.h>
+#include <owlet/debug/core.h>
 #include <owlet/gl/context.h>
 #include <owlet/os/monitor.h>
 #include <owlet/types.h>
@@ -48,7 +48,11 @@ struct [[nodiscard]] Window {
 
     void SetCurrent();
 
-    gl::Context* GL(gl::Settings&& settings);
+    gl::Context* SetupGL(gl::Settings&& settings);
+    auto* GL() const noexcept {
+        debug::Require(m_gl.get() != nullptr, "GL context has to be initialized");
+        return m_gl.get();
+    }
 
   private:
     void Free() noexcept;

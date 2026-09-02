@@ -8,6 +8,6 @@ struct UniformBuffer : BufferTarget<UniformBuffer> {
   public:
     WL_DEF_BUFFER_TARGET(GL_UNIFORM_BUFFER);
 
-    void AttachUniform(int32 unit);
+    UniformBuffer& AttachUniform(int32 unit);
 };
 }    // namespace owlet::gl

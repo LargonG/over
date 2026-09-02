@@ -10,22 +10,35 @@ struct TypedBuffer {
     static constexpr usize value_size = sizeof(T);
 
   public:
-    TypedBuffer(Buffer& buffer) : m_buffer(&buffer) {}
+    explicit TypedBuffer(Buffer& buffer) : m_buffer(&buffer) {}
 
     TypedBuffer(const TypedBuffer&) = default;
 
-    void Alloc(usize count, T* data, Buffer::Usage usage) {
+    TypedBuffer& Alloc(usize count, T* data, Buffer::Usage usage) {
         m_buffer->Alloc(count * value_size, reinterpret_cast<void*>(data), usage);
+        return *this;
     }
 
-    void Write(usize start_iterator, usize count, T* data) {
+    TypedBuffer& Write(usize start_iterator, usize count, T* data) {
         m_buffer->Write(start_iterator * value_size, count * value_size, reinterpret_cast<void*>(data));
+        return *this;
     }
 
     template <typename F>
         requires std::is_invocable_v<F, T*, usize>
-    void Map(Buffer::Access access, F&& func) {
+    TypedBuffer& Map(Buffer::Access access, F&& func) {
         m_buffer->Map<T>(access, std::forward<F>(func));
+        return *this;
+    }
+
+    template <class T, typename F>
+    T As(F&& func) {
+        return m_buffer->As<T, F>(std::forward<F>(func));
+    }
+
+    template <class T>
+    T As() {
+        return m_buffer->As<T>();
     }
 
   private:

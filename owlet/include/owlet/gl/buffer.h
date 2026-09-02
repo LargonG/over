@@ -40,15 +40,15 @@ struct Buffer {
         All = GL_READ_WRITE,
     };
 
-    Buffer(Context* context, BufferAllocator* allocator = nullptr);
+    explicit Buffer(Context* context, BufferAllocator* allocator = nullptr);
 
-    void Alloc(usize size, const void* data, Usage usage);
+    Buffer& Alloc(usize size, const void* data, Usage usage);
 
-    void Write(usize offset, usize size, const void* data);
+    Buffer& Write(usize offset, usize size, const void* data);
 
     template <class T, typename F>
         requires std::is_invocable_v<F, T*, usize>
-    void Map(Access access, F&& func) {
+    Buffer& Map(Access access, F&& func) {
         auto* gl = m_handler.Context();
         auto id = m_handler.GetRaw();
 
@@ -59,12 +59,20 @@ struct Buffer {
 
         gl->UnmapNamedBuffer(id);
         debug::GLCheckError(gl);
+
+        return *this;
     }
 
     template <class T, typename F>
-    void As(F&& func) {
+    T As(F&& func) {
         auto val = T(*this);
         std::forward<F>(func)(val);
+        return val;
+    }
+
+    template <class T>
+    T As() {
+        return T(*this);
     }
 
     template <class T>

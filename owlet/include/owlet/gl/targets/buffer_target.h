@@ -17,26 +17,31 @@ struct BufferTarget {
   public:
     BufferTarget() noexcept : m_buffer(nullptr) {}
     BufferTarget(Buffer& buffer) noexcept : m_buffer(&buffer) {}
-    BufferTarget(BufferTarget&) = default;
 
-    void Bind() noexcept {
+    BufferTarget(const BufferTarget&) = default;
+
+    T& Bind() noexcept {
         auto* gl = GL();
         auto id = Id();
         gl->BindBuffer(T::s_target, id);
         debug::GLCheckError(gl);
+        return static_cast<T&>(*this);
     }
 
-    void Unbind() noexcept {
+    T& Unbind() noexcept {
         auto* gl = GL();
         gl->BindBuffer(T::s_target, 0);
         debug::GLCheckError(gl);
+        return static_cast<T&>(*this);
     }
 
     template <typename F>
-    void Do(F&& func) {
+    T& Do(F&& func) {
         Bind();
         std::forward<F>(func)();
         Unbind();
+
+        return static_cast<T&>(*this);
     }
 
   protected:

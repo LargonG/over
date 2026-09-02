@@ -6,9 +6,11 @@
 #include <owlet/gl/buffer.h>
 
 namespace owlet::gl {
-void UniformBuffer::AttachUniform(int32 unit) {
+UniformBuffer& UniformBuffer::AttachUniform(int32 unit) {
     auto gl = GL();
     gl->BindBufferBase(s_target, static_cast<GLuint>(unit), Id());
     debug::GLCheckError(gl);
+
+    return *this;
 }
 }    // namespace owlet::gl

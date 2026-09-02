@@ -65,11 +65,8 @@ void Window::SetCurrent() {
     glfwMakeContextCurrent(m_self);
 }
 
-gl::Context* Window::GL(gl::Settings&& settings) {
-    if (!m_gl) {
-        CreateContext(std::move(settings));
-    }
-
+gl::Context* Window::SetupGL(gl::Settings&& settings) {
+    CreateContext(std::move(settings));
     return m_gl.get();
 }
 
@@ -88,7 +85,12 @@ void Window::CreateContext(gl::Settings&& settings) {
             m_gl_version.value().major == actual_version_major && m_gl_version.value().minor <= actual_version_minor,
         "Owlet support OpenGL 4.6 or greater");
 
-    std::swap(m_gl->m_default_buffer_allocator, settings.default_buffer_allocator);
+    m_gl->m_default_buffer_allocator = std::move(settings.default_buffer_allocator);
+    m_gl->m_default_texture_2d_allocator = std::move(settings.default_texture_2d_allocator);
+    m_gl->m_default_cube_map_allocator = std::move(settings.default_cube_map_allocator);
+    m_gl->m_default_texture_2d_multi_sample_allocator = std::move(settings.default_texture_2d_multi_sample_allocator);
+    m_gl->m_default_render_buffer_allocator = std::move(settings.default_render_buffer_allocator);
+    m_gl->m_default_frame_buffer_allocator = std::move(settings.default_frame_buffer_allocator);
 }
 
 }    // namespace owlet::os
