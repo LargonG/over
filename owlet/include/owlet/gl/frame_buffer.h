@@ -40,10 +40,14 @@ struct FrameBuffer {
     FrameBuffer& Attach(GLenum target, int32 level, Texture2D&);
     FrameBuffer& Attach(GLenum target, Texture2DMultiSample&);
 
+    FrameBuffer& DrawBuffers(std::vector<GLenum> draw_buffers);
+    FrameBuffer& ReadBuffer(GLenum target);
+
     bool IsValid(GLenum target);
 
   private:
     Handler<FrameBufferId> m_handler;
+
     GLenum m_read_buffer;
     std::vector<GLenum> m_draw_buffers;
 };

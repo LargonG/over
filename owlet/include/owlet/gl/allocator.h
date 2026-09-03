@@ -25,6 +25,6 @@ AllocatorImpl(BufferAllocator, BufferId);
 AllocatorImpl(TextureAllocator, TextureId);
 AllocatorImpl(RenderBufferAllocator, RenderBufferId);
 AllocatorImpl(FrameBufferAllocator, FrameBufferId);
-AllocatorImpl(LayoutAllocator, LayoutId);
+AllocatorImpl(VertexArrayAllocator, VertexArrayId);
 
 }    // namespace owlet::gl

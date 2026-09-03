@@ -91,6 +91,7 @@ void Window::CreateContext(gl::Settings&& settings) {
     m_gl->m_default_texture_2d_multi_sample_allocator = std::move(settings.default_texture_2d_multi_sample_allocator);
     m_gl->m_default_render_buffer_allocator = std::move(settings.default_render_buffer_allocator);
     m_gl->m_default_frame_buffer_allocator = std::move(settings.default_frame_buffer_allocator);
+    m_gl->m_default_vertex_array_allocator = std::move(settings.default_vertex_array_allocator);
 }
 
 }    // namespace owlet::os

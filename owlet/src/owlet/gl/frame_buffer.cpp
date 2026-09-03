@@ -5,6 +5,7 @@
 #include <owlet/gl/texture.h>
 
 #include <glad/gl.h>
+#include <utility>
 
 namespace owlet::gl {
 RenderBuffer::RenderBuffer(Context* gl, RenderBufferAllocator* alloc)
@@ -57,6 +58,29 @@ FrameBuffer& FrameBuffer::Attach(GLenum target, Texture2DMultiSample& texture) {
 
     gl->NamedFramebufferTexture(m_handler.GetRaw(), target, texture.m_handler.GetRaw(), 0);
     debug::GLCheckError(gl);
+
+    return *this;
+}
+
+FrameBuffer& FrameBuffer::DrawBuffers(std::vector<GLenum> draw_buffers) {
+    auto* gl = m_handler.Context();
+
+    m_draw_buffers = std::move(draw_buffers);
+
+    gl->NamedFramebufferDrawBuffers(m_handler.GetRaw(), static_cast<GLsizei>(m_draw_buffers.size()),
+                                    m_draw_buffers.data());
+    debug::GLCheckError(gl);
+
+    return *this;
+}
+
+FrameBuffer& FrameBuffer::ReadBuffer(GLenum target) {
+    auto* gl = m_handler.Context();
+
+    gl->NamedFramebufferReadBuffer(m_handler.GetRaw(), target);
+    debug::GLCheckError(gl);
+
+    m_read_buffer = target;
 
     return *this;
 }

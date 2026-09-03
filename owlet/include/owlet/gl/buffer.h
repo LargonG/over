@@ -18,6 +18,8 @@ struct SimpleBufferAllocator : BufferAllocator {
 template <class T>
 struct BufferTarget;
 
+struct VertexArray;
+
 struct Buffer {
   public:
     enum class Usage : GLenum {
@@ -86,5 +88,6 @@ struct Buffer {
 
     template <class T>
     friend struct ::owlet::gl::BufferTarget;
+    friend struct ::owlet::gl::VertexArray;
 };
 }    // namespace owlet::gl

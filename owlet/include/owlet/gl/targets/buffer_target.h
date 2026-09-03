@@ -30,7 +30,7 @@ struct BufferTarget {
 
     T& Unbind() noexcept {
         auto* gl = GL();
-        gl->BindBuffer(T::s_target, 0);
+        gl->BindBuffer(T::s_target, 0);    // warning: should be set to previous binded id
         debug::GLCheckError(gl);
         return static_cast<T&>(*this);
     }
