@@ -1,16 +1,20 @@
 #include <exception>
+#include <fstream>
+#include <memory>
 #include <optional>
+#include <ostream>
 #include <vector>
 
 #include <fmt/core.h>
-#include <memory>
-
 #include <fmt/format.h>
+
+#include <owlet/debug/log.h>
 #include <owlet/gl/core.h>
 #include <owlet/gl/targets/core.h>
 #include <owlet/gl/utils/typed_buffer.h>
 #include <owlet/os/core.h>
 #include <owlet/types.h>
+#include <utility>
 
 namespace example {
 
@@ -90,6 +94,15 @@ void Run() {
 
     auto multisample = gl::Texture2DMultiSample(ctx);
     multisample.Alloc(GL_RGB32F, {100, 100}, 4, false);
+
+    std::unique_ptr<std::ostream> ofs = std::make_unique<std::ofstream>("log.txt");
+
+    auto logger = std::make_unique<debug::InternalLogger>(std::move(ofs));
+
+    auto& log = *debug::Internal(logger.get());
+
+    log.Enable(debug::Level::Info);
+    log.Log(debug::Level::Info, "Hello");
 
     while (!window.ShouldClose()) {
         desktop.PollEvents();

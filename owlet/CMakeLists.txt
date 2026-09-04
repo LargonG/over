@@ -43,6 +43,7 @@ set(p_core
     gl/targets/uniform_buffer.cpp
     
     debug/gl.cpp
+    debug/log.cpp
 )
 list(TRANSFORM p_core PREPEND "src/owlet/")
 
