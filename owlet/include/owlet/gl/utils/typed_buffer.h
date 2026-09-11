@@ -41,6 +41,8 @@ struct TypedBuffer {
         return m_buffer->As<T>();
     }
 
+    Buffer& Owner() const noexcept { return *m_buffer; }
+
   private:
     TypedBuffer() noexcept : m_buffer(nullptr) {}
 

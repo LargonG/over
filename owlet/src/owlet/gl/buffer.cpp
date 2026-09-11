@@ -5,6 +5,7 @@
 #include <owlet/debug/core.h>
 #include <owlet/debug/gl.h>
 #include <owlet/gl/context.h>
+#include <owlet/gl/memory.h>
 #include <owlet/types.h>
 
 namespace owlet::gl {
@@ -25,12 +26,13 @@ void SimpleBufferAllocator::Dealloc(Context* gl, BufferId id) noexcept {
 }
 
 Buffer::Buffer(Context* context, BufferAllocator* allocator)
-    : m_handler((allocator == nullptr ? context->DefaultBufferAllocator() : allocator), context), m_size_in_bytes(0) {}
+    : Object(context, [](Context* gl) { return gl->DefaultBufferAllocator(); }, allocator), m_size_in_bytes(0) {}
 
 Buffer& Buffer::Alloc(usize size, const void* data, Usage usage) {
-    m_handler.Context()->NamedBufferData(m_handler.GetRaw(), static_cast<GLsizeiptr>(size), data,
-                                         static_cast<GLenum>(usage));
-    debug::GLCheckError(m_handler.Context());
+    auto* gl = GL();
+
+    gl->NamedBufferData(RawId(), static_cast<GLsizeiptr>(size), data, static_cast<GLenum>(usage));
+    debug::GLCheckError(gl);
 
     m_size_in_bytes = size;
 
@@ -38,9 +40,10 @@ Buffer& Buffer::Alloc(usize size, const void* data, Usage usage) {
 }
 
 Buffer& Buffer::Write(usize offset, usize size, const void* data) {
-    m_handler.Context()->NamedBufferSubData(m_handler.GetRaw(), static_cast<GLintptr>(offset),
-                                            static_cast<GLsizeiptr>(size), data);
-    debug::GLCheckError(m_handler.Context());
+    auto* gl = GL();
+
+    gl->NamedBufferSubData(RawId(), static_cast<GLintptr>(offset), static_cast<GLsizeiptr>(size), data);
+    debug::GLCheckError(gl);
 
     return *this;
 }

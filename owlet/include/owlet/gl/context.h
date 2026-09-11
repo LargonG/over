@@ -22,16 +22,18 @@ struct VertexArrayAllocator;
 // Invariant is: GladGLContext offset is zero, so gladLoadContext(...) should not affect other parts
 struct Context : GladGLContext {
   public:
-    auto* DefaultBufferAllocator() const noexcept { return m_default_buffer_allocator.get(); }
-    auto* DefaultTexture2DAllocator() const noexcept { return m_default_texture_2d_allocator.get(); }
-    auto* DefaultCubeMapAllocator() const noexcept { return m_default_cube_map_allocator.get(); }
-    auto* DefaultTexture2DMultiSampleAllocator() const noexcept {
+    [[nodiscard]] auto* DefaultBufferAllocator() const noexcept { return m_default_buffer_allocator.get(); }
+    [[nodiscard]] auto* DefaultTexture2DAllocator() const noexcept { return m_default_texture_2d_allocator.get(); }
+    [[nodiscard]] auto* DefaultCubeMapAllocator() const noexcept { return m_default_cube_map_allocator.get(); }
+    [[nodiscard]] auto* DefaultTexture2DMultiSampleAllocator() const noexcept {
         return m_default_texture_2d_multi_sample_allocator.get();
     }
-    auto* DefaultRenderBufferAllocator() const noexcept { return m_default_render_buffer_allocator.get(); }
-    auto* DefaultFrameBufferAllocator() const noexcept { return m_default_frame_buffer_allocator.get(); }
+    [[nodiscard]] auto* DefaultRenderBufferAllocator() const noexcept {
+        return m_default_render_buffer_allocator.get();
+    }
+    [[nodiscard]] auto* DefaultFrameBufferAllocator() const noexcept { return m_default_frame_buffer_allocator.get(); }
 
-    auto* DefaultVertexArrayAllocator() const noexcept { return m_default_vertex_array_allocator.get(); }
+    [[nodiscard]] auto* DefaultVertexArrayAllocator() const noexcept { return m_default_vertex_array_allocator.get(); }
 
   private:
     std::unique_ptr<BufferAllocator> m_default_buffer_allocator;

@@ -42,7 +42,18 @@ struct SimpleTextureAllocator : TextureAllocator {
     const GLenum m_target;
 };
 
-struct Texture2D {
+/// @brief Abstract "interface" for textures, do not use it as polymorphic type
+struct Texture : Object<TextureId, TextureAllocator> {
+  public:
+    template <typename F>
+    Texture(Context* gl, F&& func, TextureAllocator* alloc) : Object(gl, std::forward<F>(func), alloc) {}
+
+    void AttachUniform(int32 unit);
+
+    static void AttachUniform(Context* gl, int32 unit, TextureId id);
+};
+
+struct Texture2D : Texture {
   public:
     explicit Texture2D(Context*, TextureAllocator* = nullptr);
 
@@ -58,18 +69,14 @@ struct Texture2D {
     Texture2D& AttachUniform(int32 unit);
 
   private:
-    Handler<TextureId> m_handler;
-
     GLenum m_format;
     std::tuple<usize, usize> m_size;
     usize m_levels;
 
     bool m_initialized;
-
-    friend struct FrameBuffer;
 };
 
-struct CubeMap {
+struct CubeMap : Texture {
   public:
     explicit CubeMap(Context*, TextureAllocator* = nullptr);
 
@@ -85,8 +92,6 @@ struct CubeMap {
     CubeMap& AttachUniform(int32 unit);
 
   private:
-    Handler<TextureId> m_handler;
-
     GLenum m_format;
     usize m_size;
     usize m_levels;
@@ -94,7 +99,7 @@ struct CubeMap {
     bool m_initialized;
 };
 
-struct Texture2DMultiSample {
+struct Texture2DMultiSample : Object<TextureId, TextureAllocator> {
   public:
     explicit Texture2DMultiSample(Context*, TextureAllocator* = nullptr);
 
@@ -102,16 +107,12 @@ struct Texture2DMultiSample {
                                 bool fixed = true);
 
   private:
-    Handler<TextureId> m_handler;
-
     GLenum m_format;
     std::tuple<usize, usize> m_size;
     usize m_samples;
     bool m_fixed;
 
     bool m_initialized;
-
-    friend struct FrameBuffer;
 };
 
 }    // namespace owlet::gl

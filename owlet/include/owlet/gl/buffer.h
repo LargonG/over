@@ -20,7 +20,7 @@ struct BufferTarget;
 
 struct VertexArray;
 
-struct Buffer {
+struct Buffer : Object<BufferId, BufferAllocator> {
   public:
     enum class Usage : GLenum {
         StaticDraw = GL_STATIC_DRAW,
@@ -51,8 +51,8 @@ struct Buffer {
     template <class T, typename F>
         requires std::is_invocable_v<F, T*, usize>
     Buffer& Map(Access access, F&& func) {
-        auto* gl = m_handler.Context();
-        auto id = m_handler.GetRaw();
+        auto* gl = GL();
+        auto id = RawId();
 
         T* value = reinterpret_cast<T*>(gl->MapNamedBuffer(id, static_cast<GLenum>(access)));
         debug::GLCheckError(gl);
@@ -73,21 +73,16 @@ struct Buffer {
     }
 
     template <class T>
-    T As() {
+    [[nodiscard]] T As() {
         return T(*this);
     }
 
     template <class T>
-    usize Size() {
+    [[nodiscard]] usize Size() {
         return m_size_in_bytes / sizeof(T);
     }
 
   private:
-    Handler<BufferId> m_handler;
     usize m_size_in_bytes;
-
-    template <class T>
-    friend struct ::owlet::gl::BufferTarget;
-    friend struct ::owlet::gl::VertexArray;
 };
 }    // namespace owlet::gl

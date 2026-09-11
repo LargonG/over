@@ -2,7 +2,6 @@
 #include <fstream>
 #include <memory>
 #include <optional>
-#include <ostream>
 #include <vector>
 
 #include <fmt/core.h>
@@ -10,11 +9,11 @@
 
 #include <owlet/debug/log.h>
 #include <owlet/gl/core.h>
+#include <owlet/gl/state.h>
 #include <owlet/gl/targets/core.h>
 #include <owlet/gl/utils/typed_buffer.h>
 #include <owlet/os/core.h>
 #include <owlet/types.h>
-#include <utility>
 
 namespace example {
 
@@ -34,10 +33,12 @@ void Run() {
         throw std::runtime_error(msg);
     };
     auto key_call = [](GLFWwindow* window, int key, int scancode, int action, int mode) noexcept {
-        fmt::println("Key code: {}", key);
-        fmt::println("Scancode: {}", scancode);
-        fmt::println("Action: {}", action);
-        fmt::println("Mode: {}", mode);
+        using namespace debug;
+
+        auto& log = *debug::DefaultLogger();
+
+        log.Log(Level::Info,
+                fmt::format("Key code: {}\nScan code: {}\nAction: {}\nMode: {}", key, scancode, action, mode));
 
         if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
             glfwSetWindowShouldClose(window, true);
@@ -52,13 +53,13 @@ void Run() {
         },
         err_call, key_call);
 
-    auto* ctx = window.SetupGL({
-        .default_buffer_allocator = std::make_unique<gl::SimpleBufferAllocator>(),
-        .default_texture_2d_allocator = std::make_unique<gl::SimpleTextureAllocator>(gl::TextureType::Texture2D),
-        .default_cube_map_allocator = std::make_unique<gl::SimpleTextureAllocator>(gl::TextureType::CubeMap),
-        .default_texture_2d_multi_sample_allocator =
-            std::make_unique<gl::SimpleTextureAllocator>(gl::TextureType::Texture2DMultiSample),
-    });
+    auto* ctx = window.SetupGL(
+        {.default_buffer_allocator = std::make_unique<gl::SimpleBufferAllocator>(),
+         .default_texture_2d_allocator = std::make_unique<gl::SimpleTextureAllocator>(gl::TextureType::Texture2D),
+         .default_cube_map_allocator = std::make_unique<gl::SimpleTextureAllocator>(gl::TextureType::CubeMap),
+         .default_texture_2d_multi_sample_allocator =
+             std::make_unique<gl::SimpleTextureAllocator>(gl::TextureType::Texture2DMultiSample),
+         .default_vertex_array_allocator = std::make_unique<gl::SimpleVertexArrayAllocator>()});
 
     auto buf = gl::Buffer(ctx);
 
@@ -95,11 +96,20 @@ void Run() {
     auto multisample = gl::Texture2DMultiSample(ctx);
     multisample.Alloc(GL_RGB32F, {100, 100}, 4, false);
 
-    std::unique_ptr<std::ostream> ofs = std::make_unique<std::ofstream>("log.txt");
+    auto logger = std::make_unique<debug::InternalLogger>(std::make_unique<std::ofstream>("log.txt"));
 
-    auto logger = std::make_unique<debug::InternalLogger>(std::move(ofs));
+    auto main_state = gl::State(ctx);
+    main_state.Enable({GL_DEPTH_TEST, GL_CULL_FACE, GL_BLEND});
 
-    auto& log = *debug::Internal(logger.get());
+    auto obj = gl::VertexArray(ctx);
+    obj.Attach(0, buf, 0, sizeof(float32) * 3);
+    obj.Format(0, GL_FLOAT, 3, 0);
+    obj.BindFormats(0, {0});
+
+    auto main_layout = gl::Layout();
+    main_layout.Set(obj);
+
+    auto& log = *debug::DefaultLogger(logger.get());
 
     log.Enable(debug::Level::Info);
     log.Log(debug::Level::Info, "Hello");
@@ -109,6 +119,14 @@ void Run() {
 
         ctx->ClearColor(0.3f, 0.0, 0.0, 1.0);
         ctx->Clear(GL_COLOR_BUFFER_BIT);
+
+        main_state.Begin(nullptr);
+
+        main_layout.Begin(nullptr);
+
+        main_layout.End();
+
+        main_state.End();
 
         window.SwapBuffers();
     }

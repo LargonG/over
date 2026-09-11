@@ -38,6 +38,8 @@ set(p_core
     gl/texture.cpp
     gl/frame_buffer.cpp
     gl/vertex_array.cpp
+    gl/state.cpp
+    gl/layout.cpp
 
     gl/targets/buffer_target.cpp
     gl/targets/uniform_buffer.cpp

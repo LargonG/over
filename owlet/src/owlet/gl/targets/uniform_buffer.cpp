@@ -7,9 +7,10 @@
 
 namespace owlet::gl {
 UniformBuffer& UniformBuffer::AttachUniform(int32 unit) {
-    auto gl = GL();
+    auto gl = m_buffer->GL();
+    auto id = static_cast<GLuint>(m_buffer->Id());
 
-    gl->BindBufferBase(s_target, static_cast<GLuint>(unit), Id());
+    gl->BindBufferBase(s_target, static_cast<GLuint>(unit), id);
     debug::GLCheckError(gl);
 
     return *this;

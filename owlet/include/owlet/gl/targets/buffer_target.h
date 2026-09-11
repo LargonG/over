@@ -21,17 +21,21 @@ struct BufferTarget {
     BufferTarget(const BufferTarget&) = default;
 
     T& Bind() noexcept {
-        auto* gl = GL();
-        auto id = Id();
+        auto* gl = m_buffer->GL();
+        auto id = static_cast<GLuint>(m_buffer->Id());
+
         gl->BindBuffer(T::s_target, id);
         debug::GLCheckError(gl);
+
         return static_cast<T&>(*this);
     }
 
     T& Unbind() noexcept {
-        auto* gl = GL();
-        gl->BindBuffer(T::s_target, 0);    // warning: should be set to previous binded id
+        auto* gl = m_buffer->GL();
+
+        gl->BindBuffer(T::s_target, 0);    // warning: should be set to previous id
         debug::GLCheckError(gl);
+
         return static_cast<T&>(*this);
     }
 
@@ -44,11 +48,10 @@ struct BufferTarget {
         return static_cast<T&>(*this);
     }
 
+    Buffer& Owner() const noexcept { return *m_buffer; }
+
   protected:
     Buffer* m_buffer;
-
-    auto Id() const noexcept { return m_buffer->m_handler.GetRaw(); }
-    auto GL() const noexcept { return m_buffer->m_handler.Context(); }
 };
 
 extern template BufferTarget<VertexBuffer>;

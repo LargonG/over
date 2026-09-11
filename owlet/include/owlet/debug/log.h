@@ -5,8 +5,8 @@
 #include <ostream>
 #include <string_view>
 
+#include <owlet/collections.h>
 #include <owlet/debug/core.h>
-#include <owlet/types.h>
 
 namespace owlet::debug {
 enum class Level {
@@ -43,7 +43,7 @@ struct Logger {
 using InternalLogger = Logger<Level>;
 extern template struct Logger<Level>;
 
-inline InternalLogger* Internal(std::optional<InternalLogger*> val) {
+inline InternalLogger* DefaultLogger(std::optional<InternalLogger*> val = {}) {
     static InternalLogger* logger;
     if (val.has_value()) {
         logger = val.value();

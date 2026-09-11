@@ -16,23 +16,19 @@ struct SimpleFrameBufferAllocator : FrameBufferAllocator {};
 
 struct SimpleRenderBufferAllocator : RenderBufferAllocator {};
 
-struct RenderBuffer {
+struct RenderBuffer : Object<RenderBufferId, RenderBufferAllocator> {
   public:
     RenderBuffer(Context*, RenderBufferAllocator* = nullptr);
 
     RenderBuffer& Alloc(GLenum internal_format, std::tuple<usize, usize> size);
 
   private:
-    Handler<RenderBufferId> m_handler;
-
     GLenum m_format;
     std::tuple<usize, usize> m_size;
     bool m_initialized;
-
-    friend struct FrameBuffer;
 };
 
-struct FrameBuffer {
+struct FrameBuffer : Object<FrameBufferId, FrameBufferAllocator> {
   public:
     FrameBuffer(Context*, FrameBufferAllocator* = nullptr);
 
@@ -43,11 +39,9 @@ struct FrameBuffer {
     FrameBuffer& DrawBuffers(std::vector<GLenum> draw_buffers);
     FrameBuffer& ReadBuffer(GLenum target);
 
-    bool IsValid(GLenum target);
+    [[nodiscard]] bool IsValid(GLenum target);
 
   private:
-    Handler<FrameBufferId> m_handler;
-
     GLenum m_read_buffer;
     std::vector<GLenum> m_draw_buffers;
 };
