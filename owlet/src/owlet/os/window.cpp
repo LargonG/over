@@ -2,14 +2,13 @@
 
 #include <memory>
 #include <stdexcept>
+#include <utility>
 
 #include <GLFW/glfw3.h>
 
 #include <owlet/debug/core.h>
-#include <owlet/gl/buffer.h>
-#include <owlet/gl/context.h>
+#include <owlet/gl/core.h>
 #include <owlet/os/monitor.h>
-#include <utility>
 
 namespace owlet::os {
 
@@ -85,13 +84,7 @@ void Window::CreateContext(gl::Settings&& settings) {
             m_gl_version.value().major == actual_version_major && m_gl_version.value().minor <= actual_version_minor,
         "Owlet support OpenGL 4.6 or greater");
 
-    m_gl->m_default_buffer_allocator = std::move(settings.default_buffer_allocator);
-    m_gl->m_default_texture_2d_allocator = std::move(settings.default_texture_2d_allocator);
-    m_gl->m_default_cube_map_allocator = std::move(settings.default_cube_map_allocator);
-    m_gl->m_default_texture_2d_multi_sample_allocator = std::move(settings.default_texture_2d_multi_sample_allocator);
-    m_gl->m_default_render_buffer_allocator = std::move(settings.default_render_buffer_allocator);
-    m_gl->m_default_frame_buffer_allocator = std::move(settings.default_frame_buffer_allocator);
-    m_gl->m_default_vertex_array_allocator = std::move(settings.default_vertex_array_allocator);
+    m_gl->m_allocators = std::move(settings);
 }
 
 }    // namespace owlet::os

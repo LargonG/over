@@ -10,11 +10,11 @@ namespace owlet::gl {
 ///        Represents GL object, that has it's own Id inside GPU driver
 /// @tparam TypeId
 /// @tparam Allocator
-template <class TypeId, class Allocator>
+template <class TypeId>
 struct Object {
   public:
-    template <typename F>
-    Object(Context* gl, F&& func, Allocator* alloc = nullptr) : m_handler(alloc ? alloc : func(gl), gl) {}
+    template <class Allocator, typename F>
+    Object(Context* gl, F&& func, Allocator* alloc) : m_handler(alloc ? alloc : func(gl), gl) {}
 
     [[nodiscard]] TypeId Id() const noexcept { return m_handler.Get(); }
     [[nodiscard]] Context* GL() const noexcept { return m_handler.Context(); }

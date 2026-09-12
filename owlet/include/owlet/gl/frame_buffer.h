@@ -16,7 +16,7 @@ struct SimpleFrameBufferAllocator : FrameBufferAllocator {};
 
 struct SimpleRenderBufferAllocator : RenderBufferAllocator {};
 
-struct RenderBuffer : Object<RenderBufferId, RenderBufferAllocator> {
+struct RenderBuffer : Object<RenderBufferId> {
   public:
     RenderBuffer(Context*, RenderBufferAllocator* = nullptr);
 
@@ -28,7 +28,7 @@ struct RenderBuffer : Object<RenderBufferId, RenderBufferAllocator> {
     bool m_initialized;
 };
 
-struct FrameBuffer : Object<FrameBufferId, FrameBufferAllocator> {
+struct FrameBuffer : Object<FrameBufferId> {
   public:
     FrameBuffer(Context*, FrameBufferAllocator* = nullptr);
 

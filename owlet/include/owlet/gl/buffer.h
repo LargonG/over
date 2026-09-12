@@ -20,7 +20,7 @@ struct BufferTarget;
 
 struct VertexArray;
 
-struct Buffer : Object<BufferId, BufferAllocator> {
+struct Buffer : Object<BufferId> {
   public:
     enum class Usage : GLenum {
         StaticDraw = GL_STATIC_DRAW,

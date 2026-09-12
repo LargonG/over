@@ -40,6 +40,8 @@ set(p_core
     gl/vertex_array.cpp
     gl/state.cpp
     gl/layout.cpp
+    gl/shader.cpp
+    gl/program.cpp
 
     gl/targets/buffer_target.cpp
     gl/targets/uniform_buffer.cpp

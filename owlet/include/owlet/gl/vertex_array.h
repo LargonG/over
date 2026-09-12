@@ -25,7 +25,7 @@ struct SimpleVertexArrayAllocator : VertexArrayAllocator {
     void Dealloc(Context*, VertexArrayId) noexcept override;
 };
 
-struct VertexArray : gl::Object<VertexArrayId, VertexArrayAllocator> {
+struct VertexArray : gl::Object<VertexArrayId> {
   public:
     VertexArray(Context*, VertexArrayAllocator* = nullptr);
 

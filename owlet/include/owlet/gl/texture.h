@@ -43,7 +43,7 @@ struct SimpleTextureAllocator : TextureAllocator {
 };
 
 /// @brief Abstract "interface" for textures, do not use it as polymorphic type
-struct Texture : Object<TextureId, TextureAllocator> {
+struct Texture : Object<TextureId> {
   public:
     template <typename F>
     Texture(Context* gl, F&& func, TextureAllocator* alloc) : Object(gl, std::forward<F>(func), alloc) {}
@@ -99,7 +99,7 @@ struct CubeMap : Texture {
     bool m_initialized;
 };
 
-struct Texture2DMultiSample : Object<TextureId, TextureAllocator> {
+struct Texture2DMultiSample : Object<TextureId> {
   public:
     explicit Texture2DMultiSample(Context*, TextureAllocator* = nullptr);
 
