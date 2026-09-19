@@ -40,7 +40,7 @@ struct VertexArray : gl::Object<VertexArrayId> {
         return BindFormats(binding_id, std::span<const int32>(locations.begin(), locations.end()));
     }
 
-    VertexArray& AttachIndex(IndexBuffer&);
+    VertexArray& AttachIndex(IndexBuffer);
 
     VertexArray& Bind();
     VertexArray& Unbind();

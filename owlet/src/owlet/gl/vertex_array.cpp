@@ -83,7 +83,7 @@ VertexArray& VertexArray::BindFormats(int32 binding_id, std::span<const int32> l
     return *this;
 }
 
-VertexArray& VertexArray::AttachIndex(IndexBuffer& id_buf) {
+VertexArray& VertexArray::AttachIndex(IndexBuffer id_buf) {
     auto* gl = GL();
     auto raw_buf_id = static_cast<GLuint>(id_buf.Owner().Id());
 

@@ -32,7 +32,8 @@ struct Context : GladGLContext {
         std::unique_ptr<RenderBufferAllocator> default_render_buffer_allocator = nullptr;
         std::unique_ptr<FrameBufferAllocator> default_frame_buffer_allocator = nullptr;
         std::unique_ptr<VertexArrayAllocator> default_vertex_array_allocator = nullptr;
-        std::unique_ptr<ShaderAllocator> default_shader_allocator = nullptr;
+        std::unique_ptr<ShaderAllocator> default_vertex_shader_allocator = nullptr;
+        std::unique_ptr<ShaderAllocator> default_fragment_shader_allocator = nullptr;
         std::unique_ptr<ProgramAllocator> default_program_allocator = nullptr;
     };
 
@@ -57,7 +58,13 @@ struct Context : GladGLContext {
         return m_allocators.default_vertex_array_allocator.get();
     }
 
-    [[nodiscard]] auto* DefaultShaderAllocator() const noexcept { return m_allocators.default_shader_allocator.get(); }
+    [[nodiscard]] auto* DefaultVertexShaderAllocator() const noexcept {
+        return m_allocators.default_vertex_shader_allocator.get();
+    }
+
+    [[nodiscard]] auto* DefaultFragmentShaderAllocator() const noexcept {
+        return m_allocators.default_fragment_shader_allocator.get();
+    }
 
     [[nodiscard]] auto* DefaultProgramAllocator() const noexcept {
         return m_allocators.default_program_allocator.get();

@@ -46,23 +46,20 @@ set(p_core
     gl/targets/buffer_target.cpp
     gl/targets/uniform_buffer.cpp
     
+    gl/utils/material.cpp
+
+    3d/shape.cpp
+
     debug/gl.cpp
     debug/log.cpp
 )
 list(TRANSFORM p_core PREPEND "src/owlet/")
-
-set(p_hints
-    cpp.hint
-)
-list(TRANSFORM p_hints PREPEND "src/")
-
 
 file(GLOB_RECURSE p_headers "include/*.h")
 
 target_sources(
     ${PROJECT_NAME}
     PRIVATE ${p_core}
-    PRIVATE ${p_hints}
     PRIVATE FILE_SET headers TYPE HEADERS FILES ${p_headers}
 )
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/)
@@ -77,4 +74,4 @@ target_link_libraries(
 )
 
 
-add_subdirectory(examples/simple)
+add_subdirectory(examples)

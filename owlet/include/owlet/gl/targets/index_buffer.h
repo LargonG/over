@@ -6,6 +6,8 @@
 namespace owlet::gl {
 struct IndexBuffer : BufferTarget<IndexBuffer> {
   public:
+    IndexBuffer(Buffer& buf) : BufferTarget<IndexBuffer>(buf) {}
+
     WL_DEF_BUFFER_TARGET(GL_ELEMENT_ARRAY_BUFFER);
 };
 }    // namespace owlet::gl

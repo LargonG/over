@@ -13,7 +13,7 @@
 namespace owlet::os {
 
 Window::Window(const Settings settings, GLFWerrorfun error_callback, GLFWkeyfun key_callback)
-    : m_gl_version(settings.gl) {
+    : m_gl_version(settings.gl), m_self(nullptr), m_gl() {
     debug::Require(settings.gl.has_value(), "Does not support other render api's for now");
     debug::Require(settings.gl.value().major == 4 && settings.gl.value().minor == 6, "Support OpenGL 4.6 and above");
 
@@ -28,11 +28,23 @@ Window::Window(const Settings settings, GLFWerrorfun error_callback, GLFWkeyfun 
 
     m_self = glfwCreateWindow(settings.width, settings.height, settings.title.data(),
                               settings.monitor.value_or(Monitor()).Raw(), nullptr);
-    if (!m_self) {
-        throw std::runtime_error("Cannot create window");
-    }
+    debug::Require(m_self, "Cannot create window");
 
     glfwSetKeyCallback(m_self, key_callback);
+}
+
+Window::Window() noexcept : m_gl_version(), m_self(nullptr), m_gl() {}
+
+Window::Window(Window&& other) noexcept : Window() {
+    *this = std::move(other);
+}
+
+Window& Window::operator=(Window&& other) noexcept {
+    m_gl_version = std::move(other.m_gl_version);
+    std::swap(m_self, other.m_self);
+    m_gl = std::move(other.m_gl);
+
+    return *this;
 }
 
 Window::~Window() {

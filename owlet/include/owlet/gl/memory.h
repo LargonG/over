@@ -4,6 +4,8 @@
 #include <owlet/gl/context.h>
 #include <owlet/gl/handler.h>
 
+#include <fmt/core.h>
+
 namespace owlet::gl {
 
 /// @brief Internal realization, don't use as polymorphic type

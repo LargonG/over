@@ -1,12 +1,14 @@
 #include <owlet/gl/shader.h>
 
 #include <algorithm>
+#include <functional>
 #include <iterator>
 #include <string>
 #include <tuple>
 
 #include <owlet/debug/core.h>
 #include <owlet/debug/gl.h>
+#include <owlet/gl/memory.h>
 
 #include <fmt/format.h>
 
@@ -31,6 +33,11 @@ void SimpleShaderAllocator::Dealloc(Context* gl, ShaderId id) noexcept {
     gl->DeleteShader(raw_id);
     debug::GLCheckError(gl);
 }
+
+GLenum SimpleShaderAllocator::ShaderType() const noexcept {
+    return m_shader_type;
+}
+
 #pragma endregion
 
 GLint Shader::GetParameter(Context* gl, ShaderId id, Shader::Parameter param) {
@@ -42,11 +49,14 @@ GLint Shader::GetParameter(Context* gl, ShaderId id, Shader::Parameter param) {
     return result;
 }
 
-Shader::Shader(GLenum type, Context* gl, ShaderAllocator* alloc)
-    : Object(gl, [](Context* gl) { return gl->DefaultShaderAllocator(); }, alloc), m_type(type), m_sources() {
-    debug::Require(
-        m_type == alloc->ShaderType(),
-        fmt::format("Shader Allocator type ({}) should be the same as Shader type ({})", m_type, alloc->ShaderType()));
+Shader::Shader(GLenum type, Context* gl, std::function<ShaderAllocator*(Context*)> func, ShaderAllocator* alloc)
+    : Object(gl, func, alloc), m_type(type), m_sources() {
+    if constexpr (debug::g_owlet_debug) {
+        auto* actual_allocator = alloc ? alloc : func(gl);
+        debug::Require(m_type == actual_allocator->ShaderType(),
+                       fmt::format("Shader Allocator type ({}) should be the same as Shader type ({})", m_type,
+                                   actual_allocator->ShaderType()));
+    }
 }
 
 static auto CStyle(std::span<std::string> values) {
@@ -102,8 +112,10 @@ std::string Shader::InfoLog() {
     return info_log;
 }
 
-VertexShader::VertexShader(Context* gl, ShaderAllocator* alloc) : Shader(GL_VERTEX_SHADER, gl, alloc) {}
+VertexShader::VertexShader(Context* gl, ShaderAllocator* alloc)
+    : Shader(GL_VERTEX_SHADER, gl, [](Context* gl) { return gl->DefaultVertexShaderAllocator(); }, alloc) {}
 
-FragmentShader::FragmentShader(Context* gl, ShaderAllocator* alloc) : Shader(GL_FRAGMENT_SHADER, gl, alloc) {}
+FragmentShader::FragmentShader(Context* gl, ShaderAllocator* alloc)
+    : Shader(GL_FRAGMENT_SHADER, gl, [](Context* gl) { return gl->DefaultFragmentShaderAllocator(); }, alloc) {}
 
 }    // namespace owlet::gl

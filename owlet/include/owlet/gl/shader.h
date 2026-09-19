@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <span>
 #include <string>
 #include <string_view>
@@ -13,7 +14,9 @@ enum class ShaderId : GLuint { Null = 0 };
 
 struct ShaderAllocator : Allocator<ShaderId> {
   public:
-    virtual GLenum ShaderType();
+    virtual ~ShaderAllocator() = default;
+
+    virtual GLenum ShaderType() const noexcept = 0;
 };
 
 struct SimpleShaderAllocator : ShaderAllocator {
@@ -23,6 +26,8 @@ struct SimpleShaderAllocator : ShaderAllocator {
     // Inherited via ShaderAllocator
     ShaderId Alloc(Context*) override;
     void Dealloc(Context*, ShaderId) noexcept override;
+
+    GLenum ShaderType() const noexcept override;
 
   private:
     GLenum m_shader_type;
@@ -50,7 +55,8 @@ struct Shader : Object<ShaderId> {
     std::string InfoLog();
 
   protected:
-    explicit Shader(GLenum type, Context* gl, ShaderAllocator* alloc = nullptr);
+    explicit Shader(GLenum type, Context* gl, std::function<ShaderAllocator*(Context*)>,
+                    ShaderAllocator* alloc = nullptr);
 
     std::vector<std::string> m_sources;
     GLenum m_type;

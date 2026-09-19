@@ -37,6 +37,9 @@ struct [[nodiscard]] Window {
 
     Window(const Window&) = delete;
 
+    Window(Window&&) noexcept;
+    Window& operator=(Window&&) noexcept;
+
     ~Window();
 
     [[nodiscard]] auto Raw() const noexcept { return m_self; }
@@ -55,6 +58,8 @@ struct [[nodiscard]] Window {
     }
 
   private:
+    Window() noexcept;
+
     void Free() noexcept;
 
     void CreateContext(gl::Settings&&);
