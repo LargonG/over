@@ -5,7 +5,7 @@
 #include <fmt/core.h>
 #include <fmt/format.h>
 
-#include <owlet/3d/quad.h>
+#include <owlet/3d/shape.h>
 #include <owlet/debug/log.h>
 #include <owlet/engine/core.h>
 #include <owlet/gl/core.h>

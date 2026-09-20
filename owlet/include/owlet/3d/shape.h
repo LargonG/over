@@ -20,4 +20,6 @@ struct Shape {
 
 std::vector<int32> ConvertElements(std::span<glm::ivec3> elements);
 
+Shape Quad();
+
 }    // namespace owlet::d3
