@@ -44,14 +44,14 @@ void Run() {
             glfwSetWindowShouldClose(window, true);
         }
     };
-    auto window = os::Window(
-        os::Window::Settings{
-            .width = 1980,
-            .height = 920,
-            .title = "Simple example",
-            .gl = std::make_optional<gl::Version>({4, 6}),
-        },
-        err_call, key_call);
+    auto window = os::Window(os::Window::Settings{
+        .width = 1980,
+        .height = 920,
+        .title = "Simple example",
+        .gl = std::make_optional<gl::Version>({4, 6}),
+        .error_callback = err_call,
+        .key_input_callback = key_call,
+    });
 
     auto* ctx = window.SetupGL(
         {.default_buffer_allocator = std::make_unique<gl::SimpleBufferAllocator>(),

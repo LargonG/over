@@ -77,7 +77,10 @@ struct App {
             int32 tmode = static_cast<int32>(mode);
 
             val->This()->OnInput(w, tkey, tscan_code, taction, tmode);
-            val->Scenes().GetActive()->OnInput(tkey, tscan_code, taction, tmode);
+            auto* scene = val->Scenes().GetActive();
+            if (scene) {
+                scene->OnInput(tkey, tscan_code, taction, tmode);
+            }
         };
         window_settings.key_input_callback = key_input_callback;
 
@@ -88,16 +91,19 @@ struct App {
         };
         window_settings.window_resize_callback = resize_callback;
 
-        auto mouse_button_callback = [](GLFWwindow* window, int button, int action, int mods) {
+        auto mouse_button_callback = [](GLFWwindow* window, int button, int action, int mode) {
             auto val = Instance();
             os::Window& w = val->FindWindow(window);
 
             int32 tbutton = static_cast<int32>(button);
             int32 taction = static_cast<int32>(action);
-            int32 tmods = static_cast<int32>(mods);
+            int32 tmode = static_cast<int32>(mode);
 
-            val->This()->OnMouseButton(w, tbutton, taction, tmods);
-            val->Scenes().GetActive()->OnMouseButton(tbutton, taction, tmods);
+            val->This()->OnMouseButton(w, tbutton, taction, tmode);
+            auto* scene = val->Scenes().GetActive();
+            if (scene) {
+                scene->OnMouseButton(tbutton, taction, tmode);
+            }
         };
         window_settings.mouse_button_callback = mouse_button_callback;
 
@@ -109,7 +115,10 @@ struct App {
             float pos_y = static_cast<float>(ypos);
 
             val->This()->OnCursorPosition(w, pos_x, pos_y);
-            val->Scenes().GetActive()->OnCursorPosition(pos_x, pos_y);
+            auto* scene = val->Scenes().GetActive();
+            if (scene) {
+                scene->OnCursorPosition(pos_x, pos_y);
+            }
             // bug: more complex logic needed for mutiple windows
             auto [last_x, last_y] = val->This()->m_cursor_position.Last();
             if (val->This()->m_cursor_position.Refresh(xpos, ypos)) {
@@ -117,7 +126,10 @@ struct App {
                 float delta_y = static_cast<float>(ypos - last_y);
 
                 val->This()->OnCursorPositionChanged(w, delta_x, delta_y);
-                val->Scenes().GetActive()->OnCursorPositionChanged(delta_x, delta_y);
+                auto* scene = val->Scenes().GetActive();
+                if (scene) {
+                    scene->OnCursorPositionChanged(delta_x, delta_y);
+                }
             }
         };
         window_settings.cursor_pos_callback = cursor_pos_callback;

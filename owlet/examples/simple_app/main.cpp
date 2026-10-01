@@ -96,6 +96,10 @@ struct SimpleApp : engine::App<SimpleApp> {
         }
     }
 
+    void OnMouseButton(os::Window& w, int32 button_code, int32 button_action, int32 button_mode) {}
+    void OnCursorPosition(os::Window& w, float pos_x, float pos_y) {}
+    void OnCursorPositionChanged(os::Window& w, float delta_x, float delta_y) {}
+
     std::unique_ptr<gl::Buffer> m_vbuffer;
     std::unique_ptr<gl::Buffer> m_ibuffer;
     std::unique_ptr<gl::VertexArray> m_obj;
