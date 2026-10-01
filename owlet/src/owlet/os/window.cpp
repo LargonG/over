@@ -12,8 +12,7 @@
 
 namespace owlet::os {
 
-Window::Window(const Settings settings, GLFWerrorfun error_callback, GLFWkeyfun key_callback)
-    : m_gl_version(settings.gl), m_self(nullptr), m_gl() {
+Window::Window(const Settings settings) : m_gl_version(settings.gl), m_self(nullptr), m_gl() {
     debug::Require(settings.gl.has_value(), "Does not support other render api's for now");
     debug::Require(settings.gl.value().major == 4 && settings.gl.value().minor == 6, "Support OpenGL 4.6 and above");
 
@@ -24,13 +23,15 @@ Window::Window(const Settings settings, GLFWerrorfun error_callback, GLFWkeyfun 
     glfwWindowHint(GLFW_SAMPLES, settings.samples);
     glfwSwapInterval(settings.swap_interval);
 
-    glfwSetErrorCallback(error_callback);
+    glfwSetErrorCallback(settings.error_callback);
 
     m_self = glfwCreateWindow(settings.width, settings.height, settings.title.data(),
                               settings.monitor.value_or(Monitor()).Raw(), nullptr);
     debug::Require(m_self, "Cannot create window");
 
-    glfwSetKeyCallback(m_self, key_callback);
+    glfwSetKeyCallback(m_self, settings.key_input_callback);
+    glfwSetWindowSizeCallback(m_self, settings.window_resize_callback);
+    glfwSetCursorPosCallback(m_self, settings.cursor_pos_callback);
 }
 
 Window::Window() noexcept : m_gl_version(), m_self(nullptr), m_gl() {}
@@ -79,6 +80,20 @@ void Window::SetCurrent() {
 gl::Context* Window::SetupGL(gl::Settings&& settings) {
     CreateContext(std::move(settings));
     return m_gl.get();
+}
+
+std::tuple<int32, int32> Window::Size() {
+    int width, height;
+    glfwGetWindowSize(m_self, &width, &height);
+    return {static_cast<int32>(width), static_cast<int32>(height)};
+}
+
+void Window::Resize(int32 width, int32 height) {
+    glfwSetWindowSize(m_self, static_cast<int>(width), static_cast<int>(height));
+}
+
+void Window::Reposition(int32 x, int32 y) {
+    glfwSetWindowPos(m_self, static_cast<int>(x), static_cast<int>(y));
 }
 
 void Window::CreateContext(gl::Settings&& settings) {

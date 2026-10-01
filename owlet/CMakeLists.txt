@@ -48,7 +48,14 @@ set(p_core
     
     gl/utils/material.cpp
 
+    engine/app.cpp
+    engine/scene.cpp
+
     3d/shape.cpp
+    3d/camera.cpp
+    3d/transform.cpp
+
+    controllers/fpv_controller.cpp
 
     debug/gl.cpp
     debug/log.cpp

@@ -31,9 +31,15 @@ struct [[nodiscard]] Window {
         std::optional<gl::Version> gl = {};
 
         std::optional<Monitor> monitor = {};
+
+        GLFWerrorfun error_callback = nullptr;
+        GLFWkeyfun key_input_callback = nullptr;
+        GLFWmousebuttonfun mouse_button_callback = nullptr;
+        GLFWcursorposfun cursor_pos_callback = nullptr;
+        GLFWwindowsizefun window_resize_callback = nullptr;
     };
 
-    Window(const Settings settings, GLFWerrorfun error_callback, GLFWkeyfun input_callback);
+    explicit Window(const Settings settings);
 
     Window(const Window&) = delete;
 
@@ -56,6 +62,10 @@ struct [[nodiscard]] Window {
         debug::Require(m_gl.get() != nullptr, "GL context has to be initialized");
         return m_gl.get();
     }
+
+    std::tuple<int32, int32> Size();
+    void Resize(int32 width, int32 height);
+    void Reposition(int32 x, int32 y);
 
   private:
     Window() noexcept;
