@@ -7,5 +7,5 @@ else()
 
 	init_submodule(libs/fmt)
 
-	add_subdirectory(${CMAKE_SOURCE_DIR}/libs/fmt ${CMAKE_BINARY_DIR}/libs/fmt EXCLUDE_FROM_ALL)
+	add_subdirectory(${CMAKE_SOURCE_DIR}/libs/fmt ${CMAKE_BINARY_DIR}/libs/fmt SYSTEM EXCLUDE_FROM_ALL)
 endif()

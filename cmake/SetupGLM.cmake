@@ -7,5 +7,5 @@ else()
 
 	init_submodule(libs/glm)
 
-	add_subdirectory(${CMAKE_SOURCE_DIR}/libs/glm ${CMAKE_BINARY_DIR}/libs/glm EXCLUDE_FROM_ALL)
+	add_subdirectory(${CMAKE_SOURCE_DIR}/libs/glm ${CMAKE_BINARY_DIR}/libs/glm SYSTEM EXCLUDE_FROM_ALL)
 endif()

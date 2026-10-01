@@ -1,9 +1,5 @@
 project(atmosphere CXX)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-
 include(utils/ConfigureSources)
 include(utils/ConfigureShaders)
 include(utils/ConfigureResources)
@@ -50,6 +46,8 @@ compile_shaders(
 add_executable(${PROJECT_NAME})
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_COMPILER "cl")
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 
 target_sources(${PROJECT_NAME}
 	PRIVATE ${p_src}
